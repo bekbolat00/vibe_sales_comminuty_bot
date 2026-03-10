@@ -15,62 +15,63 @@
             color: #fff; 
             font-family: 'Montserrat', sans-serif;
             user-select: none; -webkit-user-select: none;
-            padding-bottom: 95px; 
+            padding-bottom: 85px; /* Чуть уменьшили отступ снизу */
         }
         
-        /* Карточки */
+        /* УМЕНЬШЕННЫЕ КАРТОЧКИ 2х2 */
         .sun-card { 
             background: var(--card); 
-            border-radius: 20px; 
-            padding: 16px;
+            border-radius: 18px; 
+            padding: 14px;
             display: flex; flex-direction: column; justify-content: space-between;
-            height: 140px;
+            height: 120px; /* Было 140px */
             border: 1px solid rgba(255, 255, 255, 0.05);
             transition: transform 0.1s;
         }
         .sun-card:active { transform: scale(0.96); background: #1a1a1c; }
         
-        /* Иконки с 3D свечением */
+        /* УМЕНЬШЕННЫЕ ИКОНКИ С 3D СВЕЧЕНИЕМ */
         .img-container {
-            width: 50px; height: 50px;
-            background: #000; border-radius: 14px;
+            width: 42px; height: 42px; /* Было 50x50 */
+            background: #000; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 20px rgba(255, 107, 0, 0.2);
+            box-shadow: 0 0 15px rgba(255, 107, 0, 0.2);
             border: 1px solid rgba(255, 107, 0, 0.2);
-            font-size: 24px;
+            font-size: 20px; /* Было 24px */
         }
 
-        /* Строка поиска */
+        /* УТОНЧЕННАЯ СТРОКА ПОИСКА */
         .search-bar {
-            background: #1C1C1E; border-radius: 16px; padding: 14px 20px;
+            background: #1C1C1E; border-radius: 14px; 
+            padding: 12px 16px; /* Было 14px 20px */
             display: flex; align-items: center; gap: 10px;
-            color: #8E8E93; font-size: 14px; font-weight: 700;
+            color: #8E8E93; font-size: 13px; font-weight: 700;
         }
 
         /* Карточки списком (для профиля и курсов) */
         .list-card {
-            background: var(--card); border-radius: 20px; padding: 20px;
+            background: var(--card); border-radius: 18px; padding: 16px;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
             transition: transform 0.1s;
         }
         .list-card:active { transform: scale(0.98); }
 
-        /* ТабБар */
+        /* ТАББАР */
         .tabbar {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 90px;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; /* Было 90px */
             background: rgba(14, 14, 16, 0.98); backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255,255,255,0.05);
             display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: 20px; z-index: 1000;
+            padding-bottom: 15px; z-index: 1000;
         }
         .tab-item {
-            display: flex; flex-direction: column; align-items: center; gap: 5px;
-            color: #666; font-size: 10px; font-weight: 800; text-transform: uppercase;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            color: #666; font-size: 9px; font-weight: 800; text-transform: uppercase;
             transition: color 0.1s;
         }
         .tab-item.active { color: var(--orange); }
-        .tab-item svg { width: 22px; height: 22px; stroke-width: 2; }
+        .tab-item svg { width: 20px; height: 20px; stroke-width: 2.5; }
         
         ::-webkit-scrollbar { display: none; }
         .hidden-screen { display: none !important; }
@@ -78,67 +79,67 @@
 </head>
 <body class="max-w-md mx-auto p-4 relative">
 
-    <div id="home-screen" class="px-2">
+    <div id="home-screen" class="px-1">
         
-        <div class="flex justify-center items-center mt-4 mb-8">
-            <h1 class="text-3xl font-black tracking-tight">
+        <div class="flex justify-center items-center mt-3 mb-6">
+            <h1 class="text-2xl font-black tracking-tight">
                 v<span class="text-[#FF6B00]">i</span>be sales<span class="text-[#FF6B00]">comunity</span>
             </h1>
         </div>
 
-        <div class="search-bar mb-6" onclick="tg.showAlert('Поиск скоро будет доступен')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-5 h-5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+        <div class="search-bar mb-5" onclick="tg.showAlert('Поиск скоро будет доступен')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-4 h-4"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
             <span>Поиск по экосистеме...</span>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-8">
+        <div class="grid grid-cols-2 gap-3 mb-6">
             <div class="sun-card" onclick="tg.showAlert('Раздел Эфиры')">
                 <div class="img-container">🎙️</div>
-                <div class="text-lg font-black italic uppercase">Эфиры</div>
+                <div class="text-[15px] font-black italic uppercase tracking-wide">Эфиры</div>
             </div>
             <div class="sun-card" onclick="openSubScreen('courses-screen')">
                 <div class="img-container">🧠</div>
-                <div class="text-lg font-black italic uppercase">Курсы</div>
+                <div class="text-[15px] font-black italic uppercase tracking-wide">Курсы</div>
             </div>
             <div class="sun-card" onclick="tg.showAlert('Раздел Книги')">
                 <div class="img-container">📚</div>
-                <div class="text-lg font-black italic uppercase">Книги</div>
+                <div class="text-[15px] font-black italic uppercase tracking-wide">Книги</div>
             </div>
             <div class="sun-card" onclick="tg.showAlert('Раздел Проекты')">
                 <div class="img-container">💼</div>
-                <div class="text-lg font-black italic uppercase">Проекты</div>
+                <div class="text-[15px] font-black italic uppercase tracking-wide">Проекты</div>
             </div>
             <div class="sun-card" onclick="tg.showAlert('Раздел Бойцы')">
                 <div class="img-container">⭐️</div>
-                <div class="text-lg font-black italic uppercase">Бойцы</div>
+                <div class="text-[15px] font-black italic uppercase tracking-wide">Бойцы</div>
             </div>
             <div class="sun-card" onclick="tg.showAlert('Раздел Услуги')">
                 <div class="img-container">🤝</div>
-                <div class="text-lg font-black italic uppercase">Услуги</div>
+                <div class="text-[15px] font-black italic uppercase tracking-wide">Услуги</div>
             </div>
         </div>
 
-        <div class="mb-4 text-[11px] text-gray-500 font-bold uppercase tracking-widest px-2">Твоя статистика</div>
+        <div class="mb-3 text-[9px] text-gray-500 font-bold uppercase tracking-[0.15em] px-2">Твоя статистика</div>
         
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="bg-[#111] p-4 rounded-2xl border border-white/5">
-                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2">Продажи</div>
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-[#111] p-3.5 rounded-2xl border border-white/5">
+                <div class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-2">Продажи</div>
                 <div class="flex justify-between items-end mb-2">
-                    <div class="text-sm font-black italic">УРОВЕНЬ</div>
-                    <div class="text-sm font-black">100%</div>
+                    <div class="text-xs font-black italic">УРОВЕНЬ</div>
+                    <div class="text-xs font-black">100%</div>
                 </div>
-                <div class="w-full bg-black h-1.5 rounded-full overflow-hidden">
+                <div class="w-full bg-black h-1 rounded-full overflow-hidden">
                     <div class="bg-[#FF6B00] w-full h-full rounded-full"></div>
                 </div>
             </div>
 
-            <div class="bg-[#111] p-4 rounded-2xl border border-white/5">
-                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2">Психология</div>
+            <div class="bg-[#111] p-3.5 rounded-2xl border border-white/5">
+                <div class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-2">Психология</div>
                 <div class="flex justify-between items-end mb-2">
-                    <div class="text-sm font-black italic">УРОВЕНЬ</div>
-                    <div class="text-sm font-black">45%</div>
+                    <div class="text-xs font-black italic">УРОВЕНЬ</div>
+                    <div class="text-xs font-black">45%</div>
                 </div>
-                <div class="w-full bg-black h-1.5 rounded-full overflow-hidden">
+                <div class="w-full bg-black h-1 rounded-full overflow-hidden">
                     <div class="bg-[#FF6B00] w-[45%] h-full rounded-full"></div>
                 </div>
             </div>
@@ -147,69 +148,69 @@
 
 
     <div id="courses-screen" class="hidden-screen px-2">
-        <h2 class="text-center text-xl font-black italic uppercase mb-6 tracking-widest mt-2">Обучение</h2>
+        <h2 class="text-center text-lg font-black italic uppercase mb-5 tracking-widest mt-2">Обучение</h2>
         
         <div class="list-card" onclick="tg.showAlert('Уроки МОП')">
             <div class="flex items-center gap-4">
-                <div class="img-container w-[45px] h-[45px] text-xl">🔥</div>
+                <div class="img-container w-[40px] h-[40px] text-lg">🔥</div>
                 <div>
-                    <div class="font-black italic text-sm uppercase">Продажи (МОП)</div>
-                    <div class="text-[10px] text-gray-400 font-bold uppercase mt-1">Основы и скрипты</div>
+                    <div class="font-black italic text-[13px] uppercase">Продажи (МОП)</div>
+                    <div class="text-[9px] text-gray-400 font-bold uppercase mt-1">Основы и скрипты</div>
                 </div>
             </div>
-            <div class="text-[#FF6B00] font-black text-xl">›</div>
+            <div class="text-[#FF6B00] font-black text-lg">›</div>
         </div>
 
         <div class="list-card" onclick="tg.showAlert('Уроки РОП')">
             <div class="flex items-center gap-4">
-                <div class="img-container w-[45px] h-[45px] text-xl">📈</div>
+                <div class="img-container w-[40px] h-[40px] text-lg">📈</div>
                 <div>
-                    <div class="font-black italic text-sm uppercase">Отдел продаж (РОП)</div>
-                    <div class="text-[10px] text-gray-400 font-bold uppercase mt-1">Управление и цифры</div>
+                    <div class="font-black italic text-[13px] uppercase">Отдел продаж (РОП)</div>
+                    <div class="text-[9px] text-gray-400 font-bold uppercase mt-1">Управление и цифры</div>
                 </div>
             </div>
-            <div class="text-[#FF6B00] font-black text-xl">›</div>
+            <div class="text-[#FF6B00] font-black text-lg">›</div>
         </div>
 
         <div class="list-card" onclick="tg.showAlert('Психология')">
             <div class="flex items-center gap-4">
-                <div class="img-container w-[45px] h-[45px] text-xl">🧠</div>
+                <div class="img-container w-[40px] h-[40px] text-lg">🧠</div>
                 <div>
-                    <div class="font-black italic text-sm uppercase">Психология</div>
-                    <div class="text-[10px] text-gray-400 font-bold uppercase mt-1">Настрой, выгорание</div>
+                    <div class="font-black italic text-[13px] uppercase">Психология</div>
+                    <div class="text-[9px] text-gray-400 font-bold uppercase mt-1">Настрой, выгорание</div>
                 </div>
             </div>
-            <div class="text-[#FF6B00] font-black text-xl">›</div>
+            <div class="text-[#FF6B00] font-black text-lg">›</div>
         </div>
     </div>
 
 
     <div id="profile-screen" class="hidden-screen px-2">
-        <h2 class="text-center text-xl font-black italic uppercase mb-6 tracking-widest mt-2">Профиль</h2>
+        <h2 class="text-center text-lg font-black italic uppercase mb-5 tracking-widest mt-2">Профиль</h2>
         
-        <div class="flex items-center gap-4 mb-8 pl-2">
-            <div id="user-avatar" class="w-14 h-14 rounded-full border border-gray-700 flex items-center justify-center bg-gray-900 text-xl font-black text-gray-400">V</div>
+        <div class="flex items-center gap-4 mb-6 pl-2">
+            <div id="user-avatar" class="w-12 h-12 rounded-full border border-gray-700 flex items-center justify-center bg-gray-900 text-lg font-black text-gray-400">V</div>
             <div>
-                <h1 id="user-name" class="text-lg font-black tracking-wide uppercase italic">Загрузка...</h1>
-                <div class="text-[10px] text-[#FF6B00] font-bold uppercase tracking-wider mt-1">🔥 Резидент VIBE</div>
+                <h1 id="user-name" class="text-base font-black tracking-wide uppercase italic">Загрузка...</h1>
+                <div class="text-[9px] text-[#FF6B00] font-bold uppercase tracking-wider mt-1">🔥 Резидент VIBE</div>
             </div>
         </div>
 
-        <div class="list-card flex-col items-start relative overflow-hidden mb-4">
+        <div class="list-card flex-col items-start relative overflow-hidden mb-3">
             <div class="absolute -right-6 -top-6 w-32 h-32 bg-[#FF6B00] opacity-10 rounded-full blur-2xl"></div>
-            <div class="text-[#FF6B00] text-2xl font-black italic uppercase leading-none">Vibe</div>
-            <div class="text-2xl font-black italic uppercase mb-6 leading-none">Status</div>
+            <div class="text-[#FF6B00] text-xl font-black italic uppercase leading-none">Vibe</div>
+            <div class="text-xl font-black italic uppercase mb-5 leading-none">Status</div>
             
-            <div class="text-xl font-black uppercase mb-1">PRO</div>
-            <div class="text-xs text-gray-400 font-bold">Доступ активен</div>
+            <div class="text-lg font-black uppercase mb-1">PRO</div>
+            <div class="text-[10px] text-gray-400 font-bold">Доступ активен</div>
         </div>
 
         <div class="list-card" onclick="tg.showAlert('Твоя аналитика')">
             <div>
-                <div class="text-[9px] text-[#FF6B00] font-bold uppercase tracking-widest mb-1">Твоя аналитика</div>
-                <div class="text-lg font-black italic uppercase">Итоги месяца</div>
+                <div class="text-[8px] text-[#FF6B00] font-bold uppercase tracking-widest mb-1">Твоя аналитика</div>
+                <div class="text-base font-black italic uppercase">Итоги месяца</div>
             </div>
-            <div class="text-3xl">✨</div>
+            <div class="text-2xl">✨</div>
         </div>
     </div>
 
