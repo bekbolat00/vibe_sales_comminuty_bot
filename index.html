@@ -22,59 +22,107 @@
             transition: all 0.2s;
         }
         .premium-card:active { transform: scale(0.96); background: #1c1c1e; }
-        .icon-box { color: var(--brand-orange); }
         
         /* Скрываем скроллбар для красоты */
         ::-webkit-scrollbar { display: none; }
+        
+        /* Класс для скрытия экранов */
+        .hidden-screen { display: none !important; }
     </style>
 </head>
 <body class="p-4 max-w-md mx-auto">
 
-    <div class="flex items-center justify-between mb-8 mt-4">
-        <div class="flex items-center gap-3">
-            <div id="user-avatar" class="w-11 h-11 rounded-full border border-[#FF6B00] flex items-center justify-center bg-[#141414]">
-                <span class="text-sm font-bold text-gray-400">V</span>
+    <div id="main-screen">
+        <div class="flex items-center justify-between mb-8 mt-4">
+            <div class="flex items-center gap-3">
+                <div id="user-avatar" class="w-11 h-11 rounded-full border border-[#FF6B00] flex items-center justify-center bg-[#141414]">
+                    <span class="text-sm font-bold text-gray-400">V</span>
+                </div>
+                <div>
+                    <h1 id="user-name" class="text-sm font-black tracking-wide">Загрузка...</h1>
+                    <div class="text-[10px] text-[#FF6B00] font-bold uppercase tracking-wider mt-0.5">Vibe Resident</div>
+                </div>
             </div>
-            <div>
-                <h1 id="user-name" class="text-sm font-black tracking-wide">Загрузка...</h1>
-                <div class="text-[10px] text-[#FF6B00] font-bold uppercase tracking-wider mt-0.5">Vibe Resident</div>
+            <div class="text-lg font-black tracking-tighter">VIBE<span class="text-[#FF6B00]">.</span></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <div class="premium-card p-4 flex flex-col gap-2" onclick="openScreen('courses-screen')">
+                <div class="text-2xl mb-1">🎓</div>
+                <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Курсы</div>
+            </div>
+            <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Откроется топ резидентов')">
+                <div class="text-2xl mb-1">⭐️</div>
+                <div class="text-[11px] font-bold uppercase text-[#FF6B00] tracking-wider">Бойцы</div>
+            </div>
+            <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Проекты и вакансии')">
+                <div class="text-2xl mb-1">💼</div>
+                <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Проекты</div>
+            </div>
+            <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Заказ услуг')">
+                <div class="text-2xl mb-1">🤝</div>
+                <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Услуги</div>
+            </div>
+            <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Книги, Эфиры, Фильмы')">
+                <div class="text-2xl mb-1">📚</div>
+                <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Медиатека</div>
+            </div>
+            <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Настройки профиля')">
+                <div class="text-2xl mb-1">⚙️</div>
+                <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Профиль</div>
             </div>
         </div>
-        <div class="text-lg font-black tracking-tighter">VIBE<span class="text-[#FF6B00]">.</span></div>
     </div>
 
-    <div class="grid grid-cols-2 gap-3">
+
+    <div id="courses-screen" class="hidden-screen">
+        <h2 class="text-xl font-black mb-6 mt-2 uppercase tracking-wide">Обучение <span class="text-[#FF6B00]">VIBE</span></h2>
         
-        <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Откроются курсы')">
-            <div class="text-2xl mb-1">🎓</div>
-            <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Курсы</div>
-        </div>
+        <div class="flex flex-col gap-3">
+            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Откроются уроки для МОПов')">
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl">🔥</div>
+                    <div>
+                        <div class="font-bold text-sm">Продажи на максимум</div>
+                        <div class="text-[10px] text-gray-400 mt-1">Интенсив для МОПов</div>
+                    </div>
+                </div>
+                <div class="text-[#FF6B00] text-lg">›</div>
+            </div>
 
-        <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Откроется топ резидентов')">
-            <div class="text-2xl mb-1">⭐️</div>
-            <div class="text-[11px] font-bold uppercase text-[#FF6B00] tracking-wider">Бойцы (Топ)</div>
-        </div>
+            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Откроются уроки для РОПов')">
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl">📈</div>
+                    <div>
+                        <div class="font-bold text-sm">Управление отделом</div>
+                        <div class="text-[10px] text-gray-400 mt-1">Система для РОПов</div>
+                    </div>
+                </div>
+                <div class="text-[#FF6B00] text-lg">›</div>
+            </div>
 
-        <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Откроются проекты и вакансии')">
-            <div class="text-2xl mb-1">💼</div>
-            <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Проекты</div>
-        </div>
+            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Откроется модуль Психология')">
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl">🧠</div>
+                    <div>
+                        <div class="font-bold text-sm">Психология & Состояние</div>
+                        <div class="text-[10px] text-gray-400 mt-1">Выгорание, настрой, смыслы</div>
+                    </div>
+                </div>
+                <div class="text-[#FF6B00] text-lg">›</div>
+            </div>
 
-        <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Заказ услуг для бизнеса')">
-            <div class="text-2xl mb-1">🤝</div>
-            <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Услуги</div>
+            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Откроется модуль Найм')">
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl">🎯</div>
+                    <div>
+                        <div class="font-bold text-sm">Эффективный найм</div>
+                        <div class="text-[10px] text-gray-400 mt-1">Как собирать волчьи стаи</div>
+                    </div>
+                </div>
+                <div class="text-[#FF6B00] text-lg">›</div>
+            </div>
         </div>
-
-        <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Книги, Эфиры, Фильмы')">
-            <div class="text-2xl mb-1">📚</div>
-            <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Медиатека</div>
-        </div>
-
-        <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Настройки профиля')">
-            <div class="text-2xl mb-1">⚙️</div>
-            <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Профиль</div>
-        </div>
-
     </div>
 
     <script>
@@ -84,6 +132,7 @@
         tg.setHeaderColor('#0A0A0C');
         tg.setBackgroundColor('#0A0A0C');
 
+        // Подгружаем данные юзера
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const user = tg.initDataUnsafe.user;
             document.getElementById('user-name').innerText = user.first_name;
@@ -92,7 +141,29 @@
             document.getElementById('user-name').innerText = "Гость";
         }
 
-        function showAlert(text) { tg.showAlert(text); }
+        // Логика переключения экранов
+        function openScreen(screenId) {
+            // Скрываем главное меню
+            document.getElementById('main-screen').classList.add('hidden-screen');
+            // Показываем нужный экран
+            document.getElementById(screenId).classList.remove('hidden-screen');
+            // Включаем телеграмную кнопку "Назад"
+            tg.BackButton.show();
+        }
+
+        // Что происходит при нажатии кнопки "Назад" в Телеграме
+        tg.BackButton.onClick(() => {
+            // Прячем все второстепенные экраны
+            document.getElementById('courses-screen').classList.add('hidden-screen');
+            // Возвращаем главное меню
+            document.getElementById('main-screen').classList.remove('hidden-screen');
+            // Прячем кнопку "Назад", так как мы уже на главной
+            tg.BackButton.hide();
+        });
+
+        function showAlert(text) { 
+            tg.showAlert(text); 
+        }
     </script>
 </body>
 </html>
