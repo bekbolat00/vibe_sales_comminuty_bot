@@ -16,8 +16,8 @@
             user-select: none; -webkit-user-select: none;
             overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: none;
             height: 100vh;
-            /* Свечение зафиксировано только сверху */
-            background-image: radial-gradient(circle at 50% 0%, rgba(255, 85, 0, 0.15), transparent 70%);
+            /* Свечение строго сверху, чтобы низ был черным */
+            background-image: radial-gradient(circle at 50% -10%, rgba(255, 85, 0, 0.15), transparent 60%);
             background-attachment: fixed;
             padding-bottom: 110px;
         }
@@ -31,7 +31,6 @@
 
         .card-hero { background: linear-gradient(135deg, #FF6B00 0%, #CC4400 100%); border: none; box-shadow: 0 15px 35px -10px rgba(255, 107, 0, 0.4); }
 
-        /* PULSE АНИМАЦИИ */
         @keyframes proPulse {
             0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); }
             70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); border-color: rgba(255, 107, 0, 0.1); }
@@ -43,12 +42,12 @@
         .map-dot { width: 8px; height: 8px; background: var(--orange); border-radius: 50%; position: absolute; box-shadow: 0 0 15px var(--orange); z-index: 20; }
         .map-dot::after { content: ''; position: absolute; inset: -4px; background: var(--orange); border-radius: 50%; animation: mapPulse 2s infinite; }
 
-        /* НЕОНОВЫЙ КАЗАХСТАН */
+        /* НЕОНОВЫЙ КАЗАХСТАН (ТОЧНАЯ ГЕОМЕТРИЯ) */
         .kz-map-svg {
-            filter: drop-shadow(0 0 12px rgba(255, 85, 0, 0.5));
+            filter: drop-shadow(0 0 15px rgba(255, 85, 0, 0.4));
             stroke: var(--orange);
-            stroke-width: 1.5;
-            fill: rgba(255, 85, 0, 0.05);
+            stroke-width: 1.8;
+            fill: rgba(255, 85, 0, 0.03);
         }
 
         .tabbar {
@@ -75,7 +74,7 @@
                 v<span class="text-[#FF6B00]">i</span>be sales<span class="text-[#FF6B00]">comunity</span>
             </div>
         </div>
-        <div class="pro-badge bg-[#111] border border-gray-800 px-4 py-2 rounded-full flex items-center gap-2 shadow-[0_0_15px_rgba(255,85,0,0.1)]">
+        <div class="pro-badge bg-[#111] border border-gray-800 px-4 py-2 rounded-full flex items-center gap-2">
             <div class="w-1.5 h-1.5 bg-[#FF6B00] rounded-full shadow-[0_0_5px_#FF6B00]"></div>
             <span class="text-[10px] font-black text-white tracking-widest uppercase">PRO</span>
         </div>
@@ -157,28 +156,28 @@
         <div class="flex justify-between items-start mb-6 px-1">
             <div>
                 <h2 class="text-3xl font-black italic uppercase">VIBE WORLD</h2>
-                <div class="text-[10px] font-black text-[#FF6B00] mt-1 tracking-widest">В СЕТИ: 1,452 БОЙЦА</div>
+                <div class="text-[10px] font-black text-[#FF6B00] mt-1 tracking-widest uppercase">В сети: 1,452 бойца</div>
             </div>
-            <div class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase italic shadow-[0_0_15px_rgba(255,255,255,0.2)]">ТЫ В СЕТИ</div>
+            <button onclick="tg.showAlert('Твой статус: В СЕТИ!')" class="bg-white active:scale-95 transition-transform text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase italic shadow-[0_0_15px_rgba(255,255,255,0.2)]">ТЫ В СЕТИ</button>
         </div>
 
         <div class="bento-card h-[380px] bg-[#050505] flex items-center justify-center p-0">
             <div class="relative w-full h-full flex items-center justify-center">
                 <svg class="kz-map-svg w-[92%] h-auto" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M165,370 L140,320 L160,280 L230,230 L220,180 L280,130 L350,140 L440,110 L500,60 L580,80 L650,50 L750,70 L820,130 L850,230 L810,300 L840,360 L790,400 L720,440 L650,420 L580,450 L480,430 L380,450 L300,430 L240,450 L180,420 Z" />
+                    <path d="M120,380 L80,340 L100,280 L140,240 L210,210 L250,150 L350,140 L450,110 L500,80 L580,90 L680,60 L780,80 L880,140 L930,240 L880,350 L840,420 L750,480 L600,460 L500,480 L380,450 L250,470 L150,440 Z" />
                 </svg>
-                <div class="map-dot" style="bottom: 110px; right: 210px;"></div>
-                <div class="absolute bottom-[90px] right-[200px] text-[10px] font-black italic text-[#FF6B00]">ALM</div>
+                <div class="map-dot" style="bottom: 125px; right: 230px;"></div>
+                <div class="absolute bottom-[105px] right-[215px] text-[11px] font-black italic text-[#FF6B00]">ALM</div>
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3 mt-6">
             <div class="bento-card !p-4 border-cyan-900/30 text-center" onclick="tg.showAlert('Сигнал отправлен')">
-                <div class="text-cyan-400 font-black italic uppercase text-xs tracking-tighter">ПРИЗЕМЛИЛСЯ</div>
+                <div class="text-cyan-400 font-black italic uppercase text-xs">ПРИЗЕМЛИЛСЯ</div>
                 <div class="text-[8px] text-gray-500 font-bold uppercase mt-1">Сигнал для местных</div>
             </div>
-            <div class="bento-card !p-4 border-orange-900/30 text-center" onclick="tg.showAlert('Захват территории')">
-                <div class="text-[#FF6B00] font-black italic uppercase text-xs tracking-tighter">СТОЛИЦА</div>
+            <div class="bento-card !p-4 border-orange-900/30 text-center" onclick="tg.showAlert('Захват точки')">
+                <div class="text-[#FF6B00] font-black italic uppercase text-xs">СТОЛИЦА</div>
                 <div class="text-[8px] text-gray-500 font-bold uppercase mt-1">Захват точки</div>
             </div>
         </div>
@@ -186,7 +185,7 @@
         <div class="mt-8 space-y-4">
             <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2">Твои достижения</h4>
             <div class="grid grid-cols-2 gap-3">
-                <div class="bento-card !p-5 flex flex-col items-center gap-2 opacity-40">
+                <div class="bento-card !p-5 flex flex-col items-center gap-2 opacity-30">
                     <span class="text-2xl">🌍</span><span class="text-[8px] font-black uppercase text-center">Путешественник</span>
                 </div>
                 <div class="bento-card !p-5 flex flex-col items-center gap-2 border-[#FF6B00]/40">
@@ -222,10 +221,6 @@
         const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
         tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000');
-
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            document.getElementById('greeting').innerText = `Салам, ${tg.initDataUnsafe.user.first_name}`;
-        }
 
         const screens = ['home-screen', 'club-screen', 'map-screen', 'profile-screen'];
         function switchTab(screenId, index) {
