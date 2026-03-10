@@ -7,203 +7,234 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --brand-orange: #FF6B00; --bg-dark: #0A0A0C; --card-bg: #141414; --border-color: #1a1a1c; }
-        body { 
-            background-color: var(--bg-dark); 
-            color: #fff; 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            user-select: none; -webkit-user-select: none;
-            padding-bottom: 90px; /* Отступ под ТабБар */
-        }
-        .premium-card { 
-            background: var(--card-bg); 
-            border: 1px solid var(--border-color); 
-            border-radius: 20px; 
-            transition: all 0.2s;
-        }
-        .premium-card:active { transform: scale(0.98); background: #1c1c1e; }
+        :root { --vibe-orange: #FF6B00; }
+        body { background-color: #0A0A0C; color: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow-x: hidden; margin: 0; }
         
-        /* Свечение под балансом (как у друга, но оранжевое) */
-        .balance-glow { box-shadow: 0 10px 40px -10px rgba(255, 107, 0, 0.2); }
+        /* Логика переключения экранов */
+        .screen { display: none; min-height: 100vh; padding-bottom: 120px; }
+        .screen.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Скрываем скроллбар */
-        ::-webkit-scrollbar { display: none; }
+        /* Карточки и кнопки */
+        .card-premium { background: linear-gradient(145deg, #141414 0%, #0a0a0c 100%); border: 1px solid #1a1a1c; transition: all 0.2s ease; position: relative; overflow: hidden; }
+        .card-premium:active { transform: scale(0.96); border-color: var(--vibe-orange); }
+        .icon-container { border: 1px solid rgba(255, 107, 0, 0.2); box-shadow: 0 0 15px rgba(255, 107, 0, 0.15); }
+        .tag-vibe { background: rgba(255, 107, 0, 0.1); color: var(--vibe-orange); font-size: 10px; font-weight: bold; padding: 4px 10px; border-radius: 8px; text-transform: uppercase; }
         
-        /* Класс для скрытия экранов */
-        .hidden-screen { display: none !important; }
-
-        /* Стили для ТабБара */
-        .tabbar {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 80px;
-            background: rgba(14, 14, 16, 0.95); backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border-color);
-            display: flex; justify-content: space-around; align-items: center;
-            z-index: 1000;
-        }
-        .tab-item {
-            display: flex; flex-col; items-center; gap: 4px;
-            color: #555; font-size: 10px; font-weight: 700; text-transform: uppercase; tracking-wider;
-            transition: color 0.2s;
-        }
-        .tab-item.active { color: var(--brand-orange); }
-        .tab-item svg { width: 22px; height: 22px; }
+        /* Нижнее меню (ТабБар) */
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(10,10,12,0.95); backdrop-filter: blur(15px); border-top: 1px solid #1a1a1c; display: flex; justify-content: space-around; padding: 12px 0 32px; z-index: 1000; transition: transform 0.3s ease; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer; color: #555; }
+        .nav-item.active { color: var(--vibe-orange); }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
     </style>
 </head>
-<body class="max-w-md mx-auto relative">
+<body class="pt-6">
 
-    <div class="p-4 flex items-center justify-between sticky top-0 bg-var(--bg-dark) z-50">
-        <div class="flex items-center gap-3">
-            <div id="user-avatar" class="w-10 h-10 rounded-full border border-gray-800 flex items-center justify-center bg-gray-900">
-                <span class="text-sm font-bold text-gray-500">V</span>
-            </div>
-            <div>
-                <h1 id="user-name" class="text-xs font-black tracking-wide">Загрузка...</h1>
-                <div class="text-[9px] text-[#FF6B00] font-bold uppercase tracking-wider mt-0.5">Vibe Resident</div>
-            </div>
-        </div>
-        <div class="text-sm font-black tracking-tighter">VIBE<span class="text-[#FF6B00]">.</span></div>
-    </div>
-
-
-    <div id="home-screen" class="p-4">
-        <div class="premium-card p-6 mb-6 border-orange-900/10 balance-glow bg-gradient-to-br from-[#141414] to-[#1a110a]">
-            <div class="text-[9px] text-gray-400 font-extrabold uppercase tracking-wider mb-2">Статус резидента</div>
-            <div class="flex items-baseline gap-2">
-                <div class="text-4xl font-black text-[#FF6B00]">PRO</div>
-                <div class="text-xs font-bold text-gray-500">модулей: 4</div>
-            </div>
+    <div id="home-screen" class="screen active px-5">
+        <div class="flex flex-col items-center mb-8">
+            <h1 class="text-5xl font-black tracking-widest italic">VIBE</h1>
+            <p class="text-[10px] font-bold tracking-[0.4em] text-[#FF6B00]">SALES COMMUNITY</p>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="premium-card p-4 flex items-center gap-3">
-                <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 text-[#FF6B00]" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/><path d="M12 6v6l4 2"/></svg>
-                <div class="text-[11px] font-bold uppercase tracking-wider">История</div>
-            </div>
-            <div class="premium-card p-4 flex items-center gap-3">
-                <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 text-[#FF6B00]" stroke="currentColor" stroke-width="2"><path d="M11 20l-4-4-3-3m0 0l3-3 4-4"/><path d="M22 13v-1a10 10 0 10-10 10c2.7 0 5-1 7-3"/></svg>
-                <div class="text-[11px] font-bold uppercase tracking-wider">Доступы</div>
-            </div>
+        <div class="bg-[#141414] border border-[#1a1a1c] rounded-xl p-3 mb-8 flex items-center">
+            <span class="text-gray-500 mr-2">🔍</span>
+            <input type="text" placeholder="Поиск по экосистеме..." class="bg-transparent border-none text-white w-full focus:outline-none placeholder-gray-600 text-sm">
         </div>
 
-        <div class="border-t border-gray-900 mb-6"></div>
-
-        <p class="text-[11px] text-gray-500 px-2 font-bold uppercase tracking-wider">Последние проекты</p>
-    </div>
-
-
-    <div id="courses-screen" class="hidden-screen p-4">
-        <h2 class="text-lg font-black mb-6 uppercase tracking-wide">Модули обучения</h2>
+        <div class="grid grid-cols-2 gap-4 mb-10">
+            <div onclick="tg.showAlert('Откроются Эфиры')" class="card-premium rounded-2xl p-5 h-40 flex flex-col justify-between cursor-pointer">
+                <div class="icon-container w-12 h-12 rounded-xl flex items-center justify-center bg-[#FF6B00]/10 text-2xl">🎙️</div>
+                <div class="text-lg font-black uppercase italic mt-auto">Эфиры</div>
+            </div>
+            <div onclick="showScreen('courses-screen')" class="card-premium rounded-2xl p-5 h-40 flex flex-col justify-between cursor-pointer">
+                <div class="icon-container w-12 h-12 rounded-xl flex items-center justify-center bg-[#FF6B00]/10 text-2xl">🎓</div>
+                <div class="text-lg font-black uppercase italic mt-auto">Курсы</div>
+            </div>
+            <div onclick="tg.showAlert('Откроются Книги')" class="card-premium rounded-2xl p-5 h-40 flex flex-col justify-between cursor-pointer">
+                <div class="icon-container w-12 h-12 rounded-xl flex items-center justify-center bg-[#FF6B00]/10 text-2xl">📚</div>
+                <div class="text-lg font-black uppercase italic mt-auto">Книги</div>
+            </div>
+            <div onclick="tg.showAlert('Откроются Проекты')" class="card-premium rounded-2xl p-5 h-40 flex flex-col justify-between cursor-pointer">
+                <div class="icon-container w-12 h-12 rounded-xl flex items-center justify-center bg-[#FF6B00]/10 text-2xl">💼</div>
+                <div class="text-lg font-black uppercase italic mt-auto">Проекты</div>
+            </div>
+        </div>
         
-        <div class="flex flex-col gap-3">
-            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Уроки МОПов')">
-                <div class="flex items-center gap-4">
-                    <svg viewBox="0 0 24 24" fill="none" class="w-6 h-6 text-[#FF6B00]" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm1 14H11V8h2zM12 6.5a.7.7 0 110-1.4.7.7 0 010 1.4z"/></svg>
-                    <div>
-                        <div class="font-bold text-sm">Продажи МОП</div>
-                        <div class="text-[10px] text-gray-400 mt-0.5">База для МОП</div>
-                    </div>
+        <h3 class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4 ml-1 italic">Бизнес Услуги</h3>
+        <div onclick="tg.showAlert('Заявка на Найм КЗ')" class="card-premium rounded-2xl p-5 mb-4 border-[#FF6B00]/30 relative overflow-hidden">
+            <div class="absolute right-0 top-0 w-20 h-20 bg-[#FF6B00] opacity-20 blur-xl"></div>
+            <h3 class="font-black italic text-lg mb-1 relative z-10">Найм КЗ / Индрайвер</h3>
+            <p class="text-xs text-gray-400 font-bold mb-3 relative z-10">Найдем лучших МОПов и РОПов</p>
+            <span class="tag-vibe relative z-10">Оставить заявку</span>
+        </div>
+    </div>
+
+
+    <div id="courses-screen" class="screen px-5">
+        <h2 class="text-xl font-black uppercase text-center mb-8 mt-4 italic tracking-widest">Обучение</h2>
+        
+        <div onclick="tg.showAlert('Курс для МОПов')" class="bg-[#141414] border border-[#1a1a1c] rounded-[20px] p-4 flex items-center justify-between mb-4 cursor-pointer active:scale-95 transition-transform">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-[#FF6B00]/10 rounded-xl flex items-center justify-center text-2xl border border-[#FF6B00]/20">🔥</div>
+                <div>
+                    <h3 class="text-white font-black uppercase italic leading-tight">Продажи (МОП)</h3>
+                    <p class="text-gray-500 text-[10px] font-bold uppercase mt-1">Основы и скрипты</p>
                 </div>
-                <div class="text-[#FF6B00] text-lg">›</div>
             </div>
-            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('РОП Система')">
-                <div class="flex items-center gap-4">
-                    <svg viewBox="0 0 24 24" fill="none" class="w-6 h-6 text-[#FF6B00]" stroke="currentColor" stroke-width="2"><path d="M18 10V4H6v6"/><path d="M3 13h18"/><path d="M5 21v-8h14v8"/><path d="M10 21V13M14 21V13"/></svg>
-                    <div>
-                        <div class="font-bold text-sm">Отдел продаж РОП</div>
-                        <div class="text-[10px] text-gray-400 mt-0.5">Управление</div>
-                    </div>
+            <div class="text-[#FF6B00] font-black text-xl">›</div>
+        </div>
+
+        <div onclick="tg.showAlert('Курс для РОПов')" class="bg-[#141414] border border-[#1a1a1c] rounded-[20px] p-4 flex items-center justify-between mb-4 cursor-pointer active:scale-95 transition-transform">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-[#FF6B00]/10 rounded-xl flex items-center justify-center text-2xl border border-[#FF6B00]/20">📈</div>
+                <div>
+                    <h3 class="text-white font-black uppercase italic leading-tight">Отдел продаж (РОП)</h3>
+                    <p class="text-gray-500 text-[10px] font-bold uppercase mt-1">Управление и цифры</p>
                 </div>
-                <div class="text-[#FF6B00] text-lg">›</div>
             </div>
-            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Психология')">
-                <div class="flex items-center gap-4">
-                    <svg viewBox="0 0 24 24" fill="none" class="w-6 h-6 text-[#FF6B00]" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/><path d="M12 6v6l4 2"/></svg>
-                    <div>
-                        <div class="font-bold text-sm">Психология & Настрой</div>
-                        <div class="text-[10px] text-gray-400 mt-0.5">Смыслы, выгорание</div>
-                    </div>
+            <div class="text-[#FF6B00] font-black text-xl">›</div>
+        </div>
+
+        <div onclick="tg.showAlert('Психология')" class="bg-[#141414] border border-[#1a1a1c] rounded-[20px] p-4 flex items-center justify-between mb-4 cursor-pointer active:scale-95 transition-transform">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-[#FF6B00]/10 rounded-xl flex items-center justify-center text-2xl border border-[#FF6B00]/20">🧠</div>
+                <div>
+                    <h3 class="text-white font-black uppercase italic leading-tight">Психология</h3>
+                    <p class="text-gray-500 text-[10px] font-bold uppercase mt-1">Настрой, выгорание</p>
                 </div>
-                <div class="text-[#FF6B00] text-lg">›</div>
             </div>
-            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Найм КЗ')">
-                <div class="flex items-center gap-4">
-                    <svg viewBox="0 0 24 24" fill="none" class="w-6 h-6 text-[#FF6B00]" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M12 14c-4 0-6 2-6 2v1h12v-1s-2-2-6-2z"/></svg>
-                    <div>
-                        <div class="font-bold text-sm">Найм КЗ style</div>
-                        <div class="text-[10px] text-gray-400 mt-0.5">Найм, Индрайвер</div>
-                    </div>
+            <div class="text-[#FF6B00] font-black text-xl">›</div>
+        </div>
+        
+        <div onclick="tg.showAlert('Найм')" class="bg-[#141414] border border-[#1a1a1c] rounded-[20px] p-4 flex items-center justify-between mb-4 cursor-pointer active:scale-95 transition-transform">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-[#FF6B00]/10 rounded-xl flex items-center justify-center text-2xl border border-[#FF6B00]/20">🎯</div>
+                <div>
+                    <h3 class="text-white font-black uppercase italic leading-tight">Эффективный Найм</h3>
+                    <p class="text-gray-500 text-[10px] font-bold uppercase mt-1">Сбор команды</p>
                 </div>
-                <div class="text-[#FF6B00] text-lg">›</div>
+            </div>
+            <div class="text-[#FF6B00] font-black text-xl">›</div>
+        </div>
+    </div>
+
+
+    <div id="leaderboard-screen" class="screen px-5">
+        <h2 class="text-xl font-black uppercase text-center mb-8 mt-4 italic tracking-widest text-[#FF6B00]">Бойцы (ТОП)</h2>
+        
+        <div class="bg-gradient-to-b from-[#1a1a1c] to-[#0a0a0c] border border-[#FF6B00]/20 rounded-[24px] p-6 mb-8 relative overflow-hidden shadow-[0_0_30px_rgba(255,107,0,0.1)]">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-40 bg-[#FF6B00] opacity-10 rounded-full blur-3xl"></div>
+            
+            <div class="flex flex-col items-center justify-center relative z-10 mb-6">
+                <div class="w-20 h-20 rounded-full border-2 border-[#FF6B00] bg-[#141414] flex items-center justify-center text-3xl mb-2 drop-shadow-[0_0_15px_rgba(255,107,0,0.3)]">👑</div>
+                <div class="text-[#FF6B00] font-black uppercase tracking-wider">Top Resident</div>
+                <div class="text-white text-xs font-bold mt-1">15,000 $</div>
+                <button onclick="tg.showAlert('Запись на консультацию')" class="mt-3 px-4 py-1.5 bg-[#FF6B00] text-black text-[10px] font-black uppercase rounded-lg">Консультация</button>
+            </div>
+        </div>
+
+        <h3 class="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-4 ml-1 italic">Список бойцов</h3>
+        <div class="space-y-3 mb-20">
+            <div class="bg-[#141414] border border-[#1a1a1c] rounded-[16px] p-4 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="text-gray-600 font-black text-sm w-5 text-center">2</div>
+                    <div class="font-black uppercase italic text-xs text-gray-300">Второй Боец</div>
+                </div>
+                <div class="text-white font-black text-xs tracking-wider">12,000 <span class="text-gray-600 text-[9px]">$</span></div>
             </div>
         </div>
     </div>
 
 
-    <div id="fighters-screen" class="hidden-screen p-4">
-        <h2 class="text-lg font-black mb-6 uppercase tracking-wide">ТОП Бойцов</h2>
-        <div class="premium-card p-5 border-gray-900 flex items-center gap-4 mb-3">
-            <div class="w-10 h-10 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center font-bold text-gray-500">V</div>
+    <div id="profile-screen" class="screen px-5">
+        <h2 class="text-xl font-black uppercase text-center mb-8 mt-4 italic tracking-widest">ПРОФИЛЬ</h2>
+        <div class="flex items-center gap-4 mb-8">
+            <div id="user-avatar" class="w-16 h-16 rounded-full border border-[#FF6B00]/50 bg-[#141414] flex items-center justify-center text-2xl font-black shadow-[0_0_15px_rgba(255,107,0,0.2)]">V</div>
             <div>
-                <div class="text-sm font-bold">Vibe Resident</div>
-                <div class="text-[10px] text-gray-400 mt-0.5">Ранг: #1, Очки: 12,000</div>
+                <h2 id="user-name" class="text-2xl font-black italic uppercase">Загрузка...</h2>
+                <div class="flex items-center text-[#FF6B00] text-xs font-bold mt-1 uppercase tracking-wider"><span class="mr-1">🔥</span> Резидент VIBE</div>
             </div>
         </div>
-        <button class="w-full text-center py-4 text-xs font-bold text-[#FF6B00] bg-gray-900/50 rounded-xl" onclick="showAlert('Консультация')">Хочу консультацию</button>
+        
+        <div class="card-premium rounded-[24px] p-6 mb-8 border-[#FF6B00]/20 relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-[#FF6B00] opacity-10 rounded-full blur-2xl"></div>
+            <div class="flex justify-between items-start mb-8 relative z-10">
+                <h3 class="text-4xl font-black italic tracking-tighter text-[#FF6B00] drop-shadow-md">VIBE<br><span class="text-white">STATUS</span></h3>
+            </div>
+            <div class="flex justify-between items-end relative z-10">
+                <div>
+                    <div class="text-2xl font-bold text-white mb-1">PRO</div>
+                    <div class="text-sm text-gray-400 font-medium">Доступ активен</div>
+                </div>
+            </div>
+        </div>
     </div>
 
 
-    <div class="tabbar">
-        <div class="tab-item active" onclick="switchTab('home-screen', this)">
+    <nav class="nav-bar">
+        <div onclick="showScreen('home-screen')" class="nav-item active" id="nav-home">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            <span>Главная</span>
+            <span class="text-[9px] font-bold uppercase mt-1">Домой</span>
         </div>
-        <div class="tab-item" onclick="switchTab('courses-screen', this)">
+        <div onclick="showScreen('courses-screen')" class="nav-item" id="nav-courses">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm1 14H11V8h2zM12 6.5a.7.7 0 110-1.4.7.7 0 010 1.4z"/></svg>
-            <span>Обучение</span>
+            <span class="text-[9px] font-bold uppercase mt-1">Курсы</span>
         </div>
-        <div class="tab-item" onclick="switchTab('fighters-screen', this)">
+        <div onclick="showScreen('leaderboard-screen')" class="nav-item" id="nav-leaderboard">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19H5a2 2 0 01-2-2V7a2 2 0 012-2h4l2-2h2l2 2h4a2 2 0 012 2v10a2 2 0 01-2 2h-4m-6 0v-4h4v4m-4 0h4"/></svg>
-            <span>Бойцы</span>
+            <span class="text-[9px] font-bold uppercase mt-1">Топ</span>
         </div>
-    </div>
+        <div onclick="showScreen('profile-screen')" class="nav-item" id="nav-profile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="text-[9px] font-bold uppercase mt-1">Профиль</span>
+        </div>
+    </nav>
 
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
+        tg.ready(); 
+        tg.expand(); 
         tg.setHeaderColor('#0A0A0C');
         tg.setBackgroundColor('#0A0A0C');
 
-        // Подгружаем данные юзера
+        // Данные юзера из Телеграма
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const user = tg.initDataUnsafe.user;
             document.getElementById('user-name').innerText = user.first_name;
-            document.getElementById('user-avatar').innerHTML = `<span class="text-sm font-bold text-gray-400">${user.first_name.charAt(0)}</span>`;
+            document.getElementById('user-avatar').innerText = user.first_name.charAt(0);
         } else {
             document.getElementById('user-name').innerText = "Гость";
         }
 
-        // --- ЛОГИКА ТАББАРА v2.0 (SPA switcher) ---
-        function switchTab(screenId, tabElement) {
-            // 1. Скрываем вообще все экраны
-            document.getElementById('home-screen').classList.add('hidden-screen');
-            document.getElementById('courses-screen').classList.add('hidden-screen');
-            document.getElementById('fighters-screen').classList.add('hidden-screen');
-
-            // 2. Показываем нужный экран
-            document.getElementById(screenId).classList.remove('hidden-screen');
-
-            // 3. Переключаем активный статус иконкам
-            const tabs = document.querySelectorAll('.tab-item');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            tabElement.classList.add('active');
-
-            // Управляем кнопкой Назад (убираем её, так как навигация через ТабБар)
-            tg.BackButton.hide();
+        // Логика переключения экранов (как в SUN)
+        function showScreen(screenId) {
+            // Скрываем все экраны
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // Показываем нужный
+            document.getElementById(screenId).classList.add('active');
+            
+            // Убираем подсветку со всех кнопок меню
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            
+            // Подсвечиваем нужную кнопку
+            if(screenId === 'home-screen') document.getElementById('nav-home').classList.add('active');
+            if(screenId === 'courses-screen') document.getElementById('nav-courses').classList.add('active');
+            if(screenId === 'leaderboard-screen') document.getElementById('nav-leaderboard').classList.add('active');
+            if(screenId === 'profile-screen') document.getElementById('nav-profile').classList.add('active');
+            
+            // Управляем кнопкой "Назад" в самом Телеграме
+            if (screenId === 'home-screen') {
+                tg.BackButton.hide();
+            } else {
+                tg.BackButton.show();
+            }
         }
 
-        function showAlert(text) { tg.showAlert(text); }
+        // Логика кнопки "Назад" в Телеграме (всегда возвращает Домой)
+        tg.BackButton.onClick(() => {
+            showScreen('home-screen');
+        });
     </script>
 </body>
 </html>
