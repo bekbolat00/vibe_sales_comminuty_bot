@@ -20,12 +20,17 @@
             background-color: var(--bg); color: #fff; 
             font-family: 'Montserrat', sans-serif;
             user-select: none; -webkit-user-select: none;
-            /* Отступ снизу, чтобы скролл работал идеально */
-            padding-bottom: 140px; 
             background-image: radial-gradient(circle at 50% 0%, rgba(255, 85, 0, 0.15), transparent 50%);
+            
+            /* ========================================= */
+            /* МАГИЯ ИДЕАЛЬНОГО СКРОЛЛА ДЛЯ АЙФОНОВ      */
+            /* ========================================= */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch; /* Инерция скролла (скольжение) */
+            overscroll-behavior-y: none; /* Отключаем резинку Телеграма */
+            height: 100vh; /* Фиксируем высоту для правильной работы скролла */
         }
         
-        /* Эффект матового стекла для карточек (Bento Box) */
         .bento-card {
             background: var(--glass);
             backdrop-filter: blur(20px);
@@ -39,14 +44,12 @@
         }
         .bento-card:active { transform: scale(0.97); background: rgba(30, 30, 30, 0.8); }
 
-        /* Специальная оранжевая карточка (Hero) */
         .card-hero {
             background: linear-gradient(135deg, #FF6B00 0%, #CC4400 100%);
             border: none;
             box-shadow: 0 15px 35px -10px rgba(255, 107, 0, 0.5);
         }
 
-        /* Анимация пульсации для PRO статуса */
         @keyframes subtlePulse {
             0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); }
             70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); }
@@ -54,10 +57,8 @@
         }
         .pro-badge { animation: subtlePulse 2s infinite; }
 
-        /* Иконки нового поколения */
         .neo-icon { font-size: 32px; line-height: 1; margin-bottom: 12px; display: inline-block; }
 
-        /* ТабБар (премиум стекло) */
         .tabbar {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 90px;
             background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
@@ -78,140 +79,141 @@
         .hidden-screen { display: none !important; }
     </style>
 </head>
-<body class="max-w-md mx-auto p-4 relative">
+<body class="max-w-md mx-auto relative">
 
-    <div class="flex justify-between items-end mt-4 mb-8 px-1">
-        <div>
-            <div class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-1" id="greeting">Салам, Гость</div>
-            <div class="text-2xl font-black tracking-tighter lowercase">
-                v<span class="text-[#FF6B00]">i</span>be sales<span class="text-[#FF6B00]">comunity</span>
+    <div class="px-4 pt-4">
+
+        <div class="flex justify-between items-end mt-2 mb-8 px-1">
+            <div>
+                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-1" id="greeting">Салам, Гость</div>
+                <div class="text-2xl font-black tracking-tighter lowercase">
+                    v<span class="text-[#FF6B00]">i</span>be sales<span class="text-[#FF6B00]">comunity</span>
+                </div>
+            </div>
+            <div class="pro-badge bg-[#111] border border-[#FF6B00]/30 px-4 py-2 rounded-full flex items-center gap-2" onclick="tg.showAlert('Твой статус: PRO')">
+                <div class="w-2 h-2 bg-[#FF6B00] rounded-full"></div>
+                <span class="text-xs font-black text-white">PRO</span>
             </div>
         </div>
-        <div class="pro-badge bg-[#111] border border-[#FF6B00]/30 px-4 py-2 rounded-full flex items-center gap-2" onclick="tg.showAlert('Твой статус: PRO')">
-            <div class="w-2 h-2 bg-[#FF6B00] rounded-full"></div>
-            <span class="text-xs font-black text-white">PRO</span>
-        </div>
-    </div>
 
-
-    <div id="home-screen">
-        
-        <div class="grid grid-cols-2 gap-3 mb-6">
+        <div id="home-screen">
             
-            <div class="bento-card card-hero col-span-2 flex justify-between items-center h-36" onclick="openSubScreen('courses-screen')">
-                <div class="z-10">
-                    <div class="text-white/80 text-[10px] font-bold uppercase tracking-widest mb-2">Академия</div>
-                    <h2 class="text-3xl font-black italic uppercase leading-none mb-1">Обучение</h2>
-                    <p class="text-xs font-medium text-white/90">Доступно 4 модуля</p>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <div class="bento-card card-hero col-span-2 flex justify-between items-center h-36" onclick="openSubScreen('courses-screen')">
+                    <div class="z-10">
+                        <div class="text-white/80 text-[10px] font-bold uppercase tracking-widest mb-2">Академия</div>
+                        <h2 class="text-3xl font-black italic uppercase leading-none mb-1">Обучение</h2>
+                        <p class="text-xs font-medium text-white/90">Доступно 4 модуля</p>
+                    </div>
+                    <div class="z-10 bg-white/20 backdrop-blur-md w-14 h-14 rounded-full flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 ml-1 text-white"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
                 </div>
-                <div class="z-10 bg-white/20 backdrop-blur-md w-14 h-14 rounded-full flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 ml-1 text-white"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-            </div>
 
-            <div class="bento-card flex flex-col justify-end h-32" onclick="tg.showAlert('Раздел Эфиры')">
-                <div class="absolute top-4 left-4 neo-icon">🎙️</div>
-                <div>
-                    <h3 class="text-base font-black italic uppercase">Эфиры</h3>
-                    <p class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Записи созвонов</p>
-                </div>
-            </div>
-
-            <div class="bento-card flex flex-col justify-end h-32" onclick="tg.showAlert('База знаний')">
-                <div class="absolute top-4 left-4 neo-icon">📚</div>
-                <div>
-                    <h3 class="text-base font-black italic uppercase">Книги</h3>
-                    <p class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Библиотека</p>
-                </div>
-            </div>
-
-            <div class="bento-card flex flex-col justify-end h-32" onclick="tg.showAlert('Проекты и Вакансии')">
-                <div class="absolute top-4 left-4 neo-icon">💼</div>
-                <div>
-                    <h3 class="text-base font-black italic uppercase">Проекты</h3>
-                    <p class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Личный HH.kz</p>
-                </div>
-            </div>
-
-            <div class="bento-card flex flex-col justify-end h-32" onclick="tg.showAlert('Топ резидентов')">
-                <div class="absolute top-4 left-4 neo-icon">⭐</div>
-                <div>
-                    <h3 class="text-base font-black italic uppercase text-[#FF6B00]">Бойцы</h3>
-                    <p class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Рейтинг клуба</p>
-                </div>
-            </div>
-        </div>
-
-        <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.15em] ml-2 mb-3 mt-4">Твой прогресс</h4>
-        
-        <div class="grid grid-cols-2 gap-3 mb-4">
-            <div class="bento-card !p-4">
-                <div class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-2">Продажи</div>
-                <div class="flex justify-between items-end mb-2">
-                    <div class="text-xs font-black italic">УРОВЕНЬ</div>
-                    <div class="text-xs font-black">100%</div>
-                </div>
-                <div class="w-full bg-black/50 h-1.5 rounded-full overflow-hidden border border-white/5">
-                    <div class="bg-gradient-to-r from-[#FF6B00] to-[#ff9900] w-full h-full rounded-full shadow-[0_0_10px_#FF6B00]"></div>
-                </div>
-            </div>
-
-            <div class="bento-card !p-4">
-                <div class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-2">Психология</div>
-                <div class="flex justify-between items-end mb-2">
-                    <div class="text-xs font-black italic">УРОВЕНЬ</div>
-                    <div class="text-xs font-black">45%</div>
-                </div>
-                <div class="w-full bg-black/50 h-1.5 rounded-full overflow-hidden border border-white/5">
-                    <div class="bg-gradient-to-r from-[#FF6B00] to-[#ff9900] w-[45%] h-full rounded-full shadow-[0_0_10px_#FF6B00]"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <div id="courses-screen" class="hidden-screen px-1">
-        <h2 class="text-3xl font-black italic uppercase mb-6 mt-2">Обучение</h2>
-        
-        <div class="flex flex-col gap-3">
-            <div class="bento-card flex items-center justify-between p-4" onclick="tg.showAlert('МОП')">
-                <div class="flex items-center gap-4">
-                    <div class="text-3xl">🔥</div>
+                <div class="bento-card flex flex-col justify-end h-32" onclick="tg.showAlert('Раздел Эфиры')">
+                    <div class="absolute top-4 left-4 neo-icon">🎙️</div>
                     <div>
-                        <div class="font-black italic text-base uppercase">Продажи (МОП)</div>
-                        <div class="text-[10px] text-[#FF6B00] font-bold uppercase mt-1 tracking-wider">База</div>
+                        <h3 class="text-base font-black italic uppercase">Эфиры</h3>
+                        <p class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Записи созвонов</p>
+                    </div>
+                </div>
+
+                <div class="bento-card flex flex-col justify-end h-32" onclick="tg.showAlert('База знаний')">
+                    <div class="absolute top-4 left-4 neo-icon">📚</div>
+                    <div>
+                        <h3 class="text-base font-black italic uppercase">Книги</h3>
+                        <p class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Библиотека</p>
+                    </div>
+                </div>
+
+                <div class="bento-card flex flex-col justify-end h-32" onclick="tg.showAlert('Проекты и Вакансии')">
+                    <div class="absolute top-4 left-4 neo-icon">💼</div>
+                    <div>
+                        <h3 class="text-base font-black italic uppercase">Проекты</h3>
+                        <p class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Личный HH.kz</p>
+                    </div>
+                </div>
+
+                <div class="bento-card flex flex-col justify-end h-32" onclick="tg.showAlert('Топ резидентов')">
+                    <div class="absolute top-4 left-4 neo-icon">⭐</div>
+                    <div>
+                        <h3 class="text-base font-black italic uppercase text-[#FF6B00]">Бойцы</h3>
+                        <p class="text-[8px] text-gray-400 font-bold uppercase tracking-wider">Рейтинг клуба</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bento-card flex items-center justify-between p-4" onclick="tg.showAlert('РОП')">
-                <div class="flex items-center gap-4">
-                    <div class="text-3xl">📈</div>
-                    <div>
-                        <div class="font-black italic text-base uppercase">Отдел продаж</div>
-                        <div class="text-[10px] text-[#FF6B00] font-bold uppercase mt-1 tracking-wider">Для РОПов</div>
+            <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.15em] ml-2 mb-3 mt-4">Твой прогресс</h4>
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bento-card !p-4">
+                    <div class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-2">Продажи</div>
+                    <div class="flex justify-between items-end mb-2">
+                        <div class="text-xs font-black italic">УРОВЕНЬ</div>
+                        <div class="text-xs font-black">100%</div>
+                    </div>
+                    <div class="w-full bg-black/50 h-1.5 rounded-full overflow-hidden border border-white/5">
+                        <div class="bg-gradient-to-r from-[#FF6B00] to-[#ff9900] w-full h-full rounded-full shadow-[0_0_10px_#FF6B00]"></div>
                     </div>
                 </div>
-            </div>
 
-            <div class="bento-card flex items-center justify-between p-4" onclick="tg.showAlert('Психология')">
-                <div class="flex items-center gap-4">
-                    <div class="text-3xl">🧠</div>
-                    <div>
-                        <div class="font-black italic text-base uppercase">Психология</div>
-                        <div class="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-wider">Выгорание</div>
+                <div class="bento-card !p-4">
+                    <div class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-2">Психология</div>
+                    <div class="flex justify-between items-end mb-2">
+                        <div class="text-xs font-black italic">УРОВЕНЬ</div>
+                        <div class="text-xs font-black">45%</div>
+                    </div>
+                    <div class="w-full bg-black/50 h-1.5 rounded-full overflow-hidden border border-white/5">
+                        <div class="bg-gradient-to-r from-[#FF6B00] to-[#ff9900] w-[45%] h-full rounded-full shadow-[0_0_10px_#FF6B00]"></div>
                     </div>
                 </div>
             </div>
+            
+            <div class="h-32 w-full"></div>
         </div>
-    </div>
 
-    <div id="club-screen" class="hidden-screen p-4 text-center text-gray-600 font-bold mt-20">Раздел Клуб</div>
-    <div id="chat-screen" class="hidden-screen p-4 text-center text-gray-600 font-bold mt-20">Раздел Чаты</div>
-    <div id="profile-screen" class="hidden-screen p-4 text-center text-gray-600 font-bold mt-20">Раздел Профиль</div>
+        <div id="courses-screen" class="hidden-screen">
+            <h2 class="text-3xl font-black italic uppercase mb-6 mt-2">Обучение</h2>
+            
+            <div class="flex flex-col gap-3">
+                <div class="bento-card flex items-center justify-between p-4" onclick="tg.showAlert('МОП')">
+                    <div class="flex items-center gap-4">
+                        <div class="text-3xl">🔥</div>
+                        <div>
+                            <div class="font-black italic text-base uppercase">Продажи (МОП)</div>
+                            <div class="text-[10px] text-[#FF6B00] font-bold uppercase mt-1 tracking-wider">База</div>
+                        </div>
+                    </div>
+                </div>
 
-    <div class="tabbar">
+                <div class="bento-card flex items-center justify-between p-4" onclick="tg.showAlert('РОП')">
+                    <div class="flex items-center gap-4">
+                        <div class="text-3xl">📈</div>
+                        <div>
+                            <div class="font-black italic text-base uppercase">Отдел продаж</div>
+                            <div class="text-[10px] text-[#FF6B00] font-bold uppercase mt-1 tracking-wider">Для РОПов</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bento-card flex items-center justify-between p-4" onclick="tg.showAlert('Психология')">
+                    <div class="flex items-center gap-4">
+                        <div class="text-3xl">🧠</div>
+                        <div>
+                            <div class="font-black italic text-base uppercase">Психология</div>
+                            <div class="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-wider">Выгорание</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="h-32 w-full"></div>
+        </div>
+
+        <div id="club-screen" class="hidden-screen p-4 text-center text-gray-600 font-bold mt-20">Раздел Клуб</div>
+        <div id="chat-screen" class="hidden-screen p-4 text-center text-gray-600 font-bold mt-20">Раздел Чаты</div>
+        <div id="profile-screen" class="hidden-screen p-4 text-center text-gray-600 font-bold mt-20">Раздел Профиль</div>
+
+    </div> <div class="tabbar">
         <div class="tab-item active" onclick="switchTab('home-screen', 0)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
             <span>Домой</span>
@@ -234,6 +236,8 @@
         const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
         tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000');
+        // Говорим Телеграму, что мы сами управляем свайпами
+        if (tg.isVersionAtLeast('6.1')) { tg.enableClosingConfirmation(); }
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             document.getElementById('greeting').innerText = `Салам, ${tg.initDataUnsafe.user.first_name}`;
@@ -250,7 +254,7 @@
             if(tabIndex !== undefined) tabs[tabIndex].classList.add('active');
             
             tg.BackButton.hide();
-            window.scrollTo({top: 0, behavior: 'smooth'});
+            document.body.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function openSubScreen(screenId) {
@@ -259,7 +263,7 @@
             
             document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
             tg.BackButton.show();
-            window.scrollTo({top: 0, behavior: 'smooth'});
+            document.body.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         tg.BackButton.onClick(() => { switchTab('home-screen', 0); });
