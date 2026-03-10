@@ -7,123 +7,166 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --brand-orange: #FF6B00; --bg-dark: #0A0A0C; --card-bg: #141414; }
+        :root { --brand-orange: #FF6B00; --bg-dark: #0A0A0C; --card-bg: #141414; --border-color: #1a1a1c; }
         body { 
             background-color: var(--bg-dark); 
             color: #fff; 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             user-select: none; -webkit-user-select: none;
-            padding-bottom: 30px;
+            padding-bottom: 90px; /* Отступ под ТабБар */
         }
         .premium-card { 
             background: var(--card-bg); 
-            border: 1px solid #1a1a1c; 
-            border-radius: 16px; 
+            border: 1px solid var(--border-color); 
+            border-radius: 20px; 
             transition: all 0.2s;
         }
-        .premium-card:active { transform: scale(0.96); background: #1c1c1e; }
+        .premium-card:active { transform: scale(0.98); background: #1c1c1e; }
         
-        /* Скрываем скроллбар для красоты */
+        /* Свечение под балансом (как у друга, но оранжевое) */
+        .balance-glow { box-shadow: 0 10px 40px -10px rgba(255, 107, 0, 0.2); }
+        
+        /* Скрываем скроллбар */
         ::-webkit-scrollbar { display: none; }
         
         /* Класс для скрытия экранов */
         .hidden-screen { display: none !important; }
+
+        /* Стили для ТабБара */
+        .tabbar {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 80px;
+            background: rgba(14, 14, 16, 0.95); backdrop-filter: blur(10px);
+            border-top: 1px solid var(--border-color);
+            display: flex; justify-content: space-around; align-items: center;
+            z-index: 1000;
+        }
+        .tab-item {
+            display: flex; flex-col; items-center; gap: 4px;
+            color: #555; font-size: 10px; font-weight: 700; text-transform: uppercase; tracking-wider;
+            transition: color 0.2s;
+        }
+        .tab-item.active { color: var(--brand-orange); }
+        .tab-item svg { width: 22px; height: 22px; }
     </style>
 </head>
-<body class="p-4 max-w-md mx-auto">
+<body class="max-w-md mx-auto relative">
 
-    <div id="main-screen">
-        <div class="flex items-center justify-between mb-8 mt-4">
-            <div class="flex items-center gap-3">
-                <div id="user-avatar" class="w-11 h-11 rounded-full border border-[#FF6B00] flex items-center justify-center bg-[#141414]">
-                    <span class="text-sm font-bold text-gray-400">V</span>
-                </div>
-                <div>
-                    <h1 id="user-name" class="text-sm font-black tracking-wide">Загрузка...</h1>
-                    <div class="text-[10px] text-[#FF6B00] font-bold uppercase tracking-wider mt-0.5">Vibe Resident</div>
-                </div>
+    <div class="p-4 flex items-center justify-between sticky top-0 bg-var(--bg-dark) z-50">
+        <div class="flex items-center gap-3">
+            <div id="user-avatar" class="w-10 h-10 rounded-full border border-gray-800 flex items-center justify-center bg-gray-900">
+                <span class="text-sm font-bold text-gray-500">V</span>
             </div>
-            <div class="text-lg font-black tracking-tighter">VIBE<span class="text-[#FF6B00]">.</span></div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-            <div class="premium-card p-4 flex flex-col gap-2" onclick="openScreen('courses-screen')">
-                <div class="text-2xl mb-1">🎓</div>
-                <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Курсы</div>
-            </div>
-            <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Откроется топ резидентов')">
-                <div class="text-2xl mb-1">⭐️</div>
-                <div class="text-[11px] font-bold uppercase text-[#FF6B00] tracking-wider">Бойцы</div>
-            </div>
-            <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Проекты и вакансии')">
-                <div class="text-2xl mb-1">💼</div>
-                <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Проекты</div>
-            </div>
-            <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Заказ услуг')">
-                <div class="text-2xl mb-1">🤝</div>
-                <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Услуги</div>
-            </div>
-            <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Книги, Эфиры, Фильмы')">
-                <div class="text-2xl mb-1">📚</div>
-                <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Медиатека</div>
-            </div>
-            <div class="premium-card p-4 flex flex-col gap-2" onclick="showAlert('Настройки профиля')">
-                <div class="text-2xl mb-1">⚙️</div>
-                <div class="text-[11px] font-bold uppercase text-gray-300 tracking-wider">Профиль</div>
+            <div>
+                <h1 id="user-name" class="text-xs font-black tracking-wide">Загрузка...</h1>
+                <div class="text-[9px] text-[#FF6B00] font-bold uppercase tracking-wider mt-0.5">Vibe Resident</div>
             </div>
         </div>
+        <div class="text-sm font-black tracking-tighter">VIBE<span class="text-[#FF6B00]">.</span></div>
     </div>
 
 
-    <div id="courses-screen" class="hidden-screen">
-        <h2 class="text-xl font-black mb-6 mt-2 uppercase tracking-wide">Обучение <span class="text-[#FF6B00]">VIBE</span></h2>
+    <div id="home-screen" class="p-4">
+        <div class="premium-card p-6 mb-6 border-orange-900/10 balance-glow bg-gradient-to-br from-[#141414] to-[#1a110a]">
+            <div class="text-[9px] text-gray-400 font-extrabold uppercase tracking-wider mb-2">Статус резидента</div>
+            <div class="flex items-baseline gap-2">
+                <div class="text-4xl font-black text-[#FF6B00]">PRO</div>
+                <div class="text-xs font-bold text-gray-500">модулей: 4</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="premium-card p-4 flex items-center gap-3">
+                <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 text-[#FF6B00]" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/><path d="M12 6v6l4 2"/></svg>
+                <div class="text-[11px] font-bold uppercase tracking-wider">История</div>
+            </div>
+            <div class="premium-card p-4 flex items-center gap-3">
+                <svg viewBox="0 0 24 24" fill="none" class="w-5 h-5 text-[#FF6B00]" stroke="currentColor" stroke-width="2"><path d="M11 20l-4-4-3-3m0 0l3-3 4-4"/><path d="M22 13v-1a10 10 0 10-10 10c2.7 0 5-1 7-3"/></svg>
+                <div class="text-[11px] font-bold uppercase tracking-wider">Доступы</div>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-900 mb-6"></div>
+
+        <p class="text-[11px] text-gray-500 px-2 font-bold uppercase tracking-wider">Последние проекты</p>
+    </div>
+
+
+    <div id="courses-screen" class="hidden-screen p-4">
+        <h2 class="text-lg font-black mb-6 uppercase tracking-wide">Модули обучения</h2>
         
         <div class="flex flex-col gap-3">
-            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Откроются уроки для МОПов')">
+            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Уроки МОПов')">
                 <div class="flex items-center gap-4">
-                    <div class="text-3xl">🔥</div>
+                    <svg viewBox="0 0 24 24" fill="none" class="w-6 h-6 text-[#FF6B00]" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm1 14H11V8h2zM12 6.5a.7.7 0 110-1.4.7.7 0 010 1.4z"/></svg>
                     <div>
-                        <div class="font-bold text-sm">Продажи на максимум</div>
-                        <div class="text-[10px] text-gray-400 mt-1">Интенсив для МОПов</div>
+                        <div class="font-bold text-sm">Продажи МОП</div>
+                        <div class="text-[10px] text-gray-400 mt-0.5">База для МОП</div>
                     </div>
                 </div>
                 <div class="text-[#FF6B00] text-lg">›</div>
             </div>
-
-            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Откроются уроки для РОПов')">
+            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('РОП Система')">
                 <div class="flex items-center gap-4">
-                    <div class="text-3xl">📈</div>
+                    <svg viewBox="0 0 24 24" fill="none" class="w-6 h-6 text-[#FF6B00]" stroke="currentColor" stroke-width="2"><path d="M18 10V4H6v6"/><path d="M3 13h18"/><path d="M5 21v-8h14v8"/><path d="M10 21V13M14 21V13"/></svg>
                     <div>
-                        <div class="font-bold text-sm">Управление отделом</div>
-                        <div class="text-[10px] text-gray-400 mt-1">Система для РОПов</div>
+                        <div class="font-bold text-sm">Отдел продаж РОП</div>
+                        <div class="text-[10px] text-gray-400 mt-0.5">Управление</div>
                     </div>
                 </div>
                 <div class="text-[#FF6B00] text-lg">›</div>
             </div>
-
-            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Откроется модуль Психология')">
+            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Психология')">
                 <div class="flex items-center gap-4">
-                    <div class="text-3xl">🧠</div>
+                    <svg viewBox="0 0 24 24" fill="none" class="w-6 h-6 text-[#FF6B00]" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 18a8 8 0 118-8 8 8 0 01-8 8z"/><path d="M12 6v6l4 2"/></svg>
                     <div>
-                        <div class="font-bold text-sm">Психология & Состояние</div>
-                        <div class="text-[10px] text-gray-400 mt-1">Выгорание, настрой, смыслы</div>
+                        <div class="font-bold text-sm">Психология & Настрой</div>
+                        <div class="text-[10px] text-gray-400 mt-0.5">Смыслы, выгорание</div>
                     </div>
                 </div>
                 <div class="text-[#FF6B00] text-lg">›</div>
             </div>
-
-            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Откроется модуль Найм')">
+            <div class="premium-card p-4 flex items-center justify-between" onclick="showAlert('Найм КЗ')">
                 <div class="flex items-center gap-4">
-                    <div class="text-3xl">🎯</div>
+                    <svg viewBox="0 0 24 24" fill="none" class="w-6 h-6 text-[#FF6B00]" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M12 14c-4 0-6 2-6 2v1h12v-1s-2-2-6-2z"/></svg>
                     <div>
-                        <div class="font-bold text-sm">Эффективный найм</div>
-                        <div class="text-[10px] text-gray-400 mt-1">Как собирать волчьи стаи</div>
+                        <div class="font-bold text-sm">Найм КЗ style</div>
+                        <div class="text-[10px] text-gray-400 mt-0.5">Найм, Индрайвер</div>
                     </div>
                 </div>
                 <div class="text-[#FF6B00] text-lg">›</div>
             </div>
         </div>
     </div>
+
+
+    <div id="fighters-screen" class="hidden-screen p-4">
+        <h2 class="text-lg font-black mb-6 uppercase tracking-wide">ТОП Бойцов</h2>
+        <div class="premium-card p-5 border-gray-900 flex items-center gap-4 mb-3">
+            <div class="w-10 h-10 rounded-full bg-gray-900 border border-gray-800 flex items-center justify-center font-bold text-gray-500">V</div>
+            <div>
+                <div class="text-sm font-bold">Vibe Resident</div>
+                <div class="text-[10px] text-gray-400 mt-0.5">Ранг: #1, Очки: 12,000</div>
+            </div>
+        </div>
+        <button class="w-full text-center py-4 text-xs font-bold text-[#FF6B00] bg-gray-900/50 rounded-xl" onclick="showAlert('Консультация')">Хочу консультацию</button>
+    </div>
+
+
+    <div class="tabbar">
+        <div class="tab-item active" onclick="switchTab('home-screen', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span>Главная</span>
+        </div>
+        <div class="tab-item" onclick="switchTab('courses-screen', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm1 14H11V8h2zM12 6.5a.7.7 0 110-1.4.7.7 0 010 1.4z"/></svg>
+            <span>Обучение</span>
+        </div>
+        <div class="tab-item" onclick="switchTab('fighters-screen', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19H5a2 2 0 01-2-2V7a2 2 0 012-2h4l2-2h2l2 2h4a2 2 0 012 2v10a2 2 0 01-2 2h-4m-6 0v-4h4v4m-4 0h4"/></svg>
+            <span>Бойцы</span>
+        </div>
+    </div>
+
 
     <script>
         const tg = window.Telegram.WebApp;
@@ -136,34 +179,31 @@
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const user = tg.initDataUnsafe.user;
             document.getElementById('user-name').innerText = user.first_name;
-            document.getElementById('user-avatar').innerHTML = `<span class="text-lg font-black text-white">${user.first_name.charAt(0)}</span>`;
+            document.getElementById('user-avatar').innerHTML = `<span class="text-sm font-bold text-gray-400">${user.first_name.charAt(0)}</span>`;
         } else {
             document.getElementById('user-name').innerText = "Гость";
         }
 
-        // Логика переключения экранов
-        function openScreen(screenId) {
-            // Скрываем главное меню
-            document.getElementById('main-screen').classList.add('hidden-screen');
-            // Показываем нужный экран
-            document.getElementById(screenId).classList.remove('hidden-screen');
-            // Включаем телеграмную кнопку "Назад"
-            tg.BackButton.show();
-        }
-
-        // Что происходит при нажатии кнопки "Назад" в Телеграме
-        tg.BackButton.onClick(() => {
-            // Прячем все второстепенные экраны
+        // --- ЛОГИКА ТАББАРА v2.0 (SPA switcher) ---
+        function switchTab(screenId, tabElement) {
+            // 1. Скрываем вообще все экраны
+            document.getElementById('home-screen').classList.add('hidden-screen');
             document.getElementById('courses-screen').classList.add('hidden-screen');
-            // Возвращаем главное меню
-            document.getElementById('main-screen').classList.remove('hidden-screen');
-            // Прячем кнопку "Назад", так как мы уже на главной
-            tg.BackButton.hide();
-        });
+            document.getElementById('fighters-screen').classList.add('hidden-screen');
 
-        function showAlert(text) { 
-            tg.showAlert(text); 
+            // 2. Показываем нужный экран
+            document.getElementById(screenId).classList.remove('hidden-screen');
+
+            // 3. Переключаем активный статус иконкам
+            const tabs = document.querySelectorAll('.tab-item');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            tabElement.classList.add('active');
+
+            // Управляем кнопкой Назад (убираем её, так как навигация через ТабБар)
+            tg.BackButton.hide();
         }
+
+        function showAlert(text) { tg.showAlert(text); }
     </script>
 </body>
 </html>
