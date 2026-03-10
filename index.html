@@ -18,7 +18,7 @@
             padding-bottom: 95px; 
         }
         
-        /* Карточки 2х2 */
+        /* Карточки */
         .sun-card { 
             background: var(--card); 
             border-radius: 20px; 
@@ -91,7 +91,7 @@
             <span>Поиск по экосистеме...</span>
         </div>
 
-        <div class="grid grid-cols-2 gap-4 mb-6">
+        <div class="grid grid-cols-2 gap-4 mb-8">
             <div class="sun-card" onclick="tg.showAlert('Раздел Эфиры')">
                 <div class="img-container">🎙️</div>
                 <div class="text-lg font-black italic uppercase">Эфиры</div>
@@ -108,13 +108,40 @@
                 <div class="img-container">💼</div>
                 <div class="text-lg font-black italic uppercase">Проекты</div>
             </div>
+            <div class="sun-card" onclick="tg.showAlert('Раздел Бойцы')">
+                <div class="img-container">⭐️</div>
+                <div class="text-lg font-black italic uppercase">Бойцы</div>
+            </div>
+            <div class="sun-card" onclick="tg.showAlert('Раздел Услуги')">
+                <div class="img-container">🤝</div>
+                <div class="text-lg font-black italic uppercase">Услуги</div>
+            </div>
         </div>
 
-        <div class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3 ml-1">Бизнес услуги</div>
-        <div class="bg-gradient-to-br from-[#1a110a] to-[#0a0a0c] p-5 rounded-2xl border border-[#FF6B00]/20" onclick="tg.showAlert('Заявка на найм')">
-            <h3 class="text-lg font-black italic mb-1">Найм КЗ / Индрайвер</h3>
-            <p class="text-xs text-gray-400 font-bold mb-4">Найдем лучших МОПов и РОПов</p>
-            <div class="bg-[#FF6B00] text-black text-xs font-black uppercase text-center py-2.5 rounded-xl w-40">Оставить заявку</div>
+        <div class="mb-4 text-[11px] text-gray-500 font-bold uppercase tracking-widest px-2">Твоя статистика</div>
+        
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-[#111] p-4 rounded-2xl border border-white/5">
+                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2">Продажи</div>
+                <div class="flex justify-between items-end mb-2">
+                    <div class="text-sm font-black italic">УРОВЕНЬ</div>
+                    <div class="text-sm font-black">100%</div>
+                </div>
+                <div class="w-full bg-black h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-[#FF6B00] w-full h-full rounded-full"></div>
+                </div>
+            </div>
+
+            <div class="bg-[#111] p-4 rounded-2xl border border-white/5">
+                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-2">Психология</div>
+                <div class="flex justify-between items-end mb-2">
+                    <div class="text-sm font-black italic">УРОВЕНЬ</div>
+                    <div class="text-sm font-black">45%</div>
+                </div>
+                <div class="w-full bg-black h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-[#FF6B00] w-[45%] h-full rounded-full"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -216,7 +243,6 @@
         tg.ready(); tg.expand();
         tg.setHeaderColor('#050505'); tg.setBackgroundColor('#050505');
 
-        // Подгрузка данных из ТГ
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const user = tg.initDataUnsafe.user;
             document.getElementById('user-name').innerText = user.first_name;
@@ -227,14 +253,10 @@
 
         const allScreens = ['home-screen', 'club-screen', 'chat-screen', 'profile-screen', 'courses-screen'];
 
-        // Функция для ТабБара (Главные разделы)
         function switchTab(screenId, tabIndex) {
-            // Прячем все экраны
             allScreens.forEach(id => document.getElementById(id).classList.add('hidden-screen'));
-            // Показываем нужный
             document.getElementById(screenId).classList.remove('hidden-screen');
 
-            // Подсвечиваем иконку в меню
             const tabs = document.querySelectorAll('.tab-item');
             tabs.forEach(tab => tab.classList.remove('active'));
             if(tabIndex !== undefined) {
@@ -244,20 +266,17 @@
             tg.BackButton.hide();
         }
 
-        // Функция для внутренних страниц (например, Курсы)
         function openSubScreen(screenId) {
             allScreens.forEach(id => document.getElementById(id).classList.add('hidden-screen'));
             document.getElementById(screenId).classList.remove('hidden-screen');
             
-            // Снимаем подсветку с ТабБара, так как мы "провалились" внутрь
             document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
             
             tg.BackButton.show();
         }
 
-        // Логика кнопки "Назад" в самом Телеграме
         tg.BackButton.onClick(() => {
-            switchTab('home-screen', 0); // Возвращаемся домой
+            switchTab('home-screen', 0);
         });
     </script>
 </body>
