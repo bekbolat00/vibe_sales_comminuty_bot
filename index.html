@@ -3,75 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VIBE Sales</title>
+    <title>VIBE Premium</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,700;0,900;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,700;0,900;1,900&display=swap" rel="stylesheet">
     
     <style>
-        :root { --orange: #FF6B00; --bg: #050505; --card: #111111; }
+        :root { 
+            --orange: #FF5500; /* Чуть более агрессивный оранжевый */
+            --bg: #000000; /* Настоящий OLED черный */
+            --glass: rgba(20, 20, 20, 0.6); 
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+        
         body { 
-            background-color: var(--bg); 
-            color: #fff; 
+            background-color: var(--bg); color: #fff; 
             font-family: 'Montserrat', sans-serif;
             user-select: none; -webkit-user-select: none;
-            padding-bottom: 85px; /* Чуть уменьшили отступ снизу */
+            padding-bottom: 120px; 
+            background-image: radial-gradient(circle at 50% 0%, rgba(255, 85, 0, 0.15), transparent 50%);
         }
         
-        /* УМЕНЬШЕННЫЕ КАРТОЧКИ 2х2 */
-        .sun-card { 
-            background: var(--card); 
-            border-radius: 18px; 
-            padding: 14px;
-            display: flex; flex-direction: column; justify-content: space-between;
-            height: 120px; /* Было 140px */
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: transform 0.1s;
+        /* Эффект матового стекла для карточек (Bento Box) */
+        .bento-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px; /* Более круглые, дорогие углы как в iOS */
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
-        .sun-card:active { transform: scale(0.96); background: #1a1a1c; }
-        
-        /* УМЕНЬШЕННЫЕ ИКОНКИ С 3D СВЕЧЕНИЕМ */
-        .img-container {
-            width: 42px; height: 42px; /* Было 50x50 */
-            background: #000; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 15px rgba(255, 107, 0, 0.2);
-            border: 1px solid rgba(255, 107, 0, 0.2);
-            font-size: 20px; /* Было 24px */
+        .bento-card:active { transform: scale(0.97); background: rgba(30, 30, 30, 0.8); }
+
+        /* Специальная оранжевая карточка (Hero) */
+        .card-hero {
+            background: linear-gradient(135deg, #FF6B00 0%, #CC4400 100%);
+            border: none;
+            box-shadow: 0 15px 35px -10px rgba(255, 107, 0, 0.5);
         }
 
-        /* УТОНЧЕННАЯ СТРОКА ПОИСКА */
-        .search-bar {
-            background: #1C1C1E; border-radius: 14px; 
-            padding: 12px 16px; /* Было 14px 20px */
-            display: flex; align-items: center; gap: 10px;
-            color: #8E8E93; font-size: 13px; font-weight: 700;
+        /* Анимация пульсации для PRO статуса */
+        @keyframes subtlePulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0); }
         }
+        .pro-badge { animation: subtlePulse 2s infinite; }
 
-        /* Карточки списком (для профиля и курсов) */
-        .list-card {
-            background: var(--card); border-radius: 18px; padding: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
-            transition: transform 0.1s;
-        }
-        .list-card:active { transform: scale(0.98); }
+        /* Иконки нового поколения (без рамок, просто крупные эмодзи или текст) */
+        .neo-icon { font-size: 32px; line-height: 1; margin-bottom: 12px; display: inline-block; }
 
-        /* ТАББАР */
+        /* ТабБар (премиум стекло) */
         .tabbar {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; /* Было 90px */
-            background: rgba(14, 14, 16, 0.98); backdrop-filter: blur(10px);
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 90px;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
             border-top: 1px solid rgba(255,255,255,0.05);
             display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: 15px; z-index: 1000;
+            padding-bottom: 20px; z-index: 1000;
         }
         .tab-item {
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            color: #666; font-size: 9px; font-weight: 800; text-transform: uppercase;
-            transition: color 0.1s;
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            color: #555; font-size: 10px; font-weight: 800; text-transform: uppercase;
+            transition: all 0.3s;
         }
-        .tab-item.active { color: var(--orange); }
-        .tab-item svg { width: 20px; height: 20px; stroke-width: 2.5; }
+        .tab-item.active { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        .tab-item.active svg { stroke: var(--orange); drop-shadow: 0 0 5px var(--orange); }
+        .tab-item svg { width: 24px; height: 24px; stroke-width: 2; transition: all 0.3s; }
         
         ::-webkit-scrollbar { display: none; }
         .hidden-screen { display: none !important; }
@@ -79,145 +79,119 @@
 </head>
 <body class="max-w-md mx-auto p-4 relative">
 
-    <div id="home-screen" class="px-1">
-        
-        <div class="flex justify-center items-center mt-3 mb-6">
-            <h1 class="text-2xl font-black tracking-tight">
-                v<span class="text-[#FF6B00]">i</span>be sales<span class="text-[#FF6B00]">comunity</span>
-            </h1>
-        </div>
-
-        <div class="search-bar mb-5" onclick="tg.showAlert('Поиск скоро будет доступен')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-4 h-4"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
-            <span>Поиск по экосистеме...</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="sun-card" onclick="tg.showAlert('Раздел Эфиры')">
-                <div class="img-container">🎙️</div>
-                <div class="text-[15px] font-black italic uppercase tracking-wide">Эфиры</div>
-            </div>
-            <div class="sun-card" onclick="openSubScreen('courses-screen')">
-                <div class="img-container">🧠</div>
-                <div class="text-[15px] font-black italic uppercase tracking-wide">Курсы</div>
-            </div>
-            <div class="sun-card" onclick="tg.showAlert('Раздел Книги')">
-                <div class="img-container">📚</div>
-                <div class="text-[15px] font-black italic uppercase tracking-wide">Книги</div>
-            </div>
-            <div class="sun-card" onclick="tg.showAlert('Раздел Проекты')">
-                <div class="img-container">💼</div>
-                <div class="text-[15px] font-black italic uppercase tracking-wide">Проекты</div>
-            </div>
-            <div class="sun-card" onclick="tg.showAlert('Раздел Бойцы')">
-                <div class="img-container">⭐️</div>
-                <div class="text-[15px] font-black italic uppercase tracking-wide">Бойцы</div>
-            </div>
-            <div class="sun-card" onclick="tg.showAlert('Раздел Услуги')">
-                <div class="img-container">🤝</div>
-                <div class="text-[15px] font-black italic uppercase tracking-wide">Услуги</div>
+    <div class="flex justify-between items-end mt-4 mb-8 px-1">
+        <div>
+            <div class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-1" id="greeting">Салам, Гость</div>
+            <div class="text-2xl font-black tracking-tighter lowercase">
+                v<span class="text-[#FF6B00] relative">i<span class="absolute w-1.5 h-1.5 bg-[#FF6B00] rounded-full -top-0.5 right-[1px] shadow-[0_0_8px_#FF6B00]"></span></span>be sales<span class="text-[#FF6B00]">comunity</span>
             </div>
         </div>
-
-        <div class="mb-3 text-[9px] text-gray-500 font-bold uppercase tracking-[0.15em] px-2">Твоя статистика</div>
-        
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <div class="bg-[#111] p-3.5 rounded-2xl border border-white/5">
-                <div class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-2">Продажи</div>
-                <div class="flex justify-between items-end mb-2">
-                    <div class="text-xs font-black italic">УРОВЕНЬ</div>
-                    <div class="text-xs font-black">100%</div>
-                </div>
-                <div class="w-full bg-black h-1 rounded-full overflow-hidden">
-                    <div class="bg-[#FF6B00] w-full h-full rounded-full"></div>
-                </div>
-            </div>
-
-            <div class="bg-[#111] p-3.5 rounded-2xl border border-white/5">
-                <div class="text-[9px] text-gray-500 font-bold uppercase tracking-wider mb-2">Психология</div>
-                <div class="flex justify-between items-end mb-2">
-                    <div class="text-xs font-black italic">УРОВЕНЬ</div>
-                    <div class="text-xs font-black">45%</div>
-                </div>
-                <div class="w-full bg-black h-1 rounded-full overflow-hidden">
-                    <div class="bg-[#FF6B00] w-[45%] h-full rounded-full"></div>
-                </div>
-            </div>
+        <div class="pro-badge bg-[#111] border border-[#FF6B00]/30 px-4 py-2 rounded-full flex items-center gap-2" onclick="tg.showAlert('Твой статус: PRO')">
+            <div class="w-2 h-2 bg-[#FF6B00] rounded-full"></div>
+            <span class="text-xs font-black text-white">PRO</span>
         </div>
     </div>
 
 
-    <div id="courses-screen" class="hidden-screen px-2">
-        <h2 class="text-center text-lg font-black italic uppercase mb-5 tracking-widest mt-2">Обучение</h2>
+    <div id="home-screen">
         
-        <div class="list-card" onclick="tg.showAlert('Уроки МОП')">
-            <div class="flex items-center gap-4">
-                <div class="img-container w-[40px] h-[40px] text-lg">🔥</div>
-                <div>
-                    <div class="font-black italic text-[13px] uppercase">Продажи (МОП)</div>
-                    <div class="text-[9px] text-gray-400 font-bold uppercase mt-1">Основы и скрипты</div>
-                </div>
-            </div>
-            <div class="text-[#FF6B00] font-black text-lg">›</div>
-        </div>
-
-        <div class="list-card" onclick="tg.showAlert('Уроки РОП')">
-            <div class="flex items-center gap-4">
-                <div class="img-container w-[40px] h-[40px] text-lg">📈</div>
-                <div>
-                    <div class="font-black italic text-[13px] uppercase">Отдел продаж (РОП)</div>
-                    <div class="text-[9px] text-gray-400 font-bold uppercase mt-1">Управление и цифры</div>
-                </div>
-            </div>
-            <div class="text-[#FF6B00] font-black text-lg">›</div>
-        </div>
-
-        <div class="list-card" onclick="tg.showAlert('Психология')">
-            <div class="flex items-center gap-4">
-                <div class="img-container w-[40px] h-[40px] text-lg">🧠</div>
-                <div>
-                    <div class="font-black italic text-[13px] uppercase">Психология</div>
-                    <div class="text-[9px] text-gray-400 font-bold uppercase mt-1">Настрой, выгорание</div>
-                </div>
-            </div>
-            <div class="text-[#FF6B00] font-black text-lg">›</div>
-        </div>
-    </div>
-
-
-    <div id="profile-screen" class="hidden-screen px-2">
-        <h2 class="text-center text-lg font-black italic uppercase mb-5 tracking-widest mt-2">Профиль</h2>
-        
-        <div class="flex items-center gap-4 mb-6 pl-2">
-            <div id="user-avatar" class="w-12 h-12 rounded-full border border-gray-700 flex items-center justify-center bg-gray-900 text-lg font-black text-gray-400">V</div>
-            <div>
-                <h1 id="user-name" class="text-base font-black tracking-wide uppercase italic">Загрузка...</h1>
-                <div class="text-[9px] text-[#FF6B00] font-bold uppercase tracking-wider mt-1">🔥 Резидент VIBE</div>
-            </div>
-        </div>
-
-        <div class="list-card flex-col items-start relative overflow-hidden mb-3">
-            <div class="absolute -right-6 -top-6 w-32 h-32 bg-[#FF6B00] opacity-10 rounded-full blur-2xl"></div>
-            <div class="text-[#FF6B00] text-xl font-black italic uppercase leading-none">Vibe</div>
-            <div class="text-xl font-black italic uppercase mb-5 leading-none">Status</div>
+        <div class="grid grid-cols-2 gap-3 mb-3">
             
-            <div class="text-lg font-black uppercase mb-1">PRO</div>
-            <div class="text-[10px] text-gray-400 font-bold">Доступ активен</div>
+            <div class="bento-card card-hero col-span-2 flex justify-between items-center h-36" onclick="openSubScreen('courses-screen')">
+                <div class="z-10">
+                    <div class="text-white/80 text-[10px] font-bold uppercase tracking-widest mb-2">Академия</div>
+                    <h2 class="text-3xl font-black italic uppercase leading-none mb-1">Обучение</h2>
+                    <p class="text-xs font-medium text-white/90">Доступно 4 модуля</p>
+                </div>
+                <div class="z-10 bg-white/20 backdrop-blur-md w-14 h-14 rounded-full flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 ml-1 text-white"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+            </div>
+
+            <div class="bento-card flex flex-col justify-end h-36" onclick="tg.showAlert('Раздел Эфиры')">
+                <div class="absolute top-4 left-4 neo-icon">🎙️</div>
+                <div>
+                    <h3 class="text-lg font-black italic uppercase">Эфиры</h3>
+                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Записи созвонов</p>
+                </div>
+            </div>
+
+            <div class="bento-card flex flex-col justify-end h-36" onclick="tg.showAlert('База знаний')">
+                <div class="absolute top-4 left-4 neo-icon">📚</div>
+                <div>
+                    <h3 class="text-lg font-black italic uppercase">Книги</h3>
+                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wider">Библиотека</p>
+                </div>
+            </div>
+
+            <div class="bento-card col-span-2 flex items-center justify-between" onclick="tg.showAlert('Проекты и Вакансии')">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-[#111] rounded-2xl flex items-center justify-center text-xl border border-white/5">💼</div>
+                    <div>
+                        <h3 class="text-base font-black italic uppercase">Мои Проекты</h3>
+                        <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mt-0.5">Личный HH.kz</p>
+                    </div>
+                </div>
+                <div class="text-gray-600">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><path d="M9 5l7 7-7 7"/></svg>
+                </div>
+            </div>
         </div>
 
-        <div class="list-card" onclick="tg.showAlert('Твоя аналитика')">
-            <div>
-                <div class="text-[8px] text-[#FF6B00] font-bold uppercase tracking-widest mb-1">Твоя аналитика</div>
-                <div class="text-base font-black italic uppercase">Итоги месяца</div>
+        <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.15em] ml-2 mb-2 mt-6">Для бизнеса</h4>
+        <div class="bento-card border-[#FF6B00]/20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#2a1100] to-transparent" onclick="tg.showAlert('Заказ услуг')">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-xl font-black italic uppercase mb-1">Услуги & Найм</h3>
+                    <p class="text-xs text-gray-400 mb-4 max-w-[80%]">Напишем скрипт, наймем лучших КЗ и РОПов в твою команду.</p>
+                </div>
+                <div class="neo-icon">🤝</div>
             </div>
-            <div class="text-2xl">✨</div>
+            <div class="bg-white text-black text-[11px] font-black uppercase text-center py-3 rounded-xl w-full">Заказать услугу</div>
         </div>
     </div>
 
 
-    <div id="club-screen" class="hidden-screen p-4 text-center text-gray-500 font-bold mt-10">Раздел Клуб в разработке...</div>
-    <div id="chat-screen" class="hidden-screen p-4 text-center text-gray-500 font-bold mt-10">Раздел Чаты в разработке...</div>
+    <div id="courses-screen" class="hidden-screen px-1">
+        <h2 class="text-3xl font-black italic uppercase mb-6 mt-2">Обучение</h2>
+        
+        <div class="flex flex-col gap-3">
+            <div class="bento-card flex items-center justify-between p-4" onclick="tg.showAlert('МОП')">
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl">🔥</div>
+                    <div>
+                        <div class="font-black italic text-base uppercase">Продажи (МОП)</div>
+                        <div class="text-[10px] text-[#FF6B00] font-bold uppercase mt-1 tracking-wider">База</div>
+                    </div>
+                </div>
+            </div>
 
+            <div class="bento-card flex items-center justify-between p-4" onclick="tg.showAlert('РОП')">
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl">📈</div>
+                    <div>
+                        <div class="font-black italic text-base uppercase">Отдел продаж</div>
+                        <div class="text-[10px] text-[#FF6B00] font-bold uppercase mt-1 tracking-wider">Для РОПов</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bento-card flex items-center justify-between p-4" onclick="tg.showAlert('Психология')">
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl">🧠</div>
+                    <div>
+                        <div class="font-black italic text-base uppercase">Психология</div>
+                        <div class="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-wider">Выгорание</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="club-screen" class="hidden-screen p-4 text-center text-gray-600 font-bold mt-20">Раздел Клуб</div>
+    <div id="chat-screen" class="hidden-screen p-4 text-center text-gray-600 font-bold mt-20">Раздел Чаты</div>
+    <div id="profile-screen" class="hidden-screen p-4 text-center text-gray-600 font-bold mt-20">Раздел Профиль</div>
 
     <div class="tabbar">
         <div class="tab-item active" onclick="switchTab('home-screen', 0)">
@@ -238,18 +212,13 @@
         </div>
     </div>
 
-
     <script>
         const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
-        tg.setHeaderColor('#050505'); tg.setBackgroundColor('#050505');
+        tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000');
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            const user = tg.initDataUnsafe.user;
-            document.getElementById('user-name').innerText = user.first_name;
-            document.getElementById('user-avatar').innerHTML = user.first_name.charAt(0);
-        } else {
-            document.getElementById('user-name').innerText = "Гость";
+            document.getElementById('greeting').innerText = `Салам, ${tg.initDataUnsafe.user.first_name}`;
         }
 
         const allScreens = ['home-screen', 'club-screen', 'chat-screen', 'profile-screen', 'courses-screen'];
@@ -260,11 +229,10 @@
 
             const tabs = document.querySelectorAll('.tab-item');
             tabs.forEach(tab => tab.classList.remove('active'));
-            if(tabIndex !== undefined) {
-                tabs[tabIndex].classList.add('active');
-            }
+            if(tabIndex !== undefined) tabs[tabIndex].classList.add('active');
             
             tg.BackButton.hide();
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
         function openSubScreen(screenId) {
@@ -272,13 +240,11 @@
             document.getElementById(screenId).classList.remove('hidden-screen');
             
             document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
-            
             tg.BackButton.show();
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        tg.BackButton.onClick(() => {
-            switchTab('home-screen', 0);
-        });
+        tg.BackButton.onClick(() => { switchTab('home-screen', 0); });
     </script>
 </body>
 </html>
