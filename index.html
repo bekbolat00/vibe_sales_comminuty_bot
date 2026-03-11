@@ -35,28 +35,26 @@
         }
         .pro-badge { animation: proPulse 2s infinite; }
 
-        /* ================= ИСПРАВЛЕННЫЙ ASTANA HUB STYLE STORIES v8.3 ================= */
+        /* STORIES */
         .story-item {
-            /* Исправили размер, чтобы не сжимались */
             width: 90px; height: 120px; border-radius: 24px; padding: 3px;
             border: 2px solid var(--orange); filter: drop-shadow(0 0 12px rgba(255, 107, 0, 0.7));
             background: #000;
         }
         .story-item img { width: 100%; height: 100%; border-radius: 20px; object-fit: cover; }
         
-        /* PLAYER STORIES */
         #story-player { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; }
         .progress-bar-container { display: flex; gap: 4px; position: absolute; top: 15px; left: 10px; right: 10px; z-index: 10; }
         .progress-segment { flex: 1; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
         .progress-fill { height: 100%; background: #fff; width: 0%; transition: width linear; }
 
-        /* Карта */
+        /* КАРТА */
         .kz-map-svg { filter: drop-shadow(0 0 15px rgba(255, 85, 0, 0.4)); stroke: var(--orange); stroke-width: 1.8; fill: rgba(255, 85, 0, 0.03); }
         .map-dot { width: 8px; height: 8px; background: var(--orange); border-radius: 50%; position: absolute; box-shadow: 0 0 15px var(--orange); z-index: 20; }
         @keyframes mapPulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(4); opacity: 0; } }
         .map-dot::after { content: ''; position: absolute; inset: -4px; background: var(--orange); border-radius: 50%; animation: mapPulse 2s infinite; }
 
-        /* Таббар */
+        /* ТАББАР */
         .tabbar {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 90px;
             background: rgba(0, 0, 0, 0.96); backdrop-filter: blur(25px);
@@ -71,6 +69,13 @@
         .hidden-screen { display: none !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .bottom-spacer { height: 120px; width: 100%; }
+
+        /* Бейдж Ранга в Профиле */
+        .rank-badge {
+            background: linear-gradient(135deg, #FF6B00 0%, #aa3300 100%);
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.5), 0 10px 30px -10px rgba(255,107,0,0.8);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
     </style>
 </head>
 <body class="max-w-md mx-auto relative p-4">
@@ -88,7 +93,7 @@
 
     <div id="home-screen" class="space-y-3">
         <div class="grid grid-cols-2 gap-3 mb-3">
-            <div class="bento-card bg-gradient-to-br from-[#FF6B00] to-[#CC4400] border-none col-span-2 h-36 flex justify-between items-center" onclick="tg.showAlert('Академия VIBE скоро')">
+            <div class="bento-card bg-gradient-to-br from-[#FF6B00] to-[#CC4400] border-none col-span-2 h-36 flex justify-between items-center" onclick="tg.showAlert('Обучение скоро')">
                 <div><div class="text-white/80 text-[10px] font-bold uppercase tracking-widest mb-1">Академия</div><h2 class="text-3xl font-black italic uppercase leading-none">Обучение</h2></div>
                 <div class="bg-white/20 w-14 h-14 rounded-full flex items-center justify-center"><svg viewBox="0 0 24 24" fill="white" class="w-6 h-6"><path d="M8 5v14l11-7z"/></svg></div>
             </div>
@@ -154,82 +159,110 @@
         <div class="bottom-spacer"></div>
     </div>
 
-    <div id="profile-screen" class="hidden-screen">
-        <h2 class="text-3xl font-black italic uppercase mb-6 px-1">Профиль</h2>
+
+    <div id="profile-screen" class="hidden-screen px-1">
         
-        <div class="bento-card flex items-center gap-5 mb-4 border-[#FF6B00]/20 bg-gradient-to-br from-[#111] to-black">
-            <div class="w-20 h-20 rounded-2xl bg-gray-900 border border-white/5 flex items-center justify-center text-3xl font-black text-gray-700 overflow-hidden" id="avatar-container">
-                <span id="avatar-text">V</span>
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-full bg-gray-900 border-2 border-[#FF6B00] flex items-center justify-center text-xl font-black text-white shadow-[0_0_10px_rgba(255,107,0,0.3)]" id="avatar-container">Б</div>
+                <div>
+                    <h2 class="text-xl font-black italic uppercase leading-none" id="user-name-profile">Бекболат</h2>
+                    <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-1 block">ID: VIBE.042</span>
+                </div>
             </div>
-            <div>
-                <h3 class="text-2xl font-black italic uppercase leading-none mb-2" id="user-name-profile">Бекболат</h3>
-                <div class="flex items-center gap-2">
-                    <div class="bg-[#FF6B00] text-black text-[9px] font-black px-2 py-1 rounded uppercase tracking-tighter inline-block">VIBE RESIDENT</div>
-                    <span class="text-gray-600 text-[10px] font-bold">#00042</span>
+            <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 active:scale-90 transition-transform" onclick="tg.showAlert('Настройки профиля')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </div>
+        </div>
+
+        <div class="bento-card border-[#FF6B00]/30 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#2a1305] to-[#050505] p-5 mb-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-[11px] text-gray-400 font-bold uppercase tracking-widest">Мой рейтинг</h3>
+                <span class="text-[9px] text-[#FF6B00] font-black uppercase">Система Лиг ›</span>
+            </div>
+            
+            <div class="flex flex-col items-center mb-8 relative">
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-[#FF6B00] rounded-full blur-[40px] opacity-40"></div>
+                <div class="rank-badge w-24 h-24 mb-4 flex items-center justify-center relative z-10">
+                    <span class="text-4xl drop-shadow-md">🐺</span>
+                </div>
+                <h2 class="text-3xl font-black italic uppercase text-white tracking-wide z-10 drop-shadow-lg">Платиновый</h2>
+            </div>
+
+            <div class="flex justify-between text-[10px] font-black text-gray-400 mb-2 uppercase">
+                <span>1400</span>
+                <span class="text-white text-lg leading-none tracking-tighter">1600 баллов</span>
+                <span>1999</span>
+            </div>
+            <div class="w-full bg-black h-2 rounded-full border border-white/10 mb-5 overflow-hidden">
+                <div class="bg-gradient-to-r from-[#FF6B00] to-[#ffaa00] w-[40%] h-full rounded-full shadow-[0_0_10px_#FF6B00]"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-black/40 rounded-2xl p-3 border border-white/5 flex flex-col items-center justify-center text-center">
+                    <div class="text-[#FF6B00] text-xl mb-1 drop-shadow-[0_0_5px_#FF6B00]">🔥</div>
+                    <div class="text-sm font-black uppercase italic">8 недель</div>
+                    <div class="text-[8px] text-gray-500 uppercase font-bold mt-1 tracking-widest">Активный режим</div>
+                </div>
+                <div class="bg-black/40 rounded-2xl p-3 border border-white/5 flex flex-col items-center justify-center text-center" onclick="tg.showAlert('Если не заходить неделю, рейтинг начнет сгорать')">
+                    <div class="text-gray-600 text-xl mb-1">⚠️</div>
+                    <div class="text-[10px] font-bold text-gray-400 mt-1 leading-tight">Бездействие<br>сжигает рейтинг</div>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-6 px-1">
-            <div class="bento-card !p-4 flex flex-col items-center justify-center text-center border-[#FF6B00]/10">
-                <div class="text-[9px] text-gray-500 font-bold uppercase mb-1">Ранг</div>
-                <div class="text-xl font-black italic uppercase text-[#FF6B00]">MOP</div>
-                <div class="text-[8px] text-gray-400 mt-1 uppercase font-bold">Sales Man</div>
+        <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-1 mb-3 mt-6">Твоя статистика</h4>
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bento-card !p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="text-3xl font-black italic">78</div>
+                    <span class="text-xl">🎙️</span>
+                </div>
+                <div class="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Эфиров посещено</div>
             </div>
-            <div class="bento-card !p-4 flex flex-col items-center justify-center text-center border-[#FF6B00]/10">
-                <div class="text-[9px] text-gray-500 font-bold uppercase mb-1">Vibe Score</div>
-                <div class="text-xl font-black italic uppercase text-[#FF6B00]">1,280</div>
-                <div class="text-[8px] text-gray-400 mt-1 uppercase font-bold">Points</div>
-            </div>
-            <div class="bento-card !p-4 flex flex-col items-center justify-center text-center border-[#FF6B00]/10">
-                <div class="text-[9px] text-gray-500 font-bold uppercase mb-1">С нами</div>
-                <div class="text-xl font-black italic uppercase text-[#FF6B00]">51 ДЕНЬ</div>
-                <div class="text-[8px] text-gray-400 mt-1 uppercase font-bold">Боевой путь</div>
+            <div class="bento-card !p-4 border-[#FF6B00]/20">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="text-3xl font-black italic text-[#FF6B00]">19</div>
+                    <span class="text-xl">🎯</span>
+                </div>
+                <div class="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Заданий сдано</div>
             </div>
         </div>
 
-        <div class="px-1 mb-6">
-            <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-1 mb-3">Достижения (Achiements)</h4>
+        <div class="bento-card !p-5 mb-4 bg-[#0a0a0a]">
+            <div class="flex justify-between items-center mb-5">
+                <h3 class="text-[11px] text-white font-black uppercase tracking-widest">Достижения</h3>
+                <span class="text-[9px] text-[#FF6B00] font-black uppercase">34 Получено ›</span>
+            </div>
             <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-                <div class="bento-card flex flex-col items-center gap-2 flex-shrink-0 w-24 p-3 border-[#FF6B00]/30 shadow-[0_0_15px_rgba(255,85,0,0.1)]">
-                    <span class="text-2xl">🏆</span>
-                    <div class="text-[8px] font-black uppercase text-[#FF6B00] text-center tracking-tighter">Early Adopter</div>
+                
+                <div class="bg-black rounded-2xl p-3 border border-white/5 min-w-[110px] flex flex-col items-center shrink-0">
+                    <div class="w-12 h-12 mb-2 opacity-50 text-3xl flex items-center justify-center grayscale">🤝</div>
+                    <div class="text-[9px] font-black uppercase text-center mb-1 text-gray-300 tracking-tighter">Напарник</div>
+                    <div class="text-[8px] font-bold text-gray-500 mb-2 uppercase">1 из 5 созвонов</div>
+                    <div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden"><div class="bg-blue-500 w-[20%] h-full rounded-full"></div></div>
                 </div>
-                <div class="bento-card flex flex-col items-center gap-2 flex-shrink-0 w-24 p-3 border-[#FF6B00]/30 shadow-[0_0_15px_rgba(255,85,0,0.1)]">
-                    <span class="text-2xl">🔥</span>
-                    <div class="text-[8px] font-black uppercase text-[#FF6B00] text-center tracking-tighter">Сотка в день</div>
-                </div>
-                <div class="bento-card flex flex-col items-center gap-2 flex-shrink-0 w-24 p-3 opacity-30 border-dashed border-gray-800">
-                    <span class="text-2xl grayscale">🔒</span>
-                    <div class="text-[8px] font-black uppercase text-gray-500 text-center tracking-tighter">Module 1 Finish</div>
-                </div>
-                <div class="bento-card flex flex-col items-center gap-2 flex-shrink-0 w-24 p-3 border-[#FF6B00]/30 shadow-[0_0_15px_rgba(255,85,0,0.1)]">
-                    <span class="text-2xl">💼</span>
-                    <div class="text-[8px] font-black uppercase text-[#FF6B00] text-center tracking-tighter">Проект Готов</div>
-                </div>
-            </div>
-        </div>
 
-        <div class="bento-card divide-y divide-white/5 space-y-1 !p-3">
-            <div class="flex justify-between items-center py-3 px-2 text-gray-300 active:scale-98" onclick="tg.showAlert('Раздел Редактировать')">
-                <span class="text-xs font-bold uppercase tracking-wider">Редактировать профиль</span>
-                <span class="text-gray-700 font-black">›</span>
-            </div>
-            <div class="flex justify-between items-center py-3 px-2 text-gray-300 active:scale-98" onclick="tg.showAlert('Раздел Уведомления')">
-                <span class="text-xs font-bold uppercase tracking-wider">Настройки уведомлений</span>
-                <span class="text-gray-700 font-black">›</span>
-            </div>
-            <div class="flex justify-between items-center py-3 px-2 text-gray-300 active:scale-98" onclick="tg.showAlert('Раздел Поддержка')">
-                <span class="text-xs font-bold uppercase tracking-wider">Служба поддержки VIBE</span>
-                <span class="text-gray-700 font-black">›</span>
-            </div>
-            <div class="flex justify-between items-center py-3 px-2 text-red-500 font-bold active:scale-98" onclick="tg.close()">
-                <span class="text-xs font-bold uppercase tracking-wider">Выйти из приложения</span>
+                <div class="bg-black rounded-2xl p-3 border border-white/5 min-w-[110px] flex flex-col items-center shrink-0">
+                    <div class="w-12 h-12 mb-2 opacity-50 text-3xl flex items-center justify-center grayscale">💰</div>
+                    <div class="text-[9px] font-black uppercase text-center mb-1 text-gray-300 tracking-tighter">Закрыватор</div>
+                    <div class="text-[8px] font-bold text-gray-500 mb-2 uppercase">19 из 20 сделок</div>
+                    <div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden"><div class="bg-[#FF6B00] w-[95%] h-full rounded-full shadow-[0_0_5px_#FF6B00]"></div></div>
+                </div>
+
+                <div class="bg-black rounded-2xl p-3 border border-[#FF6B00]/40 min-w-[110px] flex flex-col items-center shrink-0 shadow-[0_0_15px_rgba(255,107,0,0.1)] relative overflow-hidden">
+                    <div class="absolute inset-0 bg-[#FF6B00] opacity-5"></div>
+                    <div class="w-12 h-12 mb-2 text-3xl flex items-center justify-center drop-shadow-[0_0_8px_rgba(255,107,0,0.8)] z-10">🚀</div>
+                    <div class="text-[9px] font-black uppercase text-center mb-1 text-[#FF6B00] z-10 tracking-tighter">Ранняя пташка</div>
+                    <div class="text-[8px] font-bold text-[#FF6B00] mb-2 uppercase z-10">Выполнено</div>
+                    <div class="w-full bg-[#FF6B00]/20 h-1 rounded-full overflow-hidden z-10"><div class="bg-[#FF6B00] w-full h-full rounded-full"></div></div>
+                </div>
             </div>
         </div>
 
         <div class="bottom-spacer"></div>
     </div>
+
 
     <div id="story-player">
         <div class="progress-bar-container" id="progress-container"></div>
@@ -261,7 +294,7 @@
             document.getElementById('greeting').innerText = `Салам, ${user.first_name}`;
             document.getElementById('pass-name').innerText = user.first_name;
             document.getElementById('user-name-profile').innerText = user.first_name;
-            document.getElementById('avatar-text').innerText = user.first_name.charAt(0);
+            document.getElementById('avatar-container').innerText = user.first_name.charAt(0);
         }
 
         const storiesData = [
@@ -274,42 +307,34 @@
             const wrapper = document.createElement('div');
             wrapper.className = 'flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer active:scale-95 transition-transform';
             wrapper.onclick = () => openStory(i);
-            wrapper.innerHTML = `
-                <div class="story-item">
-                    <img src="${s.preview}" alt="">
-                </div>
-                <div class="text-[9px] font-bold text-gray-300 w-20 text-center truncate">${s.title}</div>
-            `;
+            wrapper.innerHTML = `<div class="story-item"><img src="${s.preview}" alt=""></div><div class="text-[9px] font-bold text-gray-300 w-20 text-center truncate">${s.title}</div>`;
             list.appendChild(wrapper);
         });
 
-        let currentStory = 0;
-        let storyTimer;
-
+        let currentStory = 0; let storyTimer;
         function openStory(index) {
-            currentStory = index;
-            const player = document.getElementById('story-player');
-            const story = storiesData[index];
-            player.style.display = 'block';
-            document.getElementById('story-content').style.backgroundImage = `url(${story.bg})`;
-            document.getElementById('story-title').innerText = story.fullTitle;
-            document.getElementById('story-btn').innerText = story.btn;
-            const container = document.getElementById('progress-container');
-            container.innerHTML = '';
+            currentStory = index; const player = document.getElementById('story-player'); const story = storiesData[index];
+            player.style.display = 'block'; document.getElementById('story-content').style.backgroundImage = `url(${story.bg})`;
+            document.getElementById('story-title').innerText = story.fullTitle; document.getElementById('story-btn').innerText = story.btn;
+            const container = document.getElementById('progress-container'); container.innerHTML = '';
             storiesData.forEach((_, i) => { container.appendChild(document.createElement('div')).className = 'progress-segment'; container.lastChild.innerHTML = `<div class="progress-fill" id="fill-${i}" style="${i < index ? 'width: 100%;' : ''}"></div>`; });
             startProgress(index);
         }
-
         function startProgress(index) {
-            const fill = document.getElementById(`fill-${index}`);
-            fill.style.width = '0%';
+            const fill = document.getElementById(`fill-${index}`); fill.style.width = '0%';
             setTimeout(() => { fill.style.transitionDuration = '5s'; fill.style.width = '100%'; }, 50);
             storyTimer = setTimeout(() => { if (index < storiesData.length - 1) { openStory(index + 1); } else { closeStory(); } }, 5000);
         }
-
         function closeStory() { document.getElementById('story-player').style.display = 'none'; clearTimeout(storyTimer); }
+        
         const screens = ['home-screen', 'club-screen', 'abonement-screen', 'map-screen', 'profile-screen'];
-        function switchTab(id, idx) { screens.forEach(s => document.getElementById(s).classList.add('hidden-screen')); document.getElementById(id).classList.remove('hidden-screen'); document.querySelectorAll('.tabbar .tab-item').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tabbar .tab-item')[idx].classList.add('active'); window.scrollTo({top: 0, behavior: 'smooth'}); }
+        function switchTab(id, idx) {
+            screens.forEach(s => document.getElementById(s).classList.add('hidden-screen'));
+            document.getElementById(id).classList.remove('hidden-screen');
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-item')[idx].classList.add('active');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
     </script>
 </body>
 </html>
