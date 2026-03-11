@@ -11,16 +11,12 @@
     <style>
         :root { --orange: #FF5500; --bg: #000000; --glass: rgba(15, 15, 15, 0.8); --glass-border: rgba(255, 255, 255, 0.08); }
         
-        /* Глобальный фикс скролла */
         html { background-color: var(--bg); }
         body { 
             background-color: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif;
             user-select: none; -webkit-user-select: none;
-            /* Разрешаем скролл */
-            overflow-y: auto; overflow-x: hidden;
-            -webkit-overflow-scrolling: touch; 
-            min-height: 100vh; height: auto;
-            background-attachment: fixed;
+            overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; 
+            min-height: 100vh; height: auto; background-attachment: fixed;
             background-image: radial-gradient(circle at 50% -10%, rgba(255, 85, 0, 0.15), transparent 60%);
             padding-bottom: 20px;
         }
@@ -31,7 +27,6 @@
             transition: all 0.2s ease; position: relative; overflow: hidden;
         }
 
-        /* Мигающий PRO */
         @keyframes proPulse {
             0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); }
             70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); border-color: rgba(255, 107, 0, 0.1); }
@@ -39,21 +34,25 @@
         }
         .pro-badge { animation: proPulse 2s infinite; }
 
-        /* Сториз с ИДЕАЛЬНО круглым свечением */
-        .story-circle {
-            width: 70px; height: 70px; border-radius: 50%; padding: 3px;
-            border: 2px solid var(--orange); filter: drop-shadow(0 0 8px var(--orange));
-            flex-shrink: 0; cursor: pointer;
+        /* ================= НОВЫЙ ДИЗАЙН СТОРИЗ (ASTANA HUB STYLE) ================= */
+        .story-item {
+            width: 76px; height: 96px; border-radius: 22px; padding: 2px;
+            border: 2px solid var(--orange); filter: drop-shadow(0 0 8px rgba(255, 107, 0, 0.6));
+            background: #000;
         }
-        .story-circle img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid #000; }
+        .story-item img { width: 100%; height: 100%; border-radius: 18px; object-fit: cover; }
+        
+        /* ================= ПЛЕЕР СТОРИЗ (ВОССТАНОВЛЕН) ================= */
+        #story-player { display: none; position: fixed; inset: 0; background: #000; z-index: 2000; }
+        .progress-bar-container { display: flex; gap: 4px; position: absolute; top: 15px; left: 10px; right: 10px; z-index: 10; }
+        .progress-segment { flex: 1; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #fff; width: 0%; transition: width linear; }
 
-        /* Карта Казахстана */
         .kz-map-svg { filter: drop-shadow(0 0 15px rgba(255, 85, 0, 0.4)); stroke: var(--orange); stroke-width: 1.8; fill: rgba(255, 85, 0, 0.03); }
         .map-dot { width: 8px; height: 8px; background: var(--orange); border-radius: 50%; position: absolute; box-shadow: 0 0 15px var(--orange); z-index: 20; }
         @keyframes mapPulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(4); opacity: 0; } }
         .map-dot::after { content: ''; position: absolute; inset: -4px; background: var(--orange); border-radius: 50%; animation: mapPulse 2s infinite; }
 
-        /* Таббар */
         .tabbar {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 90px;
             background: rgba(0, 0, 0, 0.96); backdrop-filter: blur(25px);
@@ -67,8 +66,6 @@
         
         .hidden-screen { display: none !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* Отступ для контента, чтобы не перекрывался меню */
         .bottom-spacer { height: 120px; width: 100%; }
     </style>
 </head>
@@ -111,7 +108,9 @@
 
     <div id="club-screen" class="hidden-screen space-y-6">
         <h2 class="text-3xl font-black italic uppercase">VIBE CLUB</h2>
-        <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar" id="stories-list"></div>
+        
+        <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar px-1" id="stories-list"></div>
+        
         <div class="bento-card space-y-4"><h4 class="text-xs font-black uppercase text-[#FF6B00]">Кодекс Сообщества</h4><p class="text-[11px] font-bold text-gray-400 uppercase tracking-tighter">1. Уважение и дисциплина.<br>2. Рост через вклад в других.<br>3. Твой результат — наш успех.</p></div>
         <div class="bottom-spacer"></div>
     </div>
@@ -136,7 +135,7 @@
     <div id="map-screen" class="hidden-screen">
         <div class="flex justify-between items-start mb-6 px-1">
             <div><h2 class="text-3xl font-black italic uppercase">VIBE WORLD</h2><div class="text-[10px] font-black text-[#FF6B00] mt-1 tracking-widest uppercase">В сети: 1,452 бойца</div></div>
-            <button onclick="tg.showAlert('Твой статус: В СЕТИ!')" class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase italic active:scale-95">ТЫ В СЕТИ</button>
+            <button class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase italic">ТЫ В СЕТИ</button>
         </div>
         <div class="bento-card h-[380px] bg-[#050505] flex items-center justify-center p-0">
             <div class="relative w-full h-full flex items-center justify-center">
@@ -147,8 +146,8 @@
             </div>
         </div>
         <div class="grid grid-cols-2 gap-3 mt-6">
-            <div class="bento-card !p-4 text-center border-cyan-900/30 active:scale-95"><div class="text-cyan-400 font-black italic uppercase text-xs">ПРИЗЕМЛИЛСЯ</div></div>
-            <div class="bento-card !p-4 text-center border-orange-900/30 active:scale-95"><div class="text-[#FF6B00] font-black italic uppercase text-xs">СТОЛИЦА</div></div>
+            <div class="bento-card !p-4 text-center border-cyan-900/30"><div class="text-cyan-400 font-black italic uppercase text-xs">ПРИЗЕМЛИЛСЯ</div></div>
+            <div class="bento-card !p-4 text-center border-orange-900/30"><div class="text-[#FF6B00] font-black italic uppercase text-xs">СТОЛИЦА</div></div>
         </div>
         <div class="bottom-spacer"></div>
     </div>
@@ -159,8 +158,20 @@
             <div class="w-16 h-16 rounded-2xl bg-gray-900 flex items-center justify-center text-2xl font-black text-gray-700" id="avatar">V</div>
             <div><h3 class="text-xl font-black italic uppercase leading-none mb-2" id="user-name-profile">Загрузка...</h3><div class="bg-[#FF6B00] text-black text-[9px] font-black px-2 py-1 rounded uppercase">VIBE RESIDENT</div></div>
         </div>
-        <div class="bento-card !p-4 flex items-center justify-between text-gray-400" onclick="tg.showAlert('Настройки скоро')"><span class="text-xs font-black uppercase italic">Настройки профиля</span><span>›</span></div>
+        <div class="bento-card !p-4 flex items-center justify-between text-gray-400"><span class="text-xs font-black uppercase italic">Настройки профиля</span><span>›</span></div>
         <div class="bottom-spacer"></div>
+    </div>
+
+    <div id="story-player">
+        <div class="progress-bar-container" id="progress-container"></div>
+        <button onclick="closeStory()" class="absolute top-8 right-4 z-20 text-white p-2 text-3xl font-light active:scale-90">&times;</button>
+        <div id="story-content" class="w-full h-full flex items-center justify-center bg-cover bg-center relative">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+            <div class="absolute bottom-20 left-6 right-6 text-center z-10">
+                <h2 id="story-title" class="text-3xl font-black italic uppercase mb-6 text-white drop-shadow-lg"></h2>
+                <button id="story-btn" class="bg-white text-black px-8 py-4 rounded-2xl font-black uppercase text-xs shadow-[0_0_20px_rgba(255,255,255,0.3)] active:scale-95 transition-transform"></button>
+            </div>
+        </div>
     </div>
 
     <div class="tabbar">
@@ -184,18 +195,73 @@
             document.getElementById('avatar').innerText = user.first_name.charAt(0);
         }
 
+        // ДАННЫЕ СТОРИЗ
         const storiesData = [
-            { id: 1, preview: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', title: 'Новый модуль: Найм МОП' },
-            { id: 2, preview: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', title: 'Разбор эфира' }
+            { preview: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', bg: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800', title: 'Найм МОП', fullTitle: 'Новый модуль: Найм МОП', btn: 'Учить' },
+            { preview: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', bg: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800', title: 'Разбор', fullTitle: 'Разбор эфира с РОПом', btn: 'Смотреть' }
         ];
 
+        // РЕНДЕР СТОРИЗ (ASTANA HUB STYLE)
         const list = document.getElementById('stories-list');
         storiesData.forEach((s, i) => {
-            const div = document.createElement('div');
-            div.className = 'story-circle';
-            div.innerHTML = `<img src="${s.preview}" onclick="tg.showAlert('${s.title}')">`;
-            list.appendChild(div);
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer active:scale-95 transition-transform';
+            wrapper.onclick = () => openStory(i);
+            wrapper.innerHTML = `
+                <div class="story-item">
+                    <img src="${s.preview}" alt="">
+                </div>
+                <div class="text-[9px] font-bold text-gray-300 w-16 text-center truncate">${s.title}</div>
+            `;
+            list.appendChild(wrapper);
         });
+
+        // ЛОГИКА ПЛЕЕРА
+        let currentStory = 0;
+        let storyTimer;
+
+        function openStory(index) {
+            currentStory = index;
+            const player = document.getElementById('story-player');
+            const story = storiesData[index];
+            
+            player.style.display = 'block';
+            document.getElementById('story-content').style.backgroundImage = `url(${story.bg})`;
+            document.getElementById('story-title').innerText = story.fullTitle;
+            document.getElementById('story-btn').innerText = story.btn;
+
+            const container = document.getElementById('progress-container');
+            container.innerHTML = '';
+            storiesData.forEach((_, i) => { 
+                const seg = document.createElement('div');
+                seg.className = 'progress-segment';
+                seg.innerHTML = `<div class="progress-fill" id="fill-${i}" style="${i < index ? 'width: 100%;' : ''}"></div>`;
+                container.appendChild(seg);
+            });
+            startProgress(index);
+        }
+
+        function startProgress(index) {
+            const fill = document.getElementById(`fill-${index}`);
+            fill.style.width = '0%';
+            setTimeout(() => { 
+                fill.style.transitionDuration = '5s'; 
+                fill.style.width = '100%'; 
+            }, 50);
+
+            storyTimer = setTimeout(() => { 
+                if (index < storiesData.length - 1) { 
+                    openStory(index + 1); 
+                } else { 
+                    closeStory(); 
+                } 
+            }, 5000);
+        }
+
+        function closeStory() { 
+            document.getElementById('story-player').style.display = 'none'; 
+            clearTimeout(storyTimer); 
+        }
 
         const screens = ['home-screen', 'club-screen', 'abonement-screen', 'map-screen', 'profile-screen'];
         function switchTab(id, idx) {
