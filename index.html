@@ -27,12 +27,7 @@
             transition: all 0.2s ease; position: relative; overflow: hidden;
         }
 
-        /* Мигающий PRO */
-        @keyframes proPulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); border-color: rgba(255, 107, 0, 0.1); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); }
-        }
+        @keyframes proPulse { 0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); } 70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); border-color: rgba(255, 107, 0, 0.1); } 100% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); } }
         .pro-badge { animation: proPulse 2s infinite; }
 
         /* STORIES */
@@ -42,12 +37,6 @@
         .progress-bar-container { display: flex; gap: 4px; position: absolute; top: 15px; left: 10px; right: 10px; z-index: 10; }
         .progress-segment { flex: 1; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; }
         .progress-fill { height: 100%; background: #fff; width: 0%; transition: width linear; }
-
-        /* КАРТА */
-        .kz-map-svg { filter: drop-shadow(0 0 15px rgba(255, 85, 0, 0.4)); stroke: var(--orange); stroke-width: 1.8; fill: rgba(255, 85, 0, 0.03); }
-        .map-dot { width: 8px; height: 8px; background: var(--orange); border-radius: 50%; position: absolute; box-shadow: 0 0 15px var(--orange); z-index: 20; }
-        @keyframes mapPulse { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(4); opacity: 0; } }
-        .map-dot::after { content: ''; position: absolute; inset: -4px; background: var(--orange); border-radius: 50%; animation: mapPulse 2s infinite; }
 
         /* ТАББАР */
         .tabbar { position: fixed; bottom: 0; left: 0; width: 100%; height: 90px; background: rgba(0, 0, 0, 0.96); backdrop-filter: blur(25px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; padding-bottom: 20px; z-index: 1000; }
@@ -60,19 +49,28 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .bottom-spacer { height: 120px; width: 100%; }
 
-        /* ГЕКСАГОНЫ РЕЙТИНГА */
+        /* ГЕКСАГОНЫ */
         .league-hexagon { background: linear-gradient(135deg, #FF6B00 0%, #aa3300 100%); box-shadow: inset 0 0 20px rgba(255,255,255,0.5), 0 10px 30px -10px rgba(255,107,0,0.8); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
         .rank-hexagon-min { background: #111; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; }
         .divide-y-custom > :not([hidden]) ~ :not([hidden]) { border-top-width: 1px; border-color: rgba(255,255,255,0.05); }
 
-        /* ================= ФИШКИ КИНОПОИСКА v8.9 ================= */
+        /* КИНОПОИСК */
         .kino-continue-card { width: 220px; flex-shrink: 0; position: relative; scroll-snap-align: start; }
         .kino-continue-img { width: 100%; height: 124px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
-        
         .kino-top-card { width: 130px; flex-shrink: 0; position: relative; padding-left: 20px; padding-top: 10px; scroll-snap-align: start; }
         .kino-top-img { width: 110px; height: 150px; border-radius: 12px; object-fit: cover; position: relative; z-index: 5; border: 1px solid rgba(255,255,255,0.1); box-shadow: -5px 0 15px rgba(0,0,0,0.8); }
         .kino-number { position: absolute; left: -10px; top: -5px; font-size: 130px; font-weight: 900; font-style: italic; line-height: 0.75; letter-spacing: -0.05em; background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 80%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; z-index: 10; pointer-events: none; }
         .scroll-container { scroll-snap-type: x mandatory; }
+
+        /* ================= НОВАЯ КАРТА v9.0 ================= */
+        .kz-map-svg { filter: drop-shadow(0 0 20px rgba(255, 107, 0, 0.5)); stroke: var(--orange); stroke-width: 2.5; fill: rgba(255, 107, 0, 0.05); }
+        
+        /* Сетка на фоне карты для кибер-вида */
+        .cyber-grid {
+            background-size: 30px 30px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
     </style>
 </head>
 <body class="max-w-md mx-auto relative p-4">
@@ -102,8 +100,14 @@
             <div class="bento-card h-32 flex flex-col justify-end">💼<h3 class="text-sm font-black uppercase italic leading-tight">Проекты</h3><p class="text-[8px] text-gray-500 font-bold uppercase mt-1">HH.KZ</p></div>
         </div>
         <div class="bento-card col-span-2 h-24 flex items-center justify-between border-[#FF6B00]/20 bg-[#0a0a0a]" onclick="switchTab('map-screen', 3)">
-            <div class="flex items-center gap-4"><div class="relative w-12 h-12 bg-black rounded-2xl flex items-center justify-center border border-white/5 overflow-hidden"><div class="map-dot" style="position: static;"></div></div>
-            <div><h3 class="text-sm font-black italic uppercase">Карта захвата</h3><p class="text-[9px] text-[#FF6B00] font-black uppercase tracking-widest mt-1">В сети: 1,452</p></div></div>
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center border border-white/5 relative">
+                    <div class="w-2 h-2 bg-[#FF6B00] rounded-full relative z-10">
+                        <div class="absolute inset-[-4px] bg-[#FF6B00] rounded-full animate-ping opacity-75"></div>
+                    </div>
+                </div>
+                <div><h3 class="text-sm font-black italic uppercase">Карта захвата</h3><p class="text-[9px] text-[#FF6B00] font-black uppercase tracking-widest mt-1">Live: 1,453</p></div>
+            </div>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-5 h-5 text-gray-700" stroke-width="3"><path d="M9 5l7 7-7 7"/></svg>
         </div>
         <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2 mb-3 mt-6">Твой прогресс</h4>
@@ -129,98 +133,30 @@
 
     <div id="club-screen" class="hidden-screen">
         <h2 class="text-3xl font-black italic uppercase mb-4 px-1">VIBE CLUB</h2>
-        
         <div class="flex gap-4 overflow-x-auto pb-4 pt-2 no-scrollbar px-1" id="stories-list"></div>
-
         <div class="mt-4 mb-8">
             <h4 class="text-[13px] text-white font-black ml-2 mb-3">Продолжить просмотр</h4>
             <div class="flex gap-4 overflow-x-auto pb-2 px-2 no-scrollbar scroll-container">
-                
-                <div class="kino-continue-card cursor-pointer active:scale-[0.98] transition-transform" onclick="tg.showAlert('Модуль 3')">
-                    <div class="relative">
-                        <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="kino-continue-img">
-                        <div class="absolute bottom-2 right-2 bg-black/80 px-2 py-0.5 rounded text-[9px] font-bold text-white backdrop-blur-sm border border-white/10">Осталось 12 мин</div>
-                        <div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800 rounded-b-xl overflow-hidden"><div class="bg-[#FF6B00] w-[75%] h-full"></div></div>
-                    </div>
-                    <div class="mt-2 px-1">
-                        <h4 class="text-xs font-black italic text-white truncate">Жесткий дожим в B2B</h4>
-                        <p class="text-[10px] text-gray-500 font-bold uppercase mt-0.5">Модуль 3</p>
-                    </div>
-                </div>
-
-                <div class="kino-continue-card cursor-pointer active:scale-[0.98] transition-transform" onclick="tg.showAlert('Запись эфира')">
-                    <div class="relative">
-                        <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800" class="kino-continue-img">
-                        <div class="absolute bottom-2 right-2 bg-black/80 px-2 py-0.5 rounded text-[9px] font-bold text-white backdrop-blur-sm border border-white/10">Осталось 45 мин</div>
-                        <div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800 rounded-b-xl overflow-hidden"><div class="bg-[#FF6B00] w-[15%] h-full"></div></div>
-                    </div>
-                    <div class="mt-2 px-1">
-                        <h4 class="text-xs font-black italic text-white truncate">Разбор звонков Алматы</h4>
-                        <p class="text-[10px] text-gray-500 font-bold uppercase mt-0.5">Эфир от 12 марта</p>
-                    </div>
-                </div>
+                <div class="kino-continue-card cursor-pointer active:scale-[0.98] transition-transform" onclick="tg.showAlert('Модуль 3')"><div class="relative"><img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="kino-continue-img"><div class="absolute bottom-2 right-2 bg-black/80 px-2 py-0.5 rounded text-[9px] font-bold text-white backdrop-blur-sm border border-white/10">Осталось 12 мин</div><div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800 rounded-b-xl overflow-hidden"><div class="bg-[#FF6B00] w-[75%] h-full"></div></div></div><div class="mt-2 px-1"><h4 class="text-xs font-black italic text-white truncate">Жесткий дожим в B2B</h4><p class="text-[10px] text-gray-500 font-bold uppercase mt-0.5">Модуль 3</p></div></div>
+                <div class="kino-continue-card cursor-pointer active:scale-[0.98] transition-transform" onclick="tg.showAlert('Запись эфира')"><div class="relative"><img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800" class="kino-continue-img"><div class="absolute bottom-2 right-2 bg-black/80 px-2 py-0.5 rounded text-[9px] font-bold text-white backdrop-blur-sm border border-white/10">Осталось 45 мин</div><div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800 rounded-b-xl overflow-hidden"><div class="bg-[#FF6B00] w-[15%] h-full"></div></div></div><div class="mt-2 px-1"><h4 class="text-xs font-black italic text-white truncate">Разбор звонков Алматы</h4><p class="text-[10px] text-gray-500 font-bold uppercase mt-0.5">Эфир от 12 марта</p></div></div>
             </div>
         </div>
-
         <div class="mb-8">
-            <div class="flex items-center gap-2 ml-2 mb-3">
-                <span class="text-[#FF6B00] text-lg leading-none">⚡</span>
-                <h4 class="text-[13px] text-white font-black">Топ эфиров месяца</h4>
-            </div>
-            
+            <div class="flex items-center gap-2 ml-2 mb-3"><span class="text-[#FF6B00] text-lg leading-none">⚡</span><h4 class="text-[13px] text-white font-black">Топ эфиров месяца</h4></div>
             <div class="flex gap-2 overflow-x-auto pb-4 pt-2 px-2 no-scrollbar scroll-container">
-                <div class="kino-top-card cursor-pointer active:scale-95 transition-transform">
-                    <div class="kino-number">1</div>
-                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=400" class="kino-top-img">
-                    <div class="mt-2 px-1 relative z-10 pl-4">
-                        <h4 class="text-[11px] font-bold text-white leading-tight">Секреты Хантинга</h4>
-                    </div>
-                </div>
-                <div class="kino-top-card cursor-pointer active:scale-95 transition-transform">
-                    <div class="kino-number">2</div>
-                    <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400" class="kino-top-img">
-                    <div class="mt-2 px-1 relative z-10 pl-4">
-                        <h4 class="text-[11px] font-bold text-white leading-tight">Обход блокеров</h4>
-                    </div>
-                </div>
-                <div class="kino-top-card cursor-pointer active:scale-95 transition-transform">
-                    <div class="kino-number">3</div>
-                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400" class="kino-top-img">
-                    <div class="mt-2 px-1 relative z-10 pl-4">
-                        <h4 class="text-[11px] font-bold text-white leading-tight">Кейс на 10 млн</h4>
-                    </div>
-                </div>
+                <div class="kino-top-card cursor-pointer active:scale-95 transition-transform"><div class="kino-number">1</div><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=400" class="kino-top-img"><div class="mt-2 px-1 relative z-10 pl-4"><h4 class="text-[11px] font-bold text-white leading-tight">Секреты Хантинга</h4></div></div>
+                <div class="kino-top-card cursor-pointer active:scale-95 transition-transform"><div class="kino-number">2</div><img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400" class="kino-top-img"><div class="mt-2 px-1 relative z-10 pl-4"><h4 class="text-[11px] font-bold text-white leading-tight">Обход блокеров</h4></div></div>
+                <div class="kino-top-card cursor-pointer active:scale-95 transition-transform"><div class="kino-number">3</div><img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400" class="kino-top-img"><div class="mt-2 px-1 relative z-10 pl-4"><h4 class="text-[11px] font-bold text-white leading-tight">Кейс на 10 млн</h4></div></div>
             </div>
         </div>
-
         <div class="flex gap-5 border-b border-white/10 mt-2 mb-5 px-2">
             <div class="text-xs font-black uppercase text-white border-b-2 border-[#FF6B00] pb-3 cursor-pointer">Лента</div>
             <div class="text-xs font-bold uppercase text-gray-500 pb-3 cursor-pointer transition-colors hover:text-gray-300">Анонсы</div>
             <div class="text-xs font-bold uppercase text-gray-500 pb-3 cursor-pointer transition-colors hover:text-gray-300">База знаний</div>
         </div>
-
         <div class="px-1 space-y-4">
-            <div class="bento-card !p-4 bg-[#0a0a0a]">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 bg-gradient-to-br from-[#FF6B00] to-[#aa3300] rounded-full flex items-center justify-center text-sm font-black text-white shadow-[0_0_10px_rgba(255,107,0,0.3)]">V</div>
-                        <div><div class="text-xs font-black text-white">VIBE Official</div><div class="text-[9px] text-gray-500 font-bold uppercase mt-0.5">2 часа назад</div></div>
-                    </div>
-                    <div class="bg-[#FF6B00]/10 border border-[#FF6B00]/30 text-[#FF6B00] text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Событие</div>
-                </div>
-                <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800" class="w-full h-40 object-cover rounded-xl mb-3 border border-white/5">
-                <h4 class="text-sm font-black italic uppercase text-white mb-1.5">Разбор звонков в Алматы</h4>
-                <p class="text-[11px] text-gray-400 font-medium leading-relaxed mb-4">В эту субботу собираемся вживую. Будем слушать записи разговоров, находить ошибки и переписывать скрипты.</p>
-                <div class="flex justify-between items-center border-t border-white/5 pt-3">
-                    <div class="flex gap-4">
-                        <div class="flex items-center gap-1.5 text-gray-500 hover:text-[#FF6B00] transition-colors cursor-pointer active:scale-90"><span class="text-sm">🔥</span><span class="text-[10px] font-black">142</span></div>
-                        <div class="flex items-center gap-1.5 text-gray-500 hover:text-white transition-colors cursor-pointer active:scale-90"><span class="text-sm">💬</span><span class="text-[10px] font-black">24</span></div>
-                    </div>
-                    <button class="bg-[#111] border border-[#FF6B00]/30 text-[#FF6B00] px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider active:scale-95">Я буду</button>
-                </div>
-            </div>
+            <div class="bento-card !p-4 bg-[#0a0a0a]"><div class="flex items-center justify-between mb-3"><div class="flex items-center gap-3"><div class="w-9 h-9 bg-gradient-to-br from-[#FF6B00] to-[#aa3300] rounded-full flex items-center justify-center text-sm font-black text-white shadow-[0_0_10px_rgba(255,107,0,0.3)]">V</div><div><div class="text-xs font-black text-white">VIBE Official</div><div class="text-[9px] text-gray-500 font-bold uppercase mt-0.5">2 часа назад</div></div></div><div class="bg-[#FF6B00]/10 border border-[#FF6B00]/30 text-[#FF6B00] text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-wider">Событие</div></div><img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800" class="w-full h-40 object-cover rounded-xl mb-3 border border-white/5"><h4 class="text-sm font-black italic uppercase text-white mb-1.5">Разбор звонков в Алматы</h4><p class="text-[11px] text-gray-400 font-medium leading-relaxed mb-4">В эту субботу собираемся вживую. Будем слушать записи разговоров, находить ошибки и переписывать скрипты.</p><div class="flex justify-between items-center border-t border-white/5 pt-3"><div class="flex gap-4"><div class="flex items-center gap-1.5 text-gray-500 hover:text-[#FF6B00] transition-colors cursor-pointer active:scale-90"><span class="text-sm">🔥</span><span class="text-[10px] font-black">142</span></div><div class="flex items-center gap-1.5 text-gray-500 hover:text-white transition-colors cursor-pointer active:scale-90"><span class="text-sm">💬</span><span class="text-[10px] font-black">24</span></div></div><button class="bg-[#111] border border-[#FF6B00]/30 text-[#FF6B00] px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider active:scale-95">Я буду</button></div></div>
         </div>
-
         <div class="bottom-spacer"></div>
     </div>
 
@@ -241,28 +177,52 @@
         <div class="bottom-spacer"></div>
     </div>
 
-    <div id="map-screen" class="hidden-screen">
-        <div class="flex justify-between items-start mb-6 px-1">
-            <div><h2 class="text-3xl font-black italic uppercase">VIBE WORLD</h2><div class="text-[10px] font-black text-[#FF6B00] mt-1 tracking-widest uppercase">В сети: 1,452 бойца</div></div>
-            <button onclick="tg.showAlert('Твой статус: В СЕТИ!')" class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase italic active:scale-95">ТЫ В СЕТИ</button>
+
+    <div id="map-screen" class="hidden-screen px-1 space-y-4">
+        
+        <div class="flex justify-between items-start mb-2">
+            <div>
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter">VIBE WORLD</h2>
+                <div class="flex items-center gap-2 mt-1">
+                    <div class="w-1.5 h-1.5 bg-green-500 rounded-full shadow-[0_0_5px_#22c55e]"></div>
+                    <div class="text-[10px] font-black text-gray-400 tracking-widest uppercase">Live: <span id="online-counter" class="text-white">1,453</span> Бойца</div>
+                </div>
+            </div>
+            <button onclick="checkInOnMap()" id="checkin-btn" class="bg-[#FF6B00] text-black px-4 py-2.5 rounded-xl text-[10px] font-black uppercase italic shadow-[0_0_15px_rgba(255,107,0,0.4)] active:scale-95 transition-all">Я В СЕТИ</button>
         </div>
-        <div class="bento-card h-[380px] bg-[#050505] flex items-center justify-center p-0">
-            <div class="relative w-full h-full flex items-center justify-center">
-                <svg class="kz-map-svg w-[92%] h-auto" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg"><path d="M120,380 L80,340 L100,280 L140,240 L210,210 L250,150 L350,140 L450,110 L500,80 L580,90 L680,60 L780,80 L880,140 L930,240 L880,350 L840,420 L750,480 L600,460 L500,480 L380,450 L250,470 L150,440 Z" /></svg>
-                <div class="map-dot" style="bottom: 125px; right: 230px;"></div><div class="absolute bottom-[105px] right-[215px] text-[11px] font-black italic text-[#FF6B00]">ALM</div>
+
+        <div class="bento-card bg-[#080808] p-0 relative overflow-hidden h-[420px] border border-white/5 shadow-[0_0_30px_rgba(255,107,0,0.05)]">
+            <div class="absolute inset-0 cyber-grid opacity-30"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,107,0,0.1),transparent_70%)]"></div>
+            
+            <div class="absolute inset-0 flex items-center justify-center p-6">
+                <svg class="kz-map-svg w-full h-auto drop-shadow-[0_0_15px_rgba(255,107,0,0.3)] relative z-10" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M120,380 L80,340 L100,280 L140,240 L210,210 L250,150 L350,140 L450,110 L500,80 L580,90 L680,60 L780,80 L880,140 L930,240 L880,350 L840,420 L750,480 L600,460 L500,480 L380,450 L250,470 L150,440 Z" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <div id="map-users-container" class="absolute inset-0 z-20"></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-4">
+            <div class="bento-card !p-4 text-center border-cyan-900/30 active:scale-95 transition-transform" onclick="tg.showAlert('Всего городов: 14')">
+                <div class="text-cyan-400 font-black italic uppercase text-sm mb-1">14 Городов</div>
+                <div class="text-[8px] text-gray-500 font-bold uppercase tracking-widest">Зона захвата</div>
+            </div>
+            <div class="bento-card !p-4 text-center border-orange-900/30 active:scale-95 transition-transform" onclick="tg.showAlert('Вы открыли ТОП город')">
+                <div class="text-[#FF6B00] font-black italic uppercase text-sm mb-1">ALMATY</div>
+                <div class="text-[8px] text-gray-500 font-bold uppercase tracking-widest">Лидер онлайна</div>
             </div>
         </div>
-        <div class="grid grid-cols-2 gap-3 mt-6">
-            <div class="bento-card !p-4 text-center border-cyan-900/30 active:scale-95"><div class="text-cyan-400 font-black italic uppercase text-xs">ПРИЗЕМЛИЛСЯ</div></div>
-            <div class="bento-card !p-4 text-center border-orange-900/30 active:scale-95"><div class="text-[#FF6B00] font-black italic uppercase text-xs">СТОЛИЦА</div></div>
-        </div>
+
         <div class="bottom-spacer"></div>
     </div>
+
 
     <div id="profile-screen" class="hidden-screen px-1 space-y-4">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-full bg-gray-900 border-2 border-[#FF6B00] flex items-center justify-center text-xl font-black text-white" id="avatar-container">Б</div>
+                <div class="w-14 h-14 rounded-full bg-gray-900 border-2 border-[#FF6B00] flex items-center justify-center text-xl font-black text-white" id="avatar-container-prof">Б</div>
                 <div><h2 class="text-xl font-black italic uppercase leading-none mb-1.5" id="user-name-profile">Бекболат</h2><span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">ID: VIBE.042</span></div>
             </div>
             <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 active:scale-90" onclick="tg.showAlert('Настройки профиля')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-5 h-5"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></div>
@@ -288,6 +248,7 @@
             <div class="flex justify-between items-center mb-5"><h3 class="text-[11px] text-white font-black uppercase tracking-widest">Достижения</h3><span class="text-[9px] text-[#FF6B00] font-black uppercase">34 Получено ›</span></div>
             <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar px-1">
                 <div class="bg-black rounded-2xl p-3 border border-white/5 min-w-[110px] flex flex-col items-center shrink-0 grayscale opacity-40"><div class="text-3xl flex items-center justify-center mb-1">🤝</div><div class="text-[9px] font-black uppercase text-center mb-1 text-gray-300 tracking-tighter">Напарник</div><div class="text-[8px] font-bold text-gray-500 mb-2 uppercase">1 из 5</div><div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden"><div class="bg-blue-500 w-[20%] h-full rounded-full"></div></div></div>
+                <div class="bg-black rounded-2xl p-3 border border-white/5 min-w-[110px] flex flex-col items-center shrink-0 grayscale opacity-40"><div class="text-3xl flex items-center justify-center mb-1">💰</div><div class="text-[9px] font-black uppercase text-center mb-1 text-gray-300 tracking-tighter">Закрыватор</div><div class="text-[8px] font-bold text-gray-500 mb-2 uppercase">19 из 20</div><div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden"><div class="bg-[#FF6B00] w-[95%] h-full rounded-full shadow-[0_0_5px_#FF6B00]"></div></div></div>
                 <div class="bg-black rounded-2xl p-3 border border-[#FF6B00]/40 min-w-[110px] flex flex-col items-center shrink-0 shadow-[0_0_15px_rgba(255,107,0,0.1)] relative overflow-hidden"><div class="absolute inset-0 bg-[#FF6B00] opacity-5"></div><div class="text-3xl flex items-center justify-center drop-shadow-[0_0_8px_rgba(255,107,0,0.8)] z-10 mb-1">🚀</div><div class="text-[9px] font-black uppercase text-center mb-1 text-[#FF6B00] z-10 tracking-tighter">Ранняя пташка</div><div class="text-[8px] font-bold text-[#FF6B00] mb-2 uppercase z-10">Выполнено</div><div class="w-full bg-[#FF6B00]/20 h-1 rounded-full overflow-hidden z-10"><div class="bg-[#FF6B00] w-full h-full rounded-full"></div></div></div>
             </div>
         </div>
@@ -318,45 +279,26 @@
         tg.ready(); tg.expand();
         tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000');
 
+        let userName = "Бекболат";
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            const user = tg.initDataUnsafe.user;
-            document.getElementById('greeting').innerText = `Салам, ${user.first_name}`;
-            document.getElementById('pass-name').innerText = user.first_name;
-            document.getElementById('user-name-profile').innerText = user.first_name;
-            document.getElementById('avatar-container').innerText = user.first_name.charAt(0);
+            userName = tg.initDataUnsafe.user.first_name;
+            document.getElementById('greeting').innerText = `Салам, ${userName}`;
+            document.getElementById('pass-name').innerText = userName;
+            document.getElementById('user-name-profile').innerText = userName;
+            document.getElementById('avatar-container-prof').innerText = userName.charAt(0);
         }
 
-        const storiesData = [
-            { preview: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', bg: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800', title: 'Найм МОП', fullTitle: 'Новый модуль: Найм МОП', btn: 'Учить' },
-            { preview: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', bg: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800', title: 'Разбор', fullTitle: 'Разбор эфира с РОПом', btn: 'Смотреть' },
-            { preview: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=200', bg: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800', title: 'Скрипты', fullTitle: 'База Скриптов Обновлена', btn: 'Открыть' }
-        ];
-
+        // СТОРИЗ
+        const storiesData = [{ preview: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', bg: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800', title: 'Найм МОП', fullTitle: 'Новый модуль: Найм МОП', btn: 'Учить' }, { preview: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', bg: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800', title: 'Разбор', fullTitle: 'Разбор эфира с РОПом', btn: 'Смотреть' }, { preview: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=200', bg: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800', title: 'Скрипты', fullTitle: 'База Скриптов Обновлена', btn: 'Открыть' }];
         const list = document.getElementById('stories-list');
-        storiesData.forEach((s, i) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer active:scale-95 transition-transform';
-            wrapper.onclick = () => openStory(i);
-            wrapper.innerHTML = `<div class="story-item"><img src="${s.preview}" alt=""></div><div class="text-[9px] font-bold text-gray-300 w-20 text-center truncate">${s.title}</div>`;
-            list.appendChild(wrapper);
-        });
+        storiesData.forEach((s, i) => { list.innerHTML += `<div class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer active:scale-95 transition-transform" onclick="openStory(${i})"><div class="story-item"><img src="${s.preview}"></div><div class="text-[9px] font-bold text-gray-300 w-20 text-center truncate">${s.title}</div></div>`; });
 
         let currentStory = 0; let storyTimer;
-        function openStory(index) {
-            currentStory = index; const player = document.getElementById('story-player'); const story = storiesData[index];
-            player.style.display = 'block'; document.getElementById('story-content').style.backgroundImage = `url(${story.bg})`;
-            document.getElementById('story-title').innerText = story.fullTitle; document.getElementById('story-btn').innerText = story.btn;
-            const container = document.getElementById('progress-container'); container.innerHTML = '';
-            storiesData.forEach((_, i) => { container.innerHTML += `<div class="progress-segment"><div class="progress-fill" id="fill-${i}" style="${i < index ? 'width: 100%;' : ''}"></div></div>`; });
-            startProgress(index);
-        }
-        function startProgress(index) {
-            const fill = document.getElementById(`fill-${index}`); fill.style.width = '0%';
-            setTimeout(() => { fill.style.transitionDuration = '5s'; fill.style.width = '100%'; }, 50);
-            storyTimer = setTimeout(() => { if (index < storiesData.length - 1) { openStory(index + 1); } else { closeStory(); } }, 5000);
-        }
+        function openStory(index) { currentStory = index; const player = document.getElementById('story-player'); const story = storiesData[index]; player.style.display = 'block'; document.getElementById('story-content').style.backgroundImage = `url(${story.bg})`; document.getElementById('story-title').innerText = story.fullTitle; document.getElementById('story-btn').innerText = story.btn; const container = document.getElementById('progress-container'); container.innerHTML = ''; storiesData.forEach((_, i) => { container.innerHTML += `<div class="progress-segment"><div class="progress-fill" id="fill-${i}" style="${i < index ? 'width: 100%;' : ''}"></div></div>`; }); startProgress(index); }
+        function startProgress(index) { const fill = document.getElementById(`fill-${index}`); fill.style.width = '0%'; setTimeout(() => { fill.style.transitionDuration = '5s'; fill.style.width = '100%'; }, 50); storyTimer = setTimeout(() => { if (index < storiesData.length - 1) { openStory(index + 1); } else { closeStory(); } }, 5000); }
         function closeStory() { document.getElementById('story-player').style.display = 'none'; clearTimeout(storyTimer); }
         
+        // НАВИГАЦИЯ
         const screens = ['home-screen', 'club-screen', 'abonement-screen', 'map-screen', 'profile-screen', 'fighters-screen', 'rating-screen'];
         function switchTab(id, idx) {
             screens.forEach(s => document.getElementById(s).classList.add('hidden-screen'));
@@ -367,6 +309,59 @@
             }
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
+
+        // ================= ЛОГИКА РАДАРА (КАРТЫ) =================
+        let onlineCount = 1453;
+        const mapUsers = [
+            { name: "Ерлан", city: "Astana", top: "25%", left: "55%", delay: "0s" },
+            { name: "Сержан", city: "Shymkent", top: "75%", left: "50%", delay: "1s" },
+            { name: "Алия", city: "Aktobe", top: "35%", left: "20%", delay: "0.5s" },
+            { name: "Димаш", city: "Atyrau", top: "45%", left: "10%", delay: "1.5s" },
+            { name: "Кайрат", city: "Karaganda", top: "40%", left: "60%", delay: "0.8s" },
+            { name: "Марат", city: "Almaty", top: "65%", left: "68%", delay: "0.2s" }
+        ];
+
+        function renderMapUsers() {
+            const container = document.getElementById('map-users-container');
+            container.innerHTML = '';
+            mapUsers.forEach(u => {
+                container.innerHTML += `
+                    <div class="absolute" style="top: ${u.top}; left: ${u.left};">
+                        <div class="w-2.5 h-2.5 bg-[#FF6B00] rounded-full relative z-10 shadow-[0_0_10px_#FF6B00] cursor-pointer active:scale-150 transition-transform" onclick="tg.showAlert('${u.name} | ${u.city}')">
+                            <div class="absolute inset-[-6px] bg-[#FF6B00] rounded-full animate-ping opacity-75" style="animation-delay: ${u.delay}"></div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        let isCheckedIn = false;
+        function checkInOnMap() {
+            if (isCheckedIn) {
+                tg.showAlert('Вы уже в сети!');
+                return;
+            }
+            // Меняем стиль кнопки
+            const btn = document.getElementById('checkin-btn');
+            btn.innerText = "В СЕТИ ✓";
+            btn.className = "bg-[#111] text-[#FF6B00] border border-[#FF6B00] px-4 py-2.5 rounded-xl text-[10px] font-black uppercase italic shadow-[0_0_15px_rgba(255,107,0,0.2)]";
+            
+            // Увеличиваем счетчик
+            onlineCount++;
+            document.getElementById('online-counter').innerText = onlineCount.toLocaleString();
+            
+            // Добавляем юзера на карту (в районе Алматы)
+            mapUsers.push({ name: userName + " (Вы)", city: "Almaty", top: "70%", left: "70%", delay: "0s" });
+            renderMapUsers();
+            
+            // Легкая вибрация телефона (если поддерживается Telegram API)
+            tg.HapticFeedback.impactOccurred('medium');
+            isCheckedIn = true;
+        }
+
+        // Запуск рендера карты при загрузке
+        renderMapUsers();
+
     </script>
 </body>
 </html>
