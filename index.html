@@ -361,27 +361,20 @@
             video.play();
         }
 
-        // НОВАЯ ФУНКЦИЯ ДЛЯ СМЕНЫ ВИДЕО
         function changeLesson(videoUrl, mainTitle, subTitle) {
             const video = document.getElementById('academy-video');
             const cover = document.getElementById('video-cover');
             
-            // 1. Меняем источник видео и перезагружаем его
             video.src = videoUrl;
             video.load();
             
-            // 2. Меняем тексты на обложке
             document.getElementById('video-title').innerText = mainTitle;
             document.getElementById('video-subtitle').innerText = subTitle;
             
-            // 3. Прячем видео и возвращаем обложку с новым текстом
             video.classList.add('hidden');
             cover.style.display = 'block';
             
-            // 4. Плавно скроллим страницу наверх к плееру
             window.scrollTo({top: 0, behavior: 'smooth'});
-            
-            tg.showAlert('Выбран: ' + mainTitle);
         }
 
         // СТОРИС
@@ -432,7 +425,7 @@
         window.selectLocation = (id) => {
             document.getElementById('location-modal').classList.add('hidden-screen');
             const c = cities.find(x => x.id === id);
-            if(c) { tg.showAlert(`Геопозиция обновлена: ${c.nameRu}`); const btns = document.querySelectorAll('.city-btn'); let targetBtn = null; btns.forEach(b => { if(b.innerText.toUpperCase() === c.nameRu.toUpperCase()) targetBtn = b; }); fly(id, targetBtn); }
+            if(c) { const btns = document.querySelectorAll('.city-btn'); let targetBtn = null; btns.forEach(b => { if(b.innerText.toUpperCase() === c.nameRu.toUpperCase()) targetBtn = b; }); fly(id, targetBtn); }
         };
 
         const screens = ['home-screen', 'club-screen', 'abonement-screen', 'map-screen', 'profile-screen', 'fighters-screen', 'rating-screen', 'education-screen'];
