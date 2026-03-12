@@ -72,6 +72,10 @@
         /* Контейнер Глобуса */
         #globe-container { cursor: grab; }
         #globe-container:active { cursor: grabbing; }
+        
+        /* Кнопки городов */
+        .city-btn { padding: 6px 14px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #888; transition: all 0.3s; flex-shrink: 0; }
+        .city-btn.active { background: rgba(255, 107, 0, 0.1); border-color: #FF6B00; color: #FF6B00; box-shadow: 0 0 10px rgba(255,107,0,0.2); }
     </style>
 </head>
 <body class="max-w-md mx-auto relative p-4">
@@ -180,16 +184,18 @@
             <div><h2 class="text-3xl font-black italic uppercase">VIBE WORLD</h2><div class="text-[10px] font-black text-[#FF6B00] mt-1 tracking-widest uppercase">LIVE: 1,452 бойца</div></div>
             <button onclick="tg.showAlert('Твой статус: В СЕТИ!')" class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase italic active:scale-95 shadow-[0_0_15px_rgba(255,255,255,0.2)]">ТЫ В СЕТИ</button>
         </div>
+
+        <div class="flex gap-2 overflow-x-auto pb-4 px-1 no-scrollbar" id="city-selector">
+            </div>
         
         <div class="bento-card h-[400px] bg-[#000] border-[#FF6B00]/20 p-0 relative overflow-hidden" id="globe-wrapper">
             <div id="globe-container" class="absolute inset-0 flex items-center justify-center"></div>
-            
-            <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0)_40%,_rgba(0,0,0,0.9)_100%)] z-10"></div>
+            <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0)_50%,_rgba(0,0,0,0.8)_100%)] z-10"></div>
             
             <div class="absolute bottom-4 left-4 right-4 z-20 flex justify-between items-end pointer-events-none">
                 <div>
-                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Регион: Евразия</div>
-                    <div class="text-lg font-black italic text-[#FF6B00] drop-shadow-[0_0_8px_#FF6B00]">АЛМАТЫ</div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Текущая точка</div>
+                    <div class="text-lg font-black italic text-[#FF6B00] drop-shadow-[0_0_8px_#FF6B00]" id="current-city-name">АЛМАТЫ</div>
                 </div>
                 <div class="flex items-center gap-2 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10">
                     <div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e] animate-pulse"></div>
@@ -199,8 +205,8 @@
         </div>
 
         <div class="grid grid-cols-2 gap-3 mt-6">
-            <div class="bento-card !p-4 text-center border-cyan-900/30 active:scale-95 cursor-pointer" onclick="tg.showAlert('Отправка координат...')"><div class="text-cyan-400 font-black italic uppercase text-xs">ПРИЗЕМЛИЛСЯ</div><div class="text-[8px] text-gray-500 font-bold uppercase mt-1">Сигнал для местных</div></div>
-            <div class="bento-card !p-4 text-center border-orange-900/30 active:scale-95 cursor-pointer" onclick="tg.showAlert('Захват территории...')"><div class="text-[#FF6B00] font-black italic uppercase text-xs">СТОЛИЦА</div><div class="text-[8px] text-gray-500 font-bold uppercase mt-1">Захват точки</div></div>
+            <div class="bento-card !p-4 text-center border-cyan-900/30 active:scale-95 cursor-pointer" onclick="tg.showAlert('Координаты переданы')"><div class="text-cyan-400 font-black italic uppercase text-xs">ПРИЗЕМЛИЛСЯ</div><div class="text-[8px] text-gray-500 font-bold uppercase mt-1">Сигнал для местных</div></div>
+            <div class="bento-card !p-4 text-center border-orange-900/30 active:scale-95 cursor-pointer" onclick="tg.showAlert('Захват начался')"><div class="text-[#FF6B00] font-black italic uppercase text-xs">СТОЛИЦА</div><div class="text-[8px] text-gray-500 font-bold uppercase mt-1">Захват точки</div></div>
         </div>
         <div class="bottom-spacer"></div>
     </div>
@@ -267,11 +273,9 @@
             document.getElementById('avatar-container').innerText = user.first_name.charAt(0);
         }
 
-        // СТОРИЗ
         const storiesData = [
             { preview: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', bg: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800', title: 'Найм МОП', fullTitle: 'Новый модуль: Найм МОП', btn: 'Учить' },
-            { preview: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', bg: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800', title: 'Разбор', fullTitle: 'Разбор эфира с РОПом', btn: 'Смотреть' },
-            { preview: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=200', bg: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800', title: 'Скрипты', fullTitle: 'База Скриптов Обновлена', btn: 'Открыть' }
+            { preview: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', bg: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800', title: 'Разбор', fullTitle: 'Разбор эфира с РОПом', btn: 'Смотреть' }
         ];
         const list = document.getElementById('stories-list');
         storiesData.forEach((s, i) => { list.innerHTML += `<div class="flex flex-col items-center gap-2 flex-shrink-0 cursor-pointer active:scale-95 transition-transform" onclick="openStory(${i})"><div class="story-item"><img src="${s.preview}"></div><div class="text-[9px] font-bold text-gray-300 w-20 text-center truncate">${s.title}</div></div>`; });
@@ -292,8 +296,18 @@
         }
         function closeStory() { document.getElementById('story-player').style.display = 'none'; clearTimeout(storyTimer); }
         
-        // ================= ЛОГИКА 3D ГЛОБУСА (ТОЧНЫЙ ВЕКТОР v9.1) =================
+        // ================= ЛОГИКА 3D ГЛОБУСА (ТОЧНОСТЬ NASA + ПОЛЕТ v9.2) =================
         let myGlobe = null;
+        
+        // База данных городов VIBE
+        const cities = [
+            { id: 'almaty', lat: 43.2220, lng: 76.8512, name: 'Алматы' },
+            { id: 'astana', lat: 51.1694, lng: 71.4491, name: 'Астана' },
+            { id: 'moscow', lat: 55.7558, lng: 37.6173, name: 'Москва' },
+            { id: 'dubai', lat: 25.2048, lng: 55.2708, name: 'Дубай' },
+            { id: 'tashkent', lat: 41.2995, lng: 69.2401, name: 'Ташкент' }
+        ];
+
         function initGlobe() {
             if (myGlobe) return; 
             
@@ -302,44 +316,68 @@
             const width = wrapper.clientWidth;
             if(width === 0) return; 
 
-            // Координаты радаров
-            const ringData = [
-                { lat: 43.2220, lng: 76.8512, name: 'Almaty' },
-                { lat: 51.1694, lng: 71.4491, name: 'Astana' },
-                { lat: 55.7558, lng: 37.6173, name: 'Moscow' },
-                { lat: 25.2048, lng: 55.2708, name: 'Dubai' }
-            ];
+            // Рендерим панель выбора городов
+            const selector = document.getElementById('city-selector');
+            selector.innerHTML = '';
+            cities.forEach((city, index) => {
+                selector.innerHTML += `<div class="city-btn ${index === 0 ? 'active' : ''}" onclick="flyToCity('${city.id}', this)">${city.name}</div>`;
+            });
 
+            // Инициализация глобуса
             myGlobe = Globe()(container)
                 .width(width)
                 .height(400)
                 .backgroundColor('rgba(0,0,0,0)')
-                .showGlobe(true) // Оставляем саму сферу Земли
-                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-dark.jpg') // Подложка для океанов
+                // ФОТОРЕАЛИСТИЧНАЯ КАРТА НОЧНОЙ ЗЕМЛИ (Видно континенты и огни)
+                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
                 .showAtmosphere(true)
                 .atmosphereColor('#FF6B00')
                 .atmosphereAltitude(0.15)
-                .ringsData(ringData)
+                // Радары
+                .ringsData(cities)
                 .ringColor(() => '#FF6B00')
-                .ringMaxRadius(4)
+                .ringMaxRadius(3)
                 .ringPropagationSpeed(2)
-                .ringRepeatPeriod(1000)
-                .pointOfView({ lat: 40, lng: 70, altitude: 2.5 }); 
-
-            // МАГИЯ: ЗАГРУЖАЕМ ТОЧНЫЕ ВЕКТОРНЫЕ ГРАНИЦЫ СТРАН
-            fetch('https://unpkg.com/three-globe/example/datasets/ne_110m_admin_0_countries.geojson')
-                .then(res => res.json())
-                .then(countries => {
-                    myGlobe.polygonsData(countries.features)
-                        .polygonCapColor(() => '#0a0a0a') // Перекрываем сушу глубоким черным
-                        .polygonSideColor(() => 'rgba(0,0,0,0)') // Без лишнего 3D объема у границ
-                        .polygonStrokeColor(() => 'rgba(255, 107, 0, 0.4)'); // Тонкие неоновые оранжевые границы стран
-                });
+                .ringRepeatPeriod(800)
+                // Подписи прямо на глобусе
+                .labelsData(cities)
+                .labelLat(d => d.lat)
+                .labelLng(d => d.lng)
+                .labelText(d => d.name.toUpperCase())
+                .labelSize(1.5)
+                .labelDotRadius(0.5)
+                .labelColor(() => '#FF6B00')
+                .labelResolution(2)
+                // Стартовая позиция (Алматы)
+                .pointOfView({ lat: 43.2220, lng: 76.8512, altitude: 1.5 }); 
 
             myGlobe.controls().autoRotate = true;
-            myGlobe.controls().autoRotateSpeed = 1.2;
+            myGlobe.controls().autoRotateSpeed = 0.5;
             myGlobe.controls().enableZoom = false; 
         }
+
+        // ФУНКЦИЯ ПОЛЕТА КАМЕРЫ
+        window.flyToCity = function(cityId, btnElement) {
+            // Обновляем активную кнопку
+            document.querySelectorAll('.city-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            // Находим город в базе
+            const city = cities.find(c => c.id === cityId);
+            if (city && myGlobe) {
+                // Обновляем текст в UI
+                document.getElementById('current-city-name').innerText = city.name.toUpperCase();
+                
+                // ОСТАНАВЛИВАЕМ авто-вращение, ЛЕТИМ в точку (1.5 секунды анимация)
+                myGlobe.controls().autoRotate = false;
+                myGlobe.pointOfView({ lat: city.lat, lng: city.lng, altitude: 1.5 }, 1500);
+                
+                // Включаем обратно авто-вращение через 3 секунды
+                setTimeout(() => {
+                    myGlobe.controls().autoRotate = true;
+                }, 3000);
+            }
+        };
 
         const screens = ['home-screen', 'club-screen', 'abonement-screen', 'map-screen', 'profile-screen', 'fighters-screen', 'rating-screen'];
         function switchTab(id, idx) {
