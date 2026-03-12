@@ -13,7 +13,6 @@
         :root { --orange: #FF5500; --bg: #000000; --glass: rgba(15, 15, 15, 0.8); --glass-border: rgba(255, 255, 255, 0.08); }
         html { background-color: var(--bg); scroll-behavior: smooth; }
         
-        /* Плавный нативный скролл */
         body { 
             background-color: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; 
             user-select: none; -webkit-user-select: none; 
@@ -49,7 +48,7 @@
         .city-btn { padding: 8px 18px; border-radius: 25px; font-size: 10px; font-weight: 900; text-transform: uppercase; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #777; flex-shrink: 0; transition: 0.3s; }
         .city-btn.active { background: rgba(255, 107, 0, 0.15); border-color: #FF6B00; color: #FF6B00; box-shadow: 0 0 15px rgba(255,107,0,0.3); }
 
-        /* Умный Трекер (Календарь 1Fit Style) */
+        /* Умный Трекер */
         .cal-day { min-width: 62px; height: 80px; border-radius: 22px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
         .cal-missed { background: #0a0a0a; border: 1px solid rgba(255,255,255,0.05); opacity: 0.6; }
         .cal-attended { background: linear-gradient(135deg, #FF6B00, #cc4400); border: 1px solid #FF6B00; color: white; box-shadow: 0 0 15px rgba(255,107,0,0.3); }
@@ -207,52 +206,50 @@
             <div class="flex gap-2 overflow-x-auto no-scrollbar py-2 mb-4 items-center justify-center">
                 
                 <div class="shrink-0 w-20 opacity-40 flex flex-col items-center transition-transform cursor-pointer" onclick="tg.showAlert('Золотой уровень: 800 - 1399 баллов')">
-                    <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-xl" style="transform-origin: 50% 50%;">
+                    <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-xl">
                         <defs>
                             <linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#FFE066" /><stop offset="50%" stop-color="#FFB300" /><stop offset="100%" stop-color="#996B00" />
                             </linearGradient>
-                            <polygon id="hex" points="50,2 91.5,26 91.5,74 50,98 8.5,74 8.5,26" />
+                            <path id="star-small" d="M50 35 l4 12 h13 l-10 8 4 12 -11 -8 -11 8 4 -12 -10 -8 h13 z" />
                         </defs>
-                        <use href="#hex" fill="url(#grad-gold)" />
-                        <g fill="none" stroke="#fff" stroke-width="2" opacity="0.4" style="transform-origin: 50px 50px;">
-                            <use href="#hex" style="transform: scale(0.85)" /><use href="#hex" style="transform: scale(0.70)" /><use href="#hex" style="transform: scale(0.55)" />
-                        </g>
-                        <use href="#hex" fill="#000" opacity="0.2" style="transform-origin: 50px 50px; transform: scale(0.45)" />
-                        <polygon points="50,33 55,46 69,46 58,54 62,68 50,59 38,68 42,54 31,46 45,46" fill="#fff" />
+                        <polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-gold)" />
+                        <polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.4" />
+                        <polygon points="50,21 76,36 76,64 50,79 24,64 24,36" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.2" />
+                        <use href="#star-small" fill="#000" opacity="0.3" transform="translate(0, 2)" />
+                        <use href="#star-small" fill="#fff" />
                     </svg>
                 </div>
                 
                 <div class="shrink-0 w-36 flex flex-col items-center relative">
                     <div class="absolute inset-0 bg-[#FF6B00]/20 blur-[30px] rounded-full pointer-events-none"></div>
-                    <svg viewBox="0 0 100 100" class="w-28 h-28 drop-shadow-2xl relative z-10" style="transform-origin: 50% 50%;">
+                    <svg viewBox="0 0 100 100" class="w-28 h-28 drop-shadow-2xl relative z-10">
                         <defs>
                             <linearGradient id="grad-plat" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#FF9B30" /><stop offset="50%" stop-color="#FF5500" /><stop offset="100%" stop-color="#802A00" />
                             </linearGradient>
+                            <path id="star-big" d="M50 32 l5 15 h16 l-13 9 5 15 -13 -9 -13 9 5 -15 -13 -9 h16 z" />
                         </defs>
-                        <use href="#hex" fill="url(#grad-plat)" />
-                        <g fill="none" stroke="#fff" stroke-width="2" opacity="0.5" style="transform-origin: 50px 50px;">
-                            <use href="#hex" style="transform: scale(0.85)" /><use href="#hex" style="transform: scale(0.70)" /><use href="#hex" style="transform: scale(0.55)" />
-                        </g>
-                        <use href="#hex" fill="#000" opacity="0.25" style="transform-origin: 50px 50px; transform: scale(0.45)" />
-                        <polygon points="50,31 56,45 71,45 59,54 64,69 50,60 36,69 41,54 29,45 44,45" fill="#fff" filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))"/>
+                        <polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-plat)" />
+                        <polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.4" />
+                        <polygon points="50,21 76,36 76,64 50,79 24,64 24,36" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.2" />
+                        <use href="#star-big" fill="#000" opacity="0.4" transform="translate(0, 3)" />
+                        <use href="#star-big" fill="#fff" />
                     </svg>
                 </div>
 
                 <div class="shrink-0 w-20 opacity-40 flex flex-col items-center transition-transform cursor-pointer" onclick="tg.showAlert('Сапфировый уровень: 2000 - 3499 баллов')">
-                    <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-xl" style="transform-origin: 50% 50%;">
+                    <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-xl">
                         <defs>
                             <linearGradient id="grad-sap" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#7A8BFF" /><stop offset="50%" stop-color="#2541B2" /><stop offset="100%" stop-color="#0B1B66" />
                             </linearGradient>
                         </defs>
-                        <use href="#hex" fill="url(#grad-sap)" />
-                        <g fill="none" stroke="#fff" stroke-width="2" opacity="0.4" style="transform-origin: 50px 50px;">
-                            <use href="#hex" style="transform: scale(0.85)" /><use href="#hex" style="transform: scale(0.70)" /><use href="#hex" style="transform: scale(0.55)" />
-                        </g>
-                        <use href="#hex" fill="#000" opacity="0.2" style="transform-origin: 50px 50px; transform: scale(0.45)" />
-                        <polygon points="50,33 55,46 69,46 58,54 62,68 50,59 38,68 42,54 31,46 45,46" fill="#fff" />
+                        <polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-sap)" />
+                        <polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.4" />
+                        <polygon points="50,21 76,36 76,64 50,79 24,64 24,36" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.2" />
+                        <use href="#star-small" fill="#000" opacity="0.3" transform="translate(0, 2)" />
+                        <use href="#star-small" fill="#fff" />
                     </svg>
                 </div>
 
@@ -347,14 +344,14 @@
         const storiesList = document.getElementById('stories-list');
         storiesData.forEach(s => { storiesList.innerHTML += `<div class="flex flex-col items-center gap-3 active:scale-95 transition-transform"><div class="story-item"><img src="${s.preview}"></div><div class="text-[10px] font-bold text-gray-400 text-center uppercase">${s.title}</div></div>`; });
 
-        // ================= УМНЫЙ КАЛЕНДАРЬ С ПЕРЕКЛЮЧЕНИЕМ v9.8 =================
+        // ================= УМНЫЙ КАЛЕНДАРЬ =================
         const monthsData = [
             { name: 'Январь 2026', days: 31, active: [5, 12, 19] },
             { name: 'Февраль 2026', days: 28, active: [2, 9, 16, 23] },
             { name: 'Март 2026', days: 31, active: [4, 7, 11], today: 12 },
             { name: 'Апрель 2026', days: 30, active: [] }
         ];
-        let currentMonthIdx = 2; // По умолчанию Март
+        let currentMonthIdx = 2;
 
         function renderCalendar() {
             const m = monthsData[currentMonthIdx];
@@ -386,25 +383,19 @@
             }
             calTrack.innerHTML = calHTML;
             
-            // Скроллим к сегодняшнему дню, если он есть в месяце
             if (m.today) {
                 setTimeout(() => { calTrack.scrollLeft = (m.today - 2) * 70; }, 100);
             } else {
                 calTrack.scrollLeft = 0;
             }
         }
-
-        // Функция переключения месяцев
         window.changeMonth = function(dir) {
             currentMonthIdx += dir;
             if (currentMonthIdx < 0) currentMonthIdx = 0;
             if (currentMonthIdx >= monthsData.length) currentMonthIdx = monthsData.length - 1;
             renderCalendar();
         };
-        
-        // Первый рендер календаря
         renderCalendar();
-
 
         // ================= 3D ГЛОБУС =================
         let myGlobe = null;
