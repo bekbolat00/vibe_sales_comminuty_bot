@@ -181,17 +181,17 @@
             <button onclick="tg.showAlert('Твой статус: В СЕТИ!')" class="bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase italic active:scale-95 shadow-[0_0_15px_rgba(255,255,255,0.2)]">ТЫ В СЕТИ</button>
         </div>
         
-        <div class="bento-card h-[400px] bg-[#020202] border-[#FF6B00]/20 p-0 relative overflow-hidden" id="globe-wrapper">
+        <div class="bento-card h-[400px] bg-[#000] border-[#FF6B00]/20 p-0 relative overflow-hidden" id="globe-wrapper">
             <div id="globe-container" class="absolute inset-0 flex items-center justify-center"></div>
             
-            <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0)_50%,_rgba(0,0,0,0.8)_100%)] z-10"></div>
+            <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_rgba(0,0,0,0)_40%,_rgba(0,0,0,0.9)_100%)] z-10"></div>
             
             <div class="absolute bottom-4 left-4 right-4 z-20 flex justify-between items-end pointer-events-none">
                 <div>
                     <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Регион: Евразия</div>
                     <div class="text-lg font-black italic text-[#FF6B00] drop-shadow-[0_0_8px_#FF6B00]">АЛМАТЫ</div>
                 </div>
-                <div class="flex items-center gap-2 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/10">
+                <div class="flex items-center gap-2 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10">
                     <div class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_#22c55e] animate-pulse"></div>
                     <span class="text-[9px] font-black text-white uppercase">Сигнал стабилен</span>
                 </div>
@@ -292,17 +292,17 @@
         }
         function closeStory() { document.getElementById('story-player').style.display = 'none'; clearTimeout(storyTimer); }
         
-        // ================= ЛОГИКА 3D ГЛОБУСА =================
+        // ================= ЛОГИКА 3D ГЛОБУСА (ТОЧНЫЙ ВЕКТОР v9.1) =================
         let myGlobe = null;
         function initGlobe() {
-            if (myGlobe) return; // Инициализируем только один раз
+            if (myGlobe) return; 
             
             const container = document.getElementById('globe-container');
             const wrapper = document.getElementById('globe-wrapper');
             const width = wrapper.clientWidth;
-            if(width === 0) return; // Ждем пока вкладка откроется
+            if(width === 0) return; 
 
-            // Данные пульсирующих радаров (города VIBE)
+            // Координаты радаров
             const ringData = [
                 { lat: 43.2220, lng: 76.8512, name: 'Almaty' },
                 { lat: 51.1694, lng: 71.4491, name: 'Astana' },
@@ -313,25 +313,34 @@
             myGlobe = Globe()(container)
                 .width(width)
                 .height(400)
-                .backgroundColor('rgba(0,0,0,0)') // Прозрачный фон
-                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-dark.jpg') // Темная Cyber-Земля
+                .backgroundColor('rgba(0,0,0,0)')
+                .showGlobe(true) // Оставляем саму сферу Земли
+                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-dark.jpg') // Подложка для океанов
                 .showAtmosphere(true)
-                .atmosphereColor('#FF6B00') // Неоновая оранжевая аура!
+                .atmosphereColor('#FF6B00')
                 .atmosphereAltitude(0.15)
                 .ringsData(ringData)
                 .ringColor(() => '#FF6B00')
                 .ringMaxRadius(4)
                 .ringPropagationSpeed(2)
                 .ringRepeatPeriod(1000)
-                .pointOfView({ lat: 40, lng: 70, altitude: 2.5 }); // Камера на Центральную Азию
+                .pointOfView({ lat: 40, lng: 70, altitude: 2.5 }); 
 
-            // Настройка управления (вращение)
+            // МАГИЯ: ЗАГРУЖАЕМ ТОЧНЫЕ ВЕКТОРНЫЕ ГРАНИЦЫ СТРАН
+            fetch('https://unpkg.com/three-globe/example/datasets/ne_110m_admin_0_countries.geojson')
+                .then(res => res.json())
+                .then(countries => {
+                    myGlobe.polygonsData(countries.features)
+                        .polygonCapColor(() => '#0a0a0a') // Перекрываем сушу глубоким черным
+                        .polygonSideColor(() => 'rgba(0,0,0,0)') // Без лишнего 3D объема у границ
+                        .polygonStrokeColor(() => 'rgba(255, 107, 0, 0.4)'); // Тонкие неоновые оранжевые границы стран
+                });
+
             myGlobe.controls().autoRotate = true;
             myGlobe.controls().autoRotateSpeed = 1.2;
-            myGlobe.controls().enableZoom = false; // Отключаем зум, чтобы страница не скроллилась криво
+            myGlobe.controls().enableZoom = false; 
         }
 
-        // НАВИГАЦИЯ И ВКЛЮЧЕНИЕ ГЛОБУСА
         const screens = ['home-screen', 'club-screen', 'abonement-screen', 'map-screen', 'profile-screen', 'fighters-screen', 'rating-screen'];
         function switchTab(id, idx) {
             screens.forEach(s => document.getElementById(s).classList.add('hidden-screen'));
@@ -342,7 +351,6 @@
             }
             window.scrollTo({top: 0, behavior: 'smooth'});
 
-            // Запускаем глобус, если открыли Карту
             if (id === 'map-screen') {
                 setTimeout(initGlobe, 100);
             }
