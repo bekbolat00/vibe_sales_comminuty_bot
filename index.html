@@ -27,7 +27,12 @@
             transition: all 0.2s ease; position: relative; overflow: hidden;
         }
 
-        @keyframes proPulse { 0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); } 70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); border-color: rgba(255, 107, 0, 0.1); } 100% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); } }
+        /* Мигающий PRO */
+        @keyframes proPulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); border-color: rgba(255, 107, 0, 0.1); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); }
+        }
         .pro-badge { animation: proPulse 2s infinite; }
 
         /* STORIES */
@@ -62,15 +67,24 @@
         .kino-number { position: absolute; left: -10px; top: -5px; font-size: 130px; font-weight: 900; font-style: italic; line-height: 0.75; letter-spacing: -0.05em; background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 80%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; z-index: 10; pointer-events: none; }
         .scroll-container { scroll-snap-type: x mandatory; }
 
-        /* ================= НОВАЯ КАРТА v9.0 ================= */
-        .kz-map-svg { filter: drop-shadow(0 0 20px rgba(255, 107, 0, 0.5)); stroke: var(--orange); stroke-width: 2.5; fill: rgba(255, 107, 0, 0.05); }
+        /* ================= КАРТА КАЗАХСТАНА v9.1 ================= */
+        .kz-map-svg { 
+            filter: drop-shadow(0 0 15px rgba(255, 107, 0, 0.4)); 
+            stroke: var(--orange); 
+            stroke-width: 2.5; 
+            stroke-linejoin: round;
+            stroke-linecap: round;
+            fill: rgba(255, 107, 0, 0.05); 
+        }
         
-        /* Сетка на фоне карты для кибер-вида */
         .cyber-grid {
             background-size: 30px 30px;
             background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                               linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
         }
+
+        /* Анимация пульсации юзеров на карте */
+        @keyframes radarPulse { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(3.5); opacity: 0; } }
     </style>
 </head>
 <body class="max-w-md mx-auto relative p-4">
@@ -102,9 +116,7 @@
         <div class="bento-card col-span-2 h-24 flex items-center justify-between border-[#FF6B00]/20 bg-[#0a0a0a]" onclick="switchTab('map-screen', 3)">
             <div class="flex items-center gap-4">
                 <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center border border-white/5 relative">
-                    <div class="w-2 h-2 bg-[#FF6B00] rounded-full relative z-10">
-                        <div class="absolute inset-[-4px] bg-[#FF6B00] rounded-full animate-ping opacity-75"></div>
-                    </div>
+                    <div class="w-2 h-2 bg-[#FF6B00] rounded-full relative z-10"><div class="absolute inset-[-4px] bg-[#FF6B00] rounded-full animate-ping opacity-75"></div></div>
                 </div>
                 <div><h3 class="text-sm font-black italic uppercase">Карта захвата</h3><p class="text-[9px] text-[#FF6B00] font-black uppercase tracking-widest mt-1">Live: 1,453</p></div>
             </div>
@@ -191,13 +203,13 @@
             <button onclick="checkInOnMap()" id="checkin-btn" class="bg-[#FF6B00] text-black px-4 py-2.5 rounded-xl text-[10px] font-black uppercase italic shadow-[0_0_15px_rgba(255,107,0,0.4)] active:scale-95 transition-all">Я В СЕТИ</button>
         </div>
 
-        <div class="bento-card bg-[#080808] p-0 relative overflow-hidden h-[420px] border border-white/5 shadow-[0_0_30px_rgba(255,107,0,0.05)]">
+        <div class="bento-card bg-[#080808] p-0 relative overflow-hidden h-[440px] border border-white/5 shadow-[0_0_30px_rgba(255,107,0,0.05)]">
             <div class="absolute inset-0 cyber-grid opacity-30"></div>
             <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,107,0,0.1),transparent_70%)]"></div>
             
-            <div class="absolute inset-0 flex items-center justify-center p-6">
-                <svg class="kz-map-svg w-full h-auto drop-shadow-[0_0_15px_rgba(255,107,0,0.3)] relative z-10" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M120,380 L80,340 L100,280 L140,240 L210,210 L250,150 L350,140 L450,110 L500,80 L580,90 L680,60 L780,80 L880,140 L930,240 L880,350 L840,420 L750,480 L600,460 L500,480 L380,450 L250,470 L150,440 Z" stroke-linejoin="round"/>
+            <div class="absolute inset-0 flex items-center justify-center p-2 pt-8">
+                <svg class="kz-map-svg w-full h-auto relative z-10" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M 160,240 L 210,210 L 270,240 L 300,180 L 350,140 L 390,130 L 450,60 L 520,90 L 570,80 L 650,90 L 710,120 L 780,130 L 830,170 L 890,200 L 940,260 L 910,290 L 880,320 L 840,360 L 830,420 L 810,460 L 760,450 L 700,470 L 660,530 L 610,490 L 560,470 L 500,480 L 430,460 L 380,480 L 330,500 L 280,560 L 240,540 L 200,490 L 220,440 L 170,390 L 120,350 L 90,300 L 130,270 Z"/>
                 </svg>
             </div>
 
@@ -214,7 +226,6 @@
                 <div class="text-[8px] text-gray-500 font-bold uppercase tracking-widest">Лидер онлайна</div>
             </div>
         </div>
-
         <div class="bottom-spacer"></div>
     </div>
 
@@ -248,7 +259,6 @@
             <div class="flex justify-between items-center mb-5"><h3 class="text-[11px] text-white font-black uppercase tracking-widest">Достижения</h3><span class="text-[9px] text-[#FF6B00] font-black uppercase">34 Получено ›</span></div>
             <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar px-1">
                 <div class="bg-black rounded-2xl p-3 border border-white/5 min-w-[110px] flex flex-col items-center shrink-0 grayscale opacity-40"><div class="text-3xl flex items-center justify-center mb-1">🤝</div><div class="text-[9px] font-black uppercase text-center mb-1 text-gray-300 tracking-tighter">Напарник</div><div class="text-[8px] font-bold text-gray-500 mb-2 uppercase">1 из 5</div><div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden"><div class="bg-blue-500 w-[20%] h-full rounded-full"></div></div></div>
-                <div class="bg-black rounded-2xl p-3 border border-white/5 min-w-[110px] flex flex-col items-center shrink-0 grayscale opacity-40"><div class="text-3xl flex items-center justify-center mb-1">💰</div><div class="text-[9px] font-black uppercase text-center mb-1 text-gray-300 tracking-tighter">Закрыватор</div><div class="text-[8px] font-bold text-gray-500 mb-2 uppercase">19 из 20</div><div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden"><div class="bg-[#FF6B00] w-[95%] h-full rounded-full shadow-[0_0_5px_#FF6B00]"></div></div></div>
                 <div class="bg-black rounded-2xl p-3 border border-[#FF6B00]/40 min-w-[110px] flex flex-col items-center shrink-0 shadow-[0_0_15px_rgba(255,107,0,0.1)] relative overflow-hidden"><div class="absolute inset-0 bg-[#FF6B00] opacity-5"></div><div class="text-3xl flex items-center justify-center drop-shadow-[0_0_8px_rgba(255,107,0,0.8)] z-10 mb-1">🚀</div><div class="text-[9px] font-black uppercase text-center mb-1 text-[#FF6B00] z-10 tracking-tighter">Ранняя пташка</div><div class="text-[8px] font-bold text-[#FF6B00] mb-2 uppercase z-10">Выполнено</div><div class="w-full bg-[#FF6B00]/20 h-1 rounded-full overflow-hidden z-10"><div class="bg-[#FF6B00] w-full h-full rounded-full"></div></div></div>
             </div>
         </div>
@@ -310,15 +320,17 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        // ================= ЛОГИКА РАДАРА (КАРТЫ) =================
+        // ================= ЛОГИКА РАДАРА (ОТКАЛИБРОВАННАЯ КАРТА v9.1) =================
         let onlineCount = 1453;
+        // Координаты % подогнаны под новый точный контур Казахстана
         const mapUsers = [
-            { name: "Ерлан", city: "Astana", top: "25%", left: "55%", delay: "0s" },
-            { name: "Сержан", city: "Shymkent", top: "75%", left: "50%", delay: "1s" },
-            { name: "Алия", city: "Aktobe", top: "35%", left: "20%", delay: "0.5s" },
-            { name: "Димаш", city: "Atyrau", top: "45%", left: "10%", delay: "1.5s" },
-            { name: "Кайрат", city: "Karaganda", top: "40%", left: "60%", delay: "0.8s" },
-            { name: "Марат", city: "Almaty", top: "65%", left: "68%", delay: "0.2s" }
+            { name: "Ерлан", city: "Astana", top: "33%", left: "62%", delay: "0s" },
+            { name: "Сержан", city: "Shymkent", top: "86%", left: "66%", delay: "1s" },
+            { name: "Алия", city: "Aktobe", top: "46%", left: "32%", delay: "0.5s" },
+            { name: "Димаш", city: "Atyrau", top: "56%", left: "13%", delay: "1.5s" },
+            { name: "Кайрат", city: "Karaganda", top: "46%", left: "65%", delay: "0.8s" },
+            { name: "Марат", city: "Almaty", top: "75%", left: "80%", delay: "0.2s" },
+            { name: "Айдос", city: "Aqtau", top: "90%", left: "27%", delay: "0.4s" }
         ];
 
         function renderMapUsers() {
@@ -328,7 +340,7 @@
                 container.innerHTML += `
                     <div class="absolute" style="top: ${u.top}; left: ${u.left};">
                         <div class="w-2.5 h-2.5 bg-[#FF6B00] rounded-full relative z-10 shadow-[0_0_10px_#FF6B00] cursor-pointer active:scale-150 transition-transform" onclick="tg.showAlert('${u.name} | ${u.city}')">
-                            <div class="absolute inset-[-6px] bg-[#FF6B00] rounded-full animate-ping opacity-75" style="animation-delay: ${u.delay}"></div>
+                            <div class="absolute inset-[-6px] bg-[#FF6B00] rounded-full opacity-75" style="animation: radarPulse 2s infinite ${u.delay}"></div>
                         </div>
                     </div>
                 `;
@@ -341,28 +353,23 @@
                 tg.showAlert('Вы уже в сети!');
                 return;
             }
-            // Меняем стиль кнопки
             const btn = document.getElementById('checkin-btn');
             btn.innerText = "В СЕТИ ✓";
             btn.className = "bg-[#111] text-[#FF6B00] border border-[#FF6B00] px-4 py-2.5 rounded-xl text-[10px] font-black uppercase italic shadow-[0_0_15px_rgba(255,107,0,0.2)]";
             
-            // Увеличиваем счетчик
             onlineCount++;
             document.getElementById('online-counter').innerText = onlineCount.toLocaleString();
             
-            // Добавляем юзера на карту (в районе Алматы)
-            mapUsers.push({ name: userName + " (Вы)", city: "Almaty", top: "70%", left: "70%", delay: "0s" });
+            // Добавляем юзера (тебя) в районе Алматы
+            mapUsers.push({ name: userName + " (Вы)", city: "Almaty", top: "76%", left: "82%", delay: "0s" });
             renderMapUsers();
             
-            // Легкая вибрация телефона (если поддерживается Telegram API)
-            tg.HapticFeedback.impactOccurred('medium');
+            if(tg.HapticFeedback) { tg.HapticFeedback.impactOccurred('medium'); }
             isCheckedIn = true;
         }
 
-        // Запуск рендера карты при загрузке
         renderMapUsers();
 
     </script>
 </body>
 </html>
-
