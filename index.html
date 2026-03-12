@@ -12,13 +12,16 @@
     <style>
         :root { --orange: #FF5500; --bg: #000000; --glass: rgba(15, 15, 15, 0.8); --glass-border: rgba(255, 255, 255, 0.08); }
         html { background-color: var(--bg); scroll-behavior: smooth; }
+        
+        /* ИСПРАВЛЕН ТУГОЙ СКРОЛЛ: Убрал overflow-y, позволив нативный скролл браузера */
         body { 
             background-color: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; 
-            user-select: none; -webkit-user-select: none; overflow-y: auto; overflow-x: hidden; 
+            user-select: none; -webkit-user-select: none; 
             min-height: 100vh; background-attachment: fixed;
             background-image: radial-gradient(circle at 50% -10%, rgba(255, 85, 0, 0.15), transparent 60%);
-            padding-bottom: 100px;
+            padding-bottom: 120px; /* Увеличил отступ, чтобы нижний блок не прилипал к таббару */
         }
+        
         .bento-card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 28px; padding: 20px; transition: all 0.2s ease; position: relative; overflow: hidden; }
         
         /* Stories */
@@ -40,7 +43,7 @@
         .kino-top-img { width: 115px; height: 160px; border-radius: 14px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
 
         /* Гексагоны */
-        .league-hexagon { background: linear-gradient(135deg, #FF6B00 0%, #aa3300 100%); box-shadow: inset 0 0 20px rgba(255,255,255,0.5), 0 10px 30px -10px rgba(255,107,0,0.8); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); }
+        .league-hexagon { box-shadow: inset 0 0 20px rgba(255,255,255,0.3), 0 10px 30px -10px rgba(0,0,0,0.8); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); transition: all 0.3s; }
         .rank-hexagon-min { background: #111; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; }
 
         .hidden-screen { display: none !important; }
@@ -200,16 +203,31 @@
         <div class="bento-card border-[#FF6B00]/30 bg-gradient-to-t from-[#050505] to-[#150d08] p-6">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-[11px] text-gray-400 font-black uppercase tracking-widest">Мой рейтинг</h3>
-                <span class="text-[10px] text-[#FF6B00] font-black uppercase cursor-pointer active:opacity-50 transition-opacity" onclick="switchTab('rating-screen', 4)">Топ Лидеров ›</span>
+                <span class="text-[10px] text-[#FF6B00] font-black uppercase cursor-pointer active:opacity-50" onclick="switchTab('rating-screen', 4)">Топ Лидеров ›</span>
             </div>
             
-            <div class="flex flex-col items-center mb-6 relative">
-                <div class="absolute inset-0 bg-orange-600/10 blur-[40px] rounded-full pointer-events-none"></div>
-                <div class="league-hexagon w-24 h-24 mb-4 flex items-center justify-center z-10"><span class="text-4xl">🐺</span></div>
-                <div class="flex items-center gap-2 z-10">
-                    <h2 class="text-3xl font-black italic uppercase tracking-wider">Платиновый</h2>
-                    <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-gray-400 cursor-pointer active:scale-90" onclick="tg.showAlert('Логика: За первую активность на неделе дается +100 баллов. Пропустил неделю = -100 баллов. Занимайся регулярно, чтобы расти!')">ℹ️</div>
+            <div class="flex gap-4 overflow-x-auto no-scrollbar py-2 mb-2 items-center justify-center">
+                <div class="shrink-0 w-20 opacity-40 flex flex-col items-center transition-transform cursor-pointer" onclick="tg.showAlert('Золотой уровень: 800 - 1399 баллов')">
+                    <div class="league-hexagon w-16 h-16 flex items-center justify-center bg-gradient-to-br from-[#FFD700] to-[#8B6508]">
+                        <svg class="w-8 h-8 text-white/80" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    </div>
                 </div>
+                <div class="shrink-0 w-32 flex flex-col items-center relative">
+                    <div class="absolute inset-0 bg-[#FF6B00]/20 blur-[30px] rounded-full pointer-events-none"></div>
+                    <div class="league-hexagon w-28 h-28 flex items-center justify-center bg-gradient-to-br from-[#FF6B00] to-[#cc4400] relative z-10 border-2 border-white/20 shadow-[0_0_20px_rgba(255,107,0,0.3)]">
+                        <svg class="w-14 h-14 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    </div>
+                </div>
+                <div class="shrink-0 w-20 opacity-40 flex flex-col items-center transition-transform cursor-pointer" onclick="tg.showAlert('Сапфировый уровень: 2000 - 3499 баллов')">
+                    <div class="league-hexagon w-16 h-16 flex items-center justify-center bg-gradient-to-br from-[#0F52BA] to-[#000080]">
+                        <svg class="w-8 h-8 text-white/80" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center items-center gap-2 mb-6">
+                <h2 class="text-3xl font-black italic uppercase tracking-wider text-center">Платиновый</h2>
+                <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-gray-400 cursor-pointer active:scale-90" onclick="tg.showAlert('За первую активность на неделе дается +100 баллов. Пропустил неделю = -100 баллов.')">ℹ️</div>
             </div>
 
             <div class="flex justify-between text-[11px] font-black text-gray-400 mb-3 uppercase">
@@ -232,8 +250,12 @@
         </div>
 
         <div class="bento-card bg-[#0a0a0a] !p-6">
-            <div class="flex justify-between items-center mb-5">
-                <h3 class="text-[12px] text-white font-black uppercase tracking-widest">Март 2026</h3>
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="text-gray-500 text-xl font-bold cursor-pointer active:scale-90 transition-transform" onclick="tg.showAlert('Предыдущий месяц')">‹</div>
+                    <h3 class="text-[12px] text-white font-black uppercase tracking-widest">Март 2026</h3>
+                    <div class="text-gray-500 text-xl font-bold cursor-pointer active:scale-90 transition-transform" onclick="tg.showAlert('Следующий месяц')">›</div>
+                </div>
                 <span class="text-[9px] text-[#FF6B00] font-black uppercase tracking-wider cursor-pointer active:opacity-50">История ›</span>
             </div>
             <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2" id="calendar-track"></div>
@@ -292,25 +314,20 @@
         const storiesList = document.getElementById('stories-list');
         storiesData.forEach(s => { storiesList.innerHTML += `<div class="flex flex-col items-center gap-3 active:scale-95 transition-transform"><div class="story-item"><img src="${s.preview}"></div><div class="text-[10px] font-bold text-gray-400 text-center uppercase">${s.title}</div></div>`; });
 
-        // ================= УМНЫЙ КАЛЕНДАРЬ АКТИВНОСТИ (1FIT STYLE) =================
+        // ================= УМНЫЙ КАЛЕНДАРЬ АКТИВНОСТИ =================
         const calTrack = document.getElementById('calendar-track');
         const days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
         let calHTML = '';
         
         for(let i = 1; i <= 30; i++) {
             const dayName = days[(i-1) % 7];
-            
-            // Логика состояний дней (демо данные)
-            let statusClass = 'cal-missed'; // Серый, не был
+            let statusClass = 'cal-missed'; 
             let content = `<div class="text-xl font-black italic">${i}</div>`;
             
-            // Дни, когда была активность (+100 баллов)
             if (i === 4 || i === 7 || i === 11) {
                 statusClass = 'cal-attended'; 
                 content = `<div class="text-2xl font-black">✓</div>`;
-            } 
-            // Сегодняшний день (оранжевая рамка)
-            else if (i === 12) {
+            } else if (i === 12) {
                 statusClass = 'cal-today';
                 content = `<div class="text-xl font-black italic text-[#FF6B00]">${i}</div>`;
             }
@@ -323,8 +340,6 @@
             `;
         }
         calTrack.innerHTML = calHTML;
-        
-        // Автоскролл календаря к сегодняшнему дню (12 число)
         setTimeout(() => { calTrack.scrollLeft = 300; }, 500);
 
         // ================= 3D ГЛОБУС =================
@@ -335,7 +350,7 @@
             const wrapper = document.getElementById('globe-wrapper');
             const selector = document.getElementById('city-selector');
             cities.forEach((city, index) => { selector.innerHTML += `<div class="city-btn ${index === 0 ? 'active' : ''}" onclick="flyToCity('${city.id}', this)">${city.name}</div>`; });
-            myGlobe = Globe()(document.getElementById('globe-container')).width(wrapper.clientWidth).height(450).backgroundColor('rgba(0,0,0,0)').globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg').showAtmosphere(true).atmosphereColor('#FF6B00').atmosphereAltitude(0.2).ringsData(cities).ringColor(()=>'#FF6B00').labelsData(cities).labelText(d=>d.name.toUpperCase()).labelColor(()=>'#FF6B00').labelSize(1.8).pointOfView({ lat:43.222, lng:76.851, altitude:1.8 });
+            myGlobe = Globe()(document.getElementById('globe-container')).width(wrapper.clientWidth).height(450).backgroundColor('rgba(0,0,0,0)').globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg').showAtmosphere(true).atmosphereColor('#FF6B00').atmosphereAltitude(0.2).ringsData(cities).ringColor(()=>'#FF6B00').ringMaxRadius(3).ringPropagationSpeed(3).ringRepeatPeriod(1000).labelsData(cities).labelText(d=>d.name.toUpperCase()).labelColor(()=>'#FF6B00').labelSize(1.8).labelDotRadius(0.6).pointOfView({ lat:43.222, lng:76.851, altitude:1.8 });
             myGlobe.controls().autoRotate = true; myGlobe.controls().autoRotateSpeed = 0.6; myGlobe.controls().enableZoom = false;
         }
         window.flyToCity = (id, btn) => { document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); const city = cities.find(c => c.id === id); document.getElementById('current-city-name').innerText = city.name.toUpperCase(); myGlobe.controls().autoRotate = false; myGlobe.pointOfView({ lat: city.lat, lng: city.lng, altitude: 1.8 }, 1500); setTimeout(() => { myGlobe.controls().autoRotate = true; }, 3000); };
