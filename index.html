@@ -12,25 +12,21 @@
 
     <style>
         :root { --orange: #FF5500; --bg: #000000; --glass: rgba(15, 15, 15, 0.8); --glass-border: rgba(255, 255, 255, 0.08); }
-        
-        /* ИСПРАВЛЕННЫЙ СКРОЛЛ ДЛЯ IPHONE */
-        html, body {
-            background-color: var(--bg); 
-            overscroll-behavior-y: none; /* Убирает лишние подпрыгивания */
-        }
+        html, body { background-color: var(--bg); overscroll-behavior-y: none; }
         body { 
             color: #fff; font-family: 'Montserrat', sans-serif; 
             user-select: none; -webkit-user-select: none; 
             min-height: 100vh; height: auto;
             overflow-y: auto; overflow-x: hidden;
-            -webkit-overflow-scrolling: touch; /* МАГИЯ ПЛАВНОГО СКРОЛЛА НА IOS */
+            -webkit-overflow-scrolling: touch; /* МАГИЯ СКРОЛЛА IOS */
             background-attachment: fixed;
             background-image: radial-gradient(circle at 50% -10%, rgba(255, 85, 0, 0.15), transparent 60%);
-            padding-bottom: 120px; 
+            padding-bottom: 20px; 
         }
         
         .bento-card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 28px; padding: 20px; transition: all 0.2s ease; position: relative; overflow: hidden; }
         
+        /* КНОПКА PRO */
         @keyframes proPulse { 
             0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); } 
             70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); border-color: rgba(255, 107, 0, 0.1); } 
@@ -70,7 +66,7 @@
 
     <div class="flex justify-between items-end mt-4 mb-8 px-1">
         <div>
-            <div class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-1" id="greeting">Салам, Боец</div>
+            <div class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-1">Салам, Боец</div>
             <div class="text-2xl font-black tracking-tighter lowercase">v<span class="text-[#FF6B00]">i</span>be sales<span class="text-[#FF6B00]">comunity</span></div>
         </div>
         <div class="pro-badge bg-[#111] border border-gray-800 px-5 py-2.5 rounded-full flex items-center gap-2">
@@ -92,7 +88,6 @@
             <div class="bento-card h-36 flex flex-col justify-end">📚<h3 class="text-base font-black uppercase italic mt-2">Книги</h3><p class="text-[9px] text-gray-500 font-bold uppercase">Библиотека</p></div>
             <div class="bento-card h-36 flex flex-col justify-end">💼<h3 class="text-base font-black uppercase italic mt-2">Проекты</h3><p class="text-[9px] text-gray-500 font-bold uppercase">HH.VIBE</p></div>
         </div>
-        
         <div class="space-y-4">
             <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2">Твой прогресс</h4>
             <div class="grid grid-cols-2 gap-4">
@@ -108,105 +103,42 @@
                 </div>
             </div>
         </div>
-        <div class="h-32 w-full shrink-0"></div>
-    </div>
+        <div class="h-32 w-full shrink-0"></div> </div>
 
     <div id="education-screen" class="hidden-screen px-1 space-y-6">
-        <div class="flex items-center gap-4 cursor-pointer active:opacity-60 transition-opacity" onclick="switchTab('home-screen', 0)">
-            <h2 class="text-3xl font-black italic uppercase tracking-tighter">← Академия</h2>
-        </div>
-
-        <div class="bento-card !p-0 border-[#FF6B00]/40 overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform shadow-[0_15px_30px_-10px_rgba(255,107,0,0.2)]" onclick="tg.showAlert('Запуск видео...')">
+        <div class="flex items-center gap-4 cursor-pointer active:opacity-60 transition-opacity" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Академия</h2></div>
+        <div class="bento-card !p-0 border-[#FF6B00]/40 overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform shadow-[0_15px_30px_-10px_rgba(255,107,0,0.2)]">
             <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="w-full h-64 object-cover opacity-80">
             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-            <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-16 h-16 bg-[#FF6B00] backdrop-blur-md rounded-full flex items-center justify-center pl-1.5 shadow-[0_0_20px_#FF6B00]">
-                    <svg viewBox="0 0 24 24" fill="white" class="w-8 h-8"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-            </div>
-            <div class="absolute bottom-0 left-0 w-full p-5">
-                <div class="flex justify-between items-end mb-3">
-                    <div>
-                        <div class="text-[10px] text-[#FF6B00] font-black uppercase tracking-[0.2em] mb-1.5 drop-shadow-md">Модуль 3 • Урок 1</div>
-                        <h3 class="text-xl font-black italic text-white leading-tight drop-shadow-lg">Жесткий дожим <br>в B2B продажах</h3>
-                    </div>
-                </div>
-                <div class="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
-                    <div class="bg-[#FF6B00] w-[65%] h-full rounded-full shadow-[0_0_10px_#FF6B00]"></div>
-                </div>
-                <div class="flex justify-between text-[9px] font-bold text-gray-300 mt-2 uppercase tracking-widest">
-                    <span>Осталось 12:40</span><span>65% Просмотрено</span>
-                </div>
-            </div>
+            <div class="absolute inset-0 flex items-center justify-center"><div class="w-16 h-16 bg-[#FF6B00] backdrop-blur-md rounded-full flex items-center justify-center pl-1.5 shadow-[0_0_20px_#FF6B00]"><svg viewBox="0 0 24 24" fill="white" class="w-8 h-8"><path d="M8 5v14l11-7z"/></svg></div></div>
+            <div class="absolute bottom-0 left-0 w-full p-5"><div class="text-[10px] text-[#FF6B00] font-black uppercase tracking-[0.2em] mb-1.5">Модуль 3 • Урок 1</div><h3 class="text-xl font-black italic text-white leading-tight mb-3">Жесткий дожим <br>в B2B продажах</h3><div class="w-full bg-white/20 h-1.5 rounded-full overflow-hidden"><div class="bg-[#FF6B00] w-[65%] h-full rounded-full"></div></div><div class="flex justify-between text-[9px] font-bold text-gray-300 mt-2 uppercase"><span>Осталось 12:40</span><span>65% Просмотрено</span></div></div>
         </div>
-
-        <div class="flex gap-6 border-b border-white/10 mt-6 mb-2 px-2">
-            <div class="text-[11px] font-black uppercase text-white border-b-2 border-[#FF6B00] pb-3">Уроки</div>
-            <div class="text-[11px] font-bold uppercase text-gray-500 pb-3 cursor-pointer">Доп. Материалы</div>
-        </div>
-
+        <div class="flex gap-6 border-b border-white/10 px-2"><div class="text-[11px] font-black uppercase text-white border-b-2 border-[#FF6B00] pb-3">Уроки</div><div class="text-[11px] font-bold uppercase text-gray-500 pb-3">Материалы</div></div>
         <div class="space-y-3">
-            <div class="bento-card !p-4 bg-[#111] border-[#FF6B00]/40 flex items-center gap-4 cursor-pointer">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF6B00] to-[#cc4400] flex items-center justify-center shadow-[0_0_15px_rgba(255,107,0,0.3)] pl-1">
-                    <svg viewBox="0 0 24 24" fill="white" class="w-6 h-6"><path d="M8 5v14l11-7z"/></svg>
-                </div>
-                <div class="flex-1">
-                    <div class="text-[9px] text-[#FF6B00] font-bold uppercase mb-1 tracking-widest">Урок 1 • 25 мин</div>
-                    <div class="text-sm font-black italic text-white leading-tight">Техника возврата клиента</div>
-                </div>
-            </div>
-            <div class="bento-card !p-4 bg-[#0a0a0a] flex items-center gap-4 opacity-70 cursor-pointer">
-                <div class="w-12 h-12 rounded-2xl bg-green-900/30 border border-green-500/30 flex items-center justify-center text-green-500">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                </div>
-                <div class="flex-1">
-                    <div class="text-[9px] text-gray-500 font-bold uppercase mb-1 tracking-widest">Урок 2 • 18 мин</div>
-                    <div class="text-sm font-black italic text-gray-300 leading-tight">Обход секретарей и блокеров</div>
-                </div>
-            </div>
-            <div class="bento-card !p-4 bg-[#050505] flex items-center gap-4 opacity-50">
-                <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-500">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-5 h-5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                </div>
-                <div class="flex-1">
-                    <div class="text-[9px] text-gray-600 font-bold uppercase mb-1 tracking-widest">Урок 3 • 40 мин</div>
-                    <div class="text-sm font-black italic text-gray-500 leading-tight">Презентация цены без скидок</div>
-                </div>
-            </div>
+            <div class="bento-card !p-4 bg-[#111] border-[#FF6B00]/40 flex items-center gap-4 cursor-pointer"><div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF6B00] to-[#cc4400] flex items-center justify-center pl-1"><svg viewBox="0 0 24 24" fill="white" class="w-6 h-6"><path d="M8 5v14l11-7z"/></svg></div><div class="flex-1"><div class="text-[9px] text-[#FF6B00] font-bold uppercase mb-1">Урок 1 • 25 мин</div><div class="text-sm font-black italic text-white">Техника возврата клиента</div></div></div>
+            <div class="bento-card !p-4 bg-[#0a0a0a] flex items-center gap-4 opacity-70"><div class="w-12 h-12 rounded-2xl bg-green-900/30 border border-green-500/30 flex items-center justify-center text-green-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div><div class="flex-1"><div class="text-[9px] text-gray-500 font-bold uppercase mb-1">Урок 2 • 18 мин</div><div class="text-sm font-black italic text-gray-300">Обход секретарей</div></div></div>
         </div>
-        <div class="h-32 w-full shrink-0"></div>
-    </div>
+        <div class="h-32 w-full shrink-0"></div> </div>
 
     <div id="fighters-screen" class="hidden-screen px-1 space-y-6">
-        <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)">
-            <h2 class="text-3xl font-black italic uppercase tracking-tighter">← База Бойцов</h2>
-        </div>
+        <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← База Бойцов</h2></div>
         <div class="grid grid-cols-2 gap-4">
-            <div class="bento-card !p-8 flex flex-col items-center text-center active:scale-95 transition-transform" onclick="tg.showAlert('МОП')"><span class="text-6xl mb-4">📞</span><h3 class="text-xl font-black uppercase italic">МОП</h3><p class="text-[10px] text-gray-500 font-bold uppercase mt-2">Менеджеры</p></div>
-            <div class="bento-card !p-8 flex flex-col items-center text-center active:scale-95 transition-transform" onclick="tg.showAlert('РОП')"><span class="text-6xl mb-4">👔</span><h3 class="text-xl font-black uppercase italic text-[#FF6B00]">РОП</h3><p class="text-[10px] text-gray-500 font-bold uppercase mt-2">Руководители</p></div>
+            <div class="bento-card !p-8 flex flex-col items-center text-center active:scale-95 transition-transform" onclick="tg.showAlert('МОП')"><span class="text-6xl mb-4">📞</span><h3 class="text-xl font-black uppercase italic">МОП</h3></div>
+            <div class="bento-card !p-8 flex flex-col items-center text-center active:scale-95 transition-transform" onclick="tg.showAlert('РОП')"><span class="text-6xl mb-4">👔</span><h3 class="text-xl font-black uppercase italic text-[#FF6B00]">РОП</h3></div>
         </div>
         <div class="h-32 w-full shrink-0"></div>
     </div>
 
     <div id="club-screen" class="hidden-screen">
         <h2 class="text-3xl font-black italic uppercase mb-6 px-1 text-white">VIBE CLUB</h2>
-        
         <div class="flex gap-4 overflow-x-auto pb-6 no-scrollbar px-1" id="stories-list"></div>
-        
         <div class="mt-2 px-1">
             <h4 class="text-[13px] text-white font-black mb-4 uppercase tracking-widest">Продолжить просмотр</h4>
             <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-                <div class="kino-continue-card active:scale-[0.98] transition-transform" onclick="tg.showAlert('Модуль 3')">
-                    <div class="relative"><img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="kino-continue-img"><div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800"><div class="bg-[#FF6B00] w-[75%] h-full shadow-[0_0_8px_#FF6B00]"></div></div></div>
-                    <div class="mt-3"><h4 class="text-[13px] font-black italic text-white truncate">Жесткий дожим</h4><p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Модуль 3</p></div>
-                </div>
-                <div class="kino-continue-card active:scale-[0.98] transition-transform" onclick="tg.showAlert('Эфир')">
-                    <div class="relative"><img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800" class="kino-continue-img"><div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800"><div class="bg-[#FF6B00] w-[15%] h-full"></div></div></div>
-                    <div class="mt-3"><h4 class="text-[13px] font-black italic text-white truncate">Разбор Алматы</h4><p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Эфир 12.03</p></div>
-                </div>
+                <div class="kino-continue-card active:scale-[0.98] transition-transform"><div class="relative"><img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="kino-continue-img"><div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800"><div class="bg-[#FF6B00] w-[75%] h-full shadow-[0_0_8px_#FF6B00]"></div></div></div><div class="mt-3"><h4 class="text-[13px] font-black italic text-white truncate">Жесткий дожим</h4><p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Модуль 3</p></div></div>
+                <div class="kino-continue-card active:scale-[0.98] transition-transform"><div class="relative"><img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800" class="kino-continue-img"><div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800"><div class="bg-[#FF6B00] w-[15%] h-full"></div></div></div><div class="mt-3"><h4 class="text-[13px] font-black italic text-white truncate">Разбор Алматы</h4><p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Эфир 12.03</p></div></div>
             </div>
         </div>
-
         <div class="mt-8 px-1">
             <h4 class="text-[13px] text-white font-black mb-4 uppercase tracking-widest">⚡ Топ эфиров месяца</h4>
             <div class="flex gap-4 overflow-x-auto pb-8 no-scrollbar">
@@ -215,43 +147,21 @@
                 <div class="kino-top-card active:scale-95 transition-transform"><div class="kino-number">3</div><img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400" class="kino-top-img"></div>
             </div>
         </div>
-
-        <div class="flex gap-5 border-b border-white/10 mt-2 mb-6 px-2">
-            <div class="text-xs font-black uppercase text-white border-b-2 border-[#FF6B00] pb-3">Лента</div>
-            <div class="text-xs font-bold uppercase text-gray-500 pb-3">Анонсы</div>
-            <div class="text-xs font-bold uppercase text-gray-500 pb-3">Стена Побед</div>
-        </div>
-        <div class="px-1 space-y-4">
-            <div class="bento-card !p-4 bg-[#0a0a0a]">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-br from-[#FF6B00] to-[#aa3300] rounded-full flex items-center justify-center font-black">V</div><div><div class="text-xs font-black">VIBE Official</div><div class="text-[9px] text-gray-500 uppercase mt-1">2 часа назад</div></div></div>
-                    <div class="bg-[#FF6B00]/10 text-[#FF6B00] text-[8px] font-black px-2 py-1 rounded-md uppercase border border-[#FF6B00]/30">Событие</div>
-                </div>
-                <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800" class="w-full h-44 object-cover rounded-2xl mb-4">
-                <h4 class="text-base font-black italic uppercase text-white mb-2">Разбор звонков в Алматы</h4>
-                <p class="text-[11px] text-gray-400 leading-relaxed">В эту субботу собираемся вживую. Будем слушать ваши записи, находить ошибки и переписывать скрипты.</p>
-                <div class="flex justify-between items-center mt-5 pt-4 border-t border-white/5">
-                    <div class="flex gap-4"><span class="text-gray-500 text-[10px] font-black">🔥 142</span><span class="text-gray-500 text-[10px] font-black">💬 24</span></div>
-                    <button class="bg-[#111] border border-[#FF6B00]/40 text-[#FF6B00] px-5 py-2 rounded-xl text-[9px] font-black uppercase active:scale-95">Я буду</button>
-                </div>
-            </div>
-        </div>
-        <div class="h-32 w-full shrink-0"></div>
-    </div>
+        <div class="flex gap-5 border-b border-white/10 mt-2 mb-6 px-2"><div class="text-xs font-black uppercase text-white border-b-2 border-[#FF6B00] pb-3">Лента</div><div class="text-xs font-bold uppercase text-gray-500 pb-3">Анонсы</div><div class="text-xs font-bold uppercase text-gray-500 pb-3">Стена Побед</div></div>
+        <div class="px-1 space-y-4 pb-10"><div class="bento-card !p-4 bg-[#0a0a0a]"><div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-br from-[#FF6B00] to-[#aa3300] rounded-full flex items-center justify-center font-black">V</div><div><div class="text-xs font-black">VIBE Official</div><div class="text-[9px] text-gray-500 uppercase mt-1">2 часа назад</div></div></div><div class="bg-[#FF6B00]/10 text-[#FF6B00] text-[8px] font-black px-2 py-1 rounded-md uppercase border border-[#FF6B00]/30">Событие</div></div><img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800" class="w-full h-44 object-cover rounded-2xl mb-4"><h4 class="text-base font-black italic uppercase text-white mb-2">Разбор звонков в Алматы</h4><p class="text-[11px] text-gray-400 leading-relaxed">В эту субботу собираемся вживую.</p><div class="flex justify-between items-center mt-5 pt-4 border-t border-white/5"><div class="flex gap-4"><span class="text-gray-500 text-[10px] font-black">🔥 142</span></div><button class="bg-[#111] border border-[#FF6B00]/40 text-[#FF6B00] px-5 py-2 rounded-xl text-[9px] font-black uppercase active:scale-95">Я буду</button></div></div></div>
+        <div class="h-32 w-full shrink-0"></div> </div>
 
     <div id="abonement-screen" class="hidden-screen space-y-6">
         <h2 class="text-3xl font-black italic uppercase text-white">Абонемент</h2>
         <div class="bento-card border-[#FF6B00]/40 bg-gradient-to-br from-[#1a110a] to-[#050505] p-8">
-            <div class="flex justify-between mb-10"><div><div class="text-[10px] text-[#FF6B00] font-black tracking-widest uppercase">VIBE PASS</div><div class="text-3xl font-black italic uppercase" id="pass-name">Бекболат</div></div><div class="text-[10px] text-gray-600 font-bold uppercase">VIBE.042</div></div>
+            <div class="flex justify-between mb-10"><div><div class="text-[10px] text-[#FF6B00] font-black tracking-widest uppercase">VIBE PASS</div><div class="text-3xl font-black italic uppercase user-name-profile">Боец</div></div><div class="text-[10px] text-gray-600 font-bold uppercase">VIBE.042</div></div>
             <div class="flex justify-between items-end"><div><div class="flex items-center gap-2 mb-2"><div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-[10px] font-bold uppercase">Активен</span></div><div class="text-lg font-black italic text-[#FF6B00]">51 ДЕНЬ</div></div><button class="bg-[#1a1a1a] border border-white/10 px-5 py-2 rounded-xl text-[10px] font-black uppercase italic active:scale-95">Продлить</button></div>
         </div>
         <div class="space-y-3">
             <div class="bento-card !p-5 flex items-center justify-between active:scale-98 cursor-pointer"><div class="flex items-center gap-4"><span>🛍️</span><span class="text-xs font-black uppercase italic">Купить абонемент</span></div><span class="text-gray-600">›</span></div>
             <div class="bento-card !p-5 flex items-center justify-between active:scale-98 cursor-pointer"><div class="flex items-center gap-4"><span>🎁</span><span class="text-xs font-black uppercase italic">Купить в подарок</span></div><span class="text-gray-600">›</span></div>
-            <div class="bento-card !p-5 flex items-center justify-between active:scale-98 cursor-pointer"><div class="flex items-center gap-4"><span>🎟️</span><span class="text-xs font-black uppercase italic">Промокод</span></div><span class="text-gray-600">›</span></div>
         </div>
-        <div class="h-32 w-full shrink-0"></div>
-    </div>
+        <div class="h-32 w-full shrink-0"></div> </div>
 
     <div id="map-screen" class="hidden-screen space-y-4">
         <h2 class="text-3xl font-black italic uppercase px-1">VIBE WORLD</h2>
@@ -264,113 +174,63 @@
             </div>
         </div>
         <div class="grid grid-cols-2 gap-3 mt-6">
-            <div class="bento-card !p-4 text-center border-cyan-900/30 active:scale-95 cursor-pointer" onclick="tg.showAlert('Отправка координат...')"><div class="text-cyan-400 font-black italic uppercase text-xs">ПРИЗЕМЛИЛСЯ</div><div class="text-[8px] text-gray-500 font-bold uppercase mt-1">Сигнал для местных</div></div>
-            <div class="bento-card !p-4 text-center border-orange-900/30 active:scale-95 cursor-pointer" onclick="tg.showAlert('Захват территории...')"><div class="text-[#FF6B00] font-black italic uppercase text-xs">СТОЛИЦА</div><div class="text-[8px] text-gray-500 font-bold uppercase mt-1">Захват точки</div></div>
+            <div class="bento-card !p-4 text-center border-cyan-900/30 active:scale-95 cursor-pointer"><div class="text-cyan-400 font-black italic uppercase text-xs">ПРИЗЕМЛИЛСЯ</div></div>
+            <div class="bento-card !p-4 text-center border-orange-900/30 active:scale-95 cursor-pointer"><div class="text-[#FF6B00] font-black italic uppercase text-xs">СТОЛИЦА</div></div>
         </div>
-        <div class="h-32 w-full shrink-0"></div>
-    </div>
+        <div class="h-32 w-full shrink-0"></div> </div>
 
     <div id="profile-screen" class="hidden-screen px-1 space-y-6">
         <div class="flex items-center justify-between mt-2">
             <div class="flex items-center gap-5">
-                <div class="w-16 h-16 rounded-2xl bg-gray-900 border-2 border-[#FF6B00] flex items-center justify-center text-2xl font-black text-white shadow-[0_0_15px_rgba(255,107,0,0.2)]" id="avatar-container-prof">Б</div>
-                <div><h2 class="text-2xl font-black italic uppercase leading-none" id="user-name-profile">Бекболат</h2><span class="text-[11px] text-gray-500 font-bold tracking-widest mt-1 block">ID: VIBE.042</span></div>
+                <div class="w-16 h-16 rounded-2xl bg-gray-900 border-2 border-[#FF6B00] flex items-center justify-center text-2xl font-black text-white" id="avatar-container-prof">?</div>
+                <div><h2 class="text-2xl font-black italic uppercase leading-none user-name-profile">Загрузка...</h2><span class="text-[11px] text-gray-500 font-bold tracking-widest mt-1 block">ID: VIBE.042</span></div>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-xl active:scale-90 transition-transform" onclick="tg.showAlert('Настройки')">⚙️</div>
+            <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-xl active:scale-90 transition-transform">⚙️</div>
         </div>
 
         <div class="flex justify-around items-center py-5 border border-white/5 rounded-[30px] bg-[#080808]">
-            <div class="text-center active:scale-95 transition-transform cursor-pointer"><div class="text-xl font-black text-white italic">15</div><div class="text-[9px] text-gray-500 font-bold uppercase mt-1">Подписчики</div></div>
+            <div class="text-center active:scale-95 transition-transform"><div class="text-xl font-black text-white italic">15</div><div class="text-[9px] text-gray-500 font-bold uppercase mt-1">Подписчики</div></div>
             <div class="w-px h-8 bg-white/10"></div>
-            <div class="text-center active:scale-95 transition-transform cursor-pointer"><div class="text-xl font-black text-white italic">11</div><div class="text-[9px] text-gray-500 font-bold uppercase mt-1">Подписки</div></div>
+            <div class="text-center active:scale-95 transition-transform"><div class="text-xl font-black text-white italic">11</div><div class="text-[9px] text-gray-500 font-bold uppercase mt-1">Подписки</div></div>
             <div class="w-px h-8 bg-white/10"></div>
-            <div class="text-center text-[#FF6B00] active:scale-95 transition-transform cursor-pointer" onclick="tg.showAlert('Переход в Insta')">📸<div class="text-[9px] font-bold uppercase mt-1">Instagram</div></div>
+            <div class="text-center text-[#FF6B00] active:scale-95 transition-transform">📸<div class="text-[9px] font-bold uppercase mt-1">Instagram</div></div>
         </div>
 
         <div class="bento-card border-[#FF6B00]/30 bg-gradient-to-t from-[#050505] to-[#150d08] p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-[11px] text-gray-400 font-black uppercase tracking-widest">Мой рейтинг</h3>
-                <span class="text-[10px] text-[#FF6B00] font-black uppercase cursor-pointer active:opacity-50" onclick="switchTab('rating-screen', 4)">Топ Лидеров ›</span>
-            </div>
+            <div class="flex justify-between items-center mb-6"><h3 class="text-[11px] text-gray-400 font-black uppercase tracking-widest">Мой рейтинг</h3><span class="text-[10px] text-[#FF6B00] font-black uppercase cursor-pointer" onclick="switchTab('rating-screen', 4)">Топ Лидеров ›</span></div>
             
             <div class="flex gap-2 overflow-x-auto no-scrollbar py-2 mb-4 items-center justify-center">
-                <div class="shrink-0 w-20 opacity-40 flex flex-col items-center transition-transform cursor-pointer" onclick="tg.showAlert('Золотой: 800 - 1399')">
-                    <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-xl"><defs><linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE066" /><stop offset="50%" stop-color="#FFB300" /><stop offset="100%" stop-color="#996B00" /></linearGradient><path id="star-small" d="M50 36 l4 11 h12 l-10 7 4 11 -10 -7 -10 7 4 -11 -10 -7 h12 z" /></defs><polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-gold)" /><polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5" /><polygon points="50,21 76,36 76,64 50,79 24,64 24,36" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.3" /><polygon points="50,29 69,40 69,60 50,71 31,60 31,40" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.15" /><polygon points="50,35 64,43 64,57 50,65 36,57 36,43" fill="#000" opacity="0.15" /><use href="#star-small" fill="#fff" /></svg>
-                </div>
-                <div class="shrink-0 w-36 flex flex-col items-center relative">
-                    <div class="absolute inset-0 bg-[#FF6B00]/20 blur-[30px] rounded-full pointer-events-none"></div>
-                    <svg viewBox="0 0 100 100" class="w-28 h-28 drop-shadow-2xl relative z-10"><defs><linearGradient id="grad-plat" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FF9B30" /><stop offset="50%" stop-color="#FF5500" /><stop offset="100%" stop-color="#802A00" /></linearGradient><path id="star-big" d="M50 35 l5 14 h15 l-12 9 5 14 -13 -9 -13 9 5 -14 -12 -9 h15 z" /></defs><polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-plat)" /><polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5" /><polygon points="50,21 76,36 76,64 50,79 24,64 24,36" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.3" /><polygon points="50,29 69,40 69,60 50,71 31,60 31,40" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.15" /><polygon points="50,35 64,43 64,57 50,65 36,57 36,43" fill="#000" opacity="0.2" /><use href="#star-big" fill="#fff" filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.4))"/></svg>
-                </div>
-                <div class="shrink-0 w-20 opacity-40 flex flex-col items-center transition-transform cursor-pointer" onclick="tg.showAlert('Сапфировый: 2000 - 3499')">
-                    <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-xl"><defs><linearGradient id="grad-sap" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7A8BFF" /><stop offset="50%" stop-color="#2541B2" /><stop offset="100%" stop-color="#0B1B66" /></linearGradient></defs><polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-sap)" /><polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5" /><polygon points="50,21 76,36 76,64 50,79 24,64 24,36" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.3" /><polygon points="50,29 69,40 69,60 50,71 31,60 31,40" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.15" /><polygon points="50,35 64,43 64,57 50,65 36,57 36,43" fill="#000" opacity="0.15" /><use href="#star-small" fill="#fff" /></svg>
-                </div>
+                <div class="shrink-0 w-20 opacity-40"><svg viewBox="0 0 100 100" class="w-16 h-16"><defs><linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE066" /><stop offset="50%" stop-color="#FFB300" /><stop offset="100%" stop-color="#996B00" /></linearGradient><path id="star-s" d="M50 36 l4 11 h12 l-10 7 4 11 -10 -7 -10 7 4 -11 -10 -7 h12 z" /></defs><polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-gold)" /><polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5" /><use href="#star-s" fill="#fff" /></svg></div>
+                <div class="shrink-0 w-36 flex flex-col items-center relative"><div class="absolute inset-0 bg-[#FF6B00]/20 blur-[30px] rounded-full"></div><svg viewBox="0 0 100 100" class="w-28 h-28 drop-shadow-2xl relative z-10"><defs><linearGradient id="grad-plat" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FF9B30" /><stop offset="50%" stop-color="#FF5500" /><stop offset="100%" stop-color="#802A00" /></linearGradient><path id="star-b" d="M50 35 l5 14 h15 l-12 9 5 14 -13 -9 -13 9 5 -14 -12 -9 h15 z" /></defs><polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-plat)" /><polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5" /><use href="#star-b" fill="#fff" /></svg></div>
+                <div class="shrink-0 w-20 opacity-40"><svg viewBox="0 0 100 100" class="w-16 h-16"><defs><linearGradient id="grad-sap" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7A8BFF" /><stop offset="50%" stop-color="#2541B2" /><stop offset="100%" stop-color="#0B1B66" /></linearGradient></defs><polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-sap)" /><polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5" /><use href="#star-s" fill="#fff" /></svg></div>
             </div>
 
-            <div class="flex justify-center items-center gap-2 mb-6">
-                <h2 class="text-3xl font-black italic uppercase tracking-wider text-center drop-shadow-md">Платиновый</h2>
-                <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-gray-400 cursor-pointer active:scale-90" onclick="tg.showAlert('+100 баллов за занятие.')">ℹ️</div>
-            </div>
+            <div class="text-center mb-6"><h2 class="text-3xl font-black italic uppercase tracking-wider user-league-name">ПЛАТИНОВЫЙ</h2></div>
+            <div class="flex justify-between text-[11px] font-black text-gray-400 mb-3 uppercase"><span>1400</span><span class="text-white text-lg user-score-val">0 PTS</span><span>1999</span></div>
+            <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden mb-6"><div class="bg-[#FF6B00] h-full rounded-full shadow-[0_0_12px_#FF6B00] score-bar-fill" style="width: 0%"></div></div>
 
-            <div class="flex justify-between text-[11px] font-black text-gray-400 mb-3 uppercase">
-                <span>1400</span><span class="text-white text-lg">1600 Pts</span><span>1999</span>
-            </div>
-            <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden mb-6">
-                <div class="bg-[#FF6B00] w-[40%] h-full rounded-full shadow-[0_0_12px_#FF6B00]"></div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-[#050505] border border-white/5 rounded-2xl p-4 flex items-center gap-3">
-                    <div class="text-2xl drop-shadow-[0_0_8px_rgba(255,107,0,0.6)]">🔥</div>
-                    <div><div class="text-sm font-black text-white">4 недели</div><div class="text-[8px] text-gray-500 uppercase font-bold mt-0.5">Активный режим</div></div>
-                </div>
-                <div class="bg-[#050505] border border-white/5 rounded-2xl p-4 flex items-center gap-3">
-                    <div class="text-2xl drop-shadow-[0_0_8px_rgba(255,215,0,0.4)]">👑</div>
-                    <div><div class="text-sm font-black text-white">8 недель</div><div class="text-[8px] text-gray-500 uppercase font-bold mt-0.5">Ваш рекорд</div></div>
-                </div>
-            </div>
+            <div class="grid grid-cols-2 gap-3"><div class="bg-[#050505] border border-white/5 rounded-2xl p-4 flex items-center gap-3">🔥<div><div class="text-sm font-black text-white user-streak-val">0 нед</div><div class="text-[8px] text-gray-500 uppercase font-bold">Актив</div></div></div><div class="bg-[#050505] border border-white/5 rounded-2xl p-4 flex items-center gap-3">👑<div><div class="text-sm font-black text-white">8 недель</div><div class="text-[8px] text-gray-500 uppercase font-bold">Рекорд</div></div></div></div>
         </div>
 
         <div class="bento-card bg-[#0a0a0a] !p-6">
-            <div class="flex justify-between items-center mb-6">
-                <div class="flex items-center gap-4">
-                    <div class="text-gray-500 text-2xl font-bold cursor-pointer active:scale-90 px-2" onclick="changeMonth(-1)">‹</div>
-                    <h3 class="text-[12px] text-white font-black uppercase tracking-widest w-24 text-center" id="current-month-text">Март 2026</h3>
-                    <div class="text-gray-500 text-2xl font-bold cursor-pointer active:scale-90 px-2" onclick="changeMonth(1)">›</div>
-                </div>
-                <span class="text-[9px] text-[#FF6B00] font-black uppercase tracking-wider cursor-pointer">История ›</span>
-            </div>
+            <div class="flex justify-between items-center mb-6"><div class="flex items-center gap-4"><div class="text-gray-500 text-2xl font-bold cursor-pointer active:scale-90 px-2" onclick="changeMonth(-1)">‹</div><h3 class="text-[12px] text-white font-black uppercase tracking-widest w-24 text-center" id="current-month-text">Март 2026</h3><div class="text-gray-500 text-2xl font-bold cursor-pointer active:scale-90 px-2" onclick="changeMonth(1)">›</div></div><span class="text-[9px] text-[#FF6B00] font-black uppercase tracking-wider">История ›</span></div>
             <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2" id="calendar-track"></div>
         </div>
 
-        <div class="bento-card !p-6 bg-[#0a0a0a]">
+        <div class="bento-card !p-6 bg-[#0a0a0a] mb-6">
             <h3 class="text-[11px] text-white font-black uppercase mb-6 tracking-widest">Достижения (34)</h3>
             <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2">
-                <div class="bg-[#050505] rounded-3xl p-5 border border-white/5 min-w-[130px] text-center"><div class="text-4xl mb-3 grayscale opacity-50">🤝</div><div class="text-[10px] font-black uppercase mb-2 text-gray-400">Напарник</div><div class="w-full bg-gray-900 h-1 rounded-full overflow-hidden"><div class="bg-blue-500 w-[20%] h-full"></div></div></div>
-                <div class="bg-[#050505] rounded-3xl p-5 border border-[#FF6B00]/40 min-w-[130px] text-center shadow-[0_0_15px_rgba(255,107,0,0.1)] relative overflow-hidden"><div class="absolute inset-0 bg-[#FF6B00]/5"></div><div class="text-4xl mb-3 drop-shadow-lg z-10 relative">🚀</div><div class="text-[10px] font-black uppercase text-[#FF6B00] z-10 relative">Ранняя пташка</div></div>
+                <div class="bg-[#050505] rounded-3xl p-5 border border-white/5 min-w-[130px] text-center">🤝<div class="text-[10px] font-black uppercase text-gray-400 mt-2">Напарник</div></div>
+                <div class="bg-[#050505] rounded-3xl p-5 border border-[#FF6B00]/40 min-w-[130px] text-center shadow-lg">🚀<div class="text-[10px] font-black uppercase text-[#FF6B00] mt-2">Птичка</div></div>
             </div>
         </div>
-        <div class="h-32 w-full shrink-0"></div>
-    </div>
+        <div class="h-32 w-full shrink-0"></div> </div>
 
     <div id="rating-screen" class="hidden-screen px-1 space-y-6">
-        <div class="flex items-center gap-4 cursor-pointer active:opacity-50" onclick="switchTab('profile-screen', 4)">
-            <h2 class="text-3xl font-black italic uppercase tracking-tighter">← Рейтинг</h2>
-        </div>
-        <div class="bento-card bg-[#050505] border-white/5 !p-8">
-            <div class="grid grid-cols-3 gap-3 items-end text-center">
-                <div class="flex flex-col items-center"><div class="rank-hexagon-min w-16 h-16 border border-gray-600 mb-3 text-lg font-black text-gray-500">2</div><div class="text-[11px] font-black text-gray-400">Сержан</div></div>
-                <div class="flex flex-col items-center"><div class="rank-hexagon-min w-24 h-24 border border-[#FFD700] mb-4 text-3xl font-black text-[#FFD700] shadow-[0_0_15px_rgba(255,215,0,0.2)]">1</div><div class="text-[13px] font-black text-white uppercase italic">Марат К.</div></div>
-                <div class="flex flex-col items-center"><div class="rank-hexagon-min w-16 h-16 border border-[#CD7F32] mb-3 text-lg font-black text-[#CD7F32]">3</div><div class="text-[11px] font-black text-gray-400">Алия</div></div>
-            </div>
-        </div>
-        <div class="bento-card border-[#FF6B00]/50 !p-6 bg-gradient-to-r from-[#111] to-[#0a0a0a] flex items-center gap-5 shadow-xl">
-            <div class="text-2xl font-black italic text-[#FF6B00]">#42</div>
-            <div class="w-14 h-14 rounded-2xl bg-gray-900 border-2 border-[#FF6B00] flex items-center justify-center font-black text-white text-xl">Б</div>
-            <div><div class="text-sm font-black italic text-white">Бекболат (Вы)</div><div class="text-[10px] text-[#FF6B00] font-bold mt-1 tracking-widest">Лига: ПЛАТИНОВАЯ</div></div>
-            <div class="ml-auto text-xl font-black text-white italic">1,280</div>
-        </div>
-        <div class="h-32 w-full shrink-0"></div>
-    </div>
+        <div class="flex items-center gap-4 cursor-pointer active:opacity-50" onclick="switchTab('profile-screen', 4)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Рейтинг</h2></div>
+        <div class="bento-card bg-[#050505] border-white/5 !p-8"><div class="grid grid-cols-3 gap-3 items-end text-center"><div><div class="rank-hexagon-min w-16 h-16 border border-gray-600 mb-3 text-lg font-black text-gray-500">2</div><div class="text-[11px] font-black text-gray-400">Сержан</div></div><div><div class="rank-hexagon-min w-24 h-24 border border-[#FFD700] mb-4 text-3xl font-black text-[#FFD700]">1</div><div class="text-[13px] font-black text-white italic uppercase">Марат К.</div></div><div><div class="rank-hexagon-min w-16 h-16 border border-[#CD7F32] mb-3 text-lg font-black text-[#CD7F32]">3</div><div class="text-[11px] font-black text-gray-400">Алия</div></div></div></div>
+        <div class="bento-card border-[#FF6B00]/50 !p-6 bg-gradient-to-r from-[#111] to-[#0a0a0a] flex items-center gap-5 shadow-xl"><div class="text-2xl font-black italic text-[#FF6B00]">#42</div><div class="w-14 h-14 rounded-2xl bg-gray-900 border-2 border-[#FF6B00] flex items-center justify-center font-black text-xl">Б</div><div><div class="text-sm font-black italic text-white user-name-profile">Боец</div><div class="text-[10px] text-[#FF6B00] font-bold mt-1 tracking-widest user-league-name">...</div></div><div class="ml-auto text-xl font-black text-white italic user-score-val">0</div></div>
+        <div class="h-32 w-full shrink-0"></div> </div>
 
     <div class="tabbar">
         <div class="tab-item active" onclick="switchTab('home-screen', 0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span>Домой</span></div>
@@ -381,83 +241,82 @@
     </div>
 
     <script>
+        // ИНИЦИАЛИЗАЦИЯ SUPABASE
+        const SB_URL = 'https://mgdrugepjudttjxgedvp.supabase.co';
+        const SB_KEY = 'sb_publishable_X_5OwtCeeKQRHa36JLJedA_qo84O6YA';
+        const supabase = supabasejs.createClient(SB_URL, SB_KEY);
         const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
-        tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000');
 
-        if (tg.initDataUnsafe?.user) {
-            const user = tg.initDataUnsafe.user;
-            document.getElementById('pass-name').innerText = user.first_name;
-            document.getElementById('user-name-profile').innerText = user.first_name;
-            document.getElementById('avatar-container-prof').innerText = user.first_name.charAt(0);
-        }
+        async function syncUser() {
+            const user = tg.initDataUnsafe?.user;
+            if (!user) return;
+            
+            let { data: fighter, error } = await supabase.from('users').select('*').eq('tg_id', user.id).single();
 
-        // Stories
-        const storiesData = [{ preview: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', title: 'Найм МОП' }, { preview: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', title: 'Разбор' }, { preview: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=200', title: 'Скрипты' }];
-        const storiesList = document.getElementById('stories-list');
-        storiesData.forEach(s => { storiesList.innerHTML += `<div class="flex flex-col items-center gap-3 active:scale-95 transition-transform"><div class="story-item"><img src="${s.preview}"></div><div class="text-[10px] font-bold text-gray-400 text-center uppercase">${s.title}</div></div>`; });
-
-        // Calendar
-        const monthsData = [
-            { name: 'Январь 2026', days: 31, active: [5, 12, 19] },
-            { name: 'Февраль 2026', days: 28, active: [2, 9, 16, 23] },
-            { name: 'Март 2026', days: 31, active: [4, 7, 11], today: 12 },
-            { name: 'Апрель 2026', days: 30, active: [] }
-        ];
-        let currentMonthIdx = 2;
-
-        function renderCalendar() {
-            const m = monthsData[currentMonthIdx];
-            document.getElementById('current-month-text').innerText = m.name;
-            const calTrack = document.getElementById('calendar-track');
-            const daysArr = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
-            let calHTML = '';
-            for(let i = 1; i <= m.days; i++) {
-                const dayName = daysArr[(i-1) % 7];
-                let statusClass = 'cal-missed'; 
-                let content = `<div class="text-xl font-black italic">${i}</div>`;
-                if (m.active.includes(i)) {
-                    statusClass = 'cal-attended'; 
-                    content = `<div class="text-2xl font-black">✓</div>`;
-                } else if (m.today === i) {
-                    statusClass = 'cal-today';
-                    content = `<div class="text-xl font-black italic text-[#FF6B00]">${i}</div>`;
-                }
-                calHTML += `<div class="cal-day ${statusClass}" onclick="tg.showAlert('День ${i}. ${statusClass === 'cal-attended' ? '+100 баллов!' : 'Нет активности.'}')"><div class="text-[10px] font-black mb-1 ${statusClass === 'cal-attended' ? 'text-white/80' : 'opacity-40'}">${dayName}</div>${content}</div>`;
+            if (!fighter) {
+                const { data: newUser } = await supabase.from('users').insert([
+                    { tg_id: user.id, first_name: user.first_name, username: user.username, score: 1600, league: 'Платиновый', streak: 4 }
+                ]).select().single();
+                fighter = newUser;
+                tg.showAlert(`Салам, ${user.first_name}! Ты в базе VIBE.`);
             }
-            calTrack.innerHTML = calHTML;
-            if (m.today) { setTimeout(() => { calTrack.scrollLeft = (m.today - 2) * 70; }, 100); } else { calTrack.scrollLeft = 0; }
-        }
-        window.changeMonth = function(dir) {
-            currentMonthIdx += dir;
-            if (currentMonthIdx < 0) currentMonthIdx = 0;
-            if (currentMonthIdx >= monthsData.length) currentMonthIdx = monthsData.length - 1;
-            renderCalendar();
-        };
-        renderCalendar();
 
-        // Globe
-        let myGlobe = null;
-        const cities = [{ id:'almaty', lat:43.222, lng:76.851, name:'Алматы'}, { id:'astana', lat:51.169, lng:71.449, name:'Астана'}, { id:'moscow', lat:55.755, lng:37.617, name:'Москва'}, { id:'dubai', lat:25.204, lng:55.27, name:'Дубай'}];
+            if (fighter) {
+                document.querySelectorAll('.user-name-profile').forEach(el => el.innerText = fighter.first_name);
+                document.querySelectorAll('.user-score-val').forEach(el => el.innerText = `${fighter.score} PTS`);
+                document.querySelectorAll('.user-league-name').forEach(el => el.innerText = fighter.league.toUpperCase());
+                document.querySelectorAll('.user-streak-val').forEach(el => el.innerText = `${fighter.streak} нед`);
+                document.getElementById('avatar-container-prof').innerText = fighter.first_name.charAt(0);
+                
+                const progress = ((fighter.score - 1400) / (1999 - 1400)) * 100;
+                document.querySelectorAll('.score-bar-fill').forEach(el => el.style.width = `${Math.min(100, Math.max(5, progress))}%`);
+            }
+        }
+        syncUser();
+
+        //Stories
+        const storiesList = document.getElementById('stories-list');
+        [{p:'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', t:'Найм МОП'},{p:'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', t:'Разбор'},{p:'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=200', t:'Скрипты'}].forEach(s => { storiesList.innerHTML += `<div class="flex flex-col items-center gap-3"><div class="story-item"><img src="${s.p}"></div><div class="text-[10px] font-bold text-gray-400 uppercase">${s.t}</div></div>`; });
+
+        //Calendar
+        const months = [{n:'Январь 2026', d:31, a:[5,12]},{n:'Февраль 2026', d:28, a:[2,9,23]},{n:'Март 2026', d:31, a:[4,7,11], t:12}];
+        let curM = 2;
+        function renderCal() {
+            const m = months[curM]; document.getElementById('current-month-text').innerText = m.n;
+            const track = document.getElementById('calendar-track'); const days = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС']; let html = '';
+            for(let i=1; i<=m.d; i++) {
+                const name = days[(i-1)%7]; let cls = 'cal-missed'; let content = i;
+                if(m.a.includes(i)) { cls = 'cal-attended'; content = '✓'; } else if(m.t === i) { cls = 'cal-today'; }
+                html += `<div class="cal-day ${cls}"><div class="text-[10px] font-black mb-1 opacity-40">${name}</div><div class="text-xl font-black">${content}</div></div>`;
+            }
+            track.innerHTML = html; if(m.t) track.scrollLeft = (m.t-2)*70;
+        }
+        window.changeMonth = d => { curM=Math.max(0,Math.min(months.length-1, curM+d)); renderCal(); };
+        renderCal();
+
+        //Globe
+        let globe = null;
         function initGlobe() {
-            if (myGlobe) return;
-            const wrapper = document.getElementById('globe-wrapper');
+            if(globe) return;
+            const cities = [{id:'alm', lat:43.2, lng:76.8, n:'Алматы'},{id:'ast', lat:51.1, lng:71.4, n:'Астана'},{id:'dub', lat:25.2, lng:55.2, n:'Дубай'}];
             const selector = document.getElementById('city-selector');
-            cities.forEach((city, index) => { selector.innerHTML += `<div class="city-btn ${index === 0 ? 'active' : ''}" onclick="flyToCity('${city.id}', this)">${city.name}</div>`; });
-            myGlobe = Globe()(document.getElementById('globe-container')).width(wrapper.clientWidth).height(450).backgroundColor('rgba(0,0,0,0)').globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg').showAtmosphere(true).atmosphereColor('#FF6B00').atmosphereAltitude(0.2).ringsData(cities).ringColor(()=>'#FF6B00').ringMaxRadius(3).ringPropagationSpeed(3).ringRepeatPeriod(1000).labelsData(cities).labelText(d=>d.name.toUpperCase()).labelColor(()=>'#FF6B00').labelSize(1.8).labelDotRadius(0.6).pointOfView({ lat:43.222, lng:76.851, altitude:1.8 });
-            myGlobe.controls().autoRotate = true; myGlobe.controls().autoRotateSpeed = 0.6; myGlobe.controls().enableZoom = false;
+            cities.forEach((c, i) => { selector.innerHTML += `<div class="city-btn ${i===0?'active':''}" onclick="fly('${c.id}', this)">${c.n}</div>`; });
+            globe = Globe()(document.getElementById('globe-container')).width(document.getElementById('globe-wrapper').clientWidth).height(450).backgroundColor('rgba(0,0,0,0)').globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg').showAtmosphere(true).atmosphereColor('#FF6B00').ringsData(cities).ringColor(()=>'#FF6B00').labelsData(cities).labelText(d=>d.n.toUpperCase()).labelColor(()=>'#FF6B00').labelSize(1.8).pointOfView({lat:43.2, lng:76.8, altitude:1.8});
+            globe.controls().autoRotate = true; globe.controls().enableZoom = false;
         }
-        window.flyToCity = (id, btn) => { document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); const city = cities.find(c => c.id === id); document.getElementById('current-city-name').innerText = city.name.toUpperCase(); myGlobe.controls().autoRotate = false; myGlobe.pointOfView({ lat: city.lat, lng: city.lng, altitude: 1.8 }, 1500); setTimeout(() => { myGlobe.controls().autoRotate = true; }, 3000); };
+        window.fly = (id, btn) => {
+            document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+            const c = {alm:[43.2,76.8], ast:[51.1,71.4], dub:[25.2,55.2]}[id];
+            document.getElementById('current-city-name').innerText = btn.innerText.toUpperCase();
+            globe.pointOfView({lat:c[0], lng:c[1], altitude:1.8}, 1500);
+        };
 
-        // Navigation
         const screens = ['home-screen', 'club-screen', 'abonement-screen', 'map-screen', 'profile-screen', 'fighters-screen', 'rating-screen', 'education-screen'];
         function switchTab(id, idx) {
             screens.forEach(s => document.getElementById(s).classList.add('hidden-screen'));
             document.getElementById(id).classList.remove('hidden-screen');
-            if(idx !== null && idx < 5) {
-                document.querySelectorAll('.tabbar .tab-item').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tabbar .tab-item')[idx].classList.add('active');
-            }
+            if(idx !== null && idx < 5) { document.querySelectorAll('.tabbar .tab-item').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tabbar .tab-item')[idx].classList.add('active'); }
             if (id === 'map-screen') setTimeout(initGlobe, 100);
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
