@@ -13,13 +13,13 @@
         :root { --orange: #FF5500; --bg: #000000; --glass: rgba(15, 15, 15, 0.8); --glass-border: rgba(255, 255, 255, 0.08); }
         html { background-color: var(--bg); scroll-behavior: smooth; }
         
-        /* ИСПРАВЛЕН ТУГОЙ СКРОЛЛ: Убрал overflow-y, позволив нативный скролл браузера */
+        /* Плавный нативный скролл */
         body { 
             background-color: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; 
             user-select: none; -webkit-user-select: none; 
             min-height: 100vh; background-attachment: fixed;
             background-image: radial-gradient(circle at 50% -10%, rgba(255, 85, 0, 0.15), transparent 60%);
-            padding-bottom: 120px; /* Увеличил отступ, чтобы нижний блок не прилипал к таббару */
+            padding-bottom: 120px; 
         }
         
         .bento-card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 28px; padding: 20px; transition: all 0.2s ease; position: relative; overflow: hidden; }
@@ -42,8 +42,6 @@
         .kino-top-card { width: 140px; flex-shrink: 0; position: relative; padding-left: 20px; }
         .kino-top-img { width: 115px; height: 160px; border-radius: 14px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
 
-        /* Гексагоны */
-        .league-hexagon { box-shadow: inset 0 0 20px rgba(255,255,255,0.3), 0 10px 30px -10px rgba(0,0,0,0.8); clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); transition: all 0.3s; }
         .rank-hexagon-min { background: #111; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; }
 
         .hidden-screen { display: none !important; }
@@ -206,27 +204,62 @@
                 <span class="text-[10px] text-[#FF6B00] font-black uppercase cursor-pointer active:opacity-50" onclick="switchTab('rating-screen', 4)">Топ Лидеров ›</span>
             </div>
             
-            <div class="flex gap-4 overflow-x-auto no-scrollbar py-2 mb-2 items-center justify-center">
+            <div class="flex gap-2 overflow-x-auto no-scrollbar py-2 mb-4 items-center justify-center">
+                
                 <div class="shrink-0 w-20 opacity-40 flex flex-col items-center transition-transform cursor-pointer" onclick="tg.showAlert('Золотой уровень: 800 - 1399 баллов')">
-                    <div class="league-hexagon w-16 h-16 flex items-center justify-center bg-gradient-to-br from-[#FFD700] to-[#8B6508]">
-                        <svg class="w-8 h-8 text-white/80" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    </div>
+                    <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-xl" style="transform-origin: 50% 50%;">
+                        <defs>
+                            <linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#FFE066" /><stop offset="50%" stop-color="#FFB300" /><stop offset="100%" stop-color="#996B00" />
+                            </linearGradient>
+                            <polygon id="hex" points="50,2 91.5,26 91.5,74 50,98 8.5,74 8.5,26" />
+                        </defs>
+                        <use href="#hex" fill="url(#grad-gold)" />
+                        <g fill="none" stroke="#fff" stroke-width="2" opacity="0.4" style="transform-origin: 50px 50px;">
+                            <use href="#hex" style="transform: scale(0.85)" /><use href="#hex" style="transform: scale(0.70)" /><use href="#hex" style="transform: scale(0.55)" />
+                        </g>
+                        <use href="#hex" fill="#000" opacity="0.2" style="transform-origin: 50px 50px; transform: scale(0.45)" />
+                        <polygon points="50,33 55,46 69,46 58,54 62,68 50,59 38,68 42,54 31,46 45,46" fill="#fff" />
+                    </svg>
                 </div>
-                <div class="shrink-0 w-32 flex flex-col items-center relative">
+                
+                <div class="shrink-0 w-36 flex flex-col items-center relative">
                     <div class="absolute inset-0 bg-[#FF6B00]/20 blur-[30px] rounded-full pointer-events-none"></div>
-                    <div class="league-hexagon w-28 h-28 flex items-center justify-center bg-gradient-to-br from-[#FF6B00] to-[#cc4400] relative z-10 border-2 border-white/20 shadow-[0_0_20px_rgba(255,107,0,0.3)]">
-                        <svg class="w-14 h-14 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    </div>
+                    <svg viewBox="0 0 100 100" class="w-28 h-28 drop-shadow-2xl relative z-10" style="transform-origin: 50% 50%;">
+                        <defs>
+                            <linearGradient id="grad-plat" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#FF9B30" /><stop offset="50%" stop-color="#FF5500" /><stop offset="100%" stop-color="#802A00" />
+                            </linearGradient>
+                        </defs>
+                        <use href="#hex" fill="url(#grad-plat)" />
+                        <g fill="none" stroke="#fff" stroke-width="2" opacity="0.5" style="transform-origin: 50px 50px;">
+                            <use href="#hex" style="transform: scale(0.85)" /><use href="#hex" style="transform: scale(0.70)" /><use href="#hex" style="transform: scale(0.55)" />
+                        </g>
+                        <use href="#hex" fill="#000" opacity="0.25" style="transform-origin: 50px 50px; transform: scale(0.45)" />
+                        <polygon points="50,31 56,45 71,45 59,54 64,69 50,60 36,69 41,54 29,45 44,45" fill="#fff" filter="drop-shadow(0px 2px 4px rgba(0,0,0,0.5))"/>
+                    </svg>
                 </div>
+
                 <div class="shrink-0 w-20 opacity-40 flex flex-col items-center transition-transform cursor-pointer" onclick="tg.showAlert('Сапфировый уровень: 2000 - 3499 баллов')">
-                    <div class="league-hexagon w-16 h-16 flex items-center justify-center bg-gradient-to-br from-[#0F52BA] to-[#000080]">
-                        <svg class="w-8 h-8 text-white/80" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    </div>
+                    <svg viewBox="0 0 100 100" class="w-16 h-16 drop-shadow-xl" style="transform-origin: 50% 50%;">
+                        <defs>
+                            <linearGradient id="grad-sap" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#7A8BFF" /><stop offset="50%" stop-color="#2541B2" /><stop offset="100%" stop-color="#0B1B66" />
+                            </linearGradient>
+                        </defs>
+                        <use href="#hex" fill="url(#grad-sap)" />
+                        <g fill="none" stroke="#fff" stroke-width="2" opacity="0.4" style="transform-origin: 50px 50px;">
+                            <use href="#hex" style="transform: scale(0.85)" /><use href="#hex" style="transform: scale(0.70)" /><use href="#hex" style="transform: scale(0.55)" />
+                        </g>
+                        <use href="#hex" fill="#000" opacity="0.2" style="transform-origin: 50px 50px; transform: scale(0.45)" />
+                        <polygon points="50,33 55,46 69,46 58,54 62,68 50,59 38,68 42,54 31,46 45,46" fill="#fff" />
+                    </svg>
                 </div>
+
             </div>
 
             <div class="flex justify-center items-center gap-2 mb-6">
-                <h2 class="text-3xl font-black italic uppercase tracking-wider text-center">Платиновый</h2>
+                <h2 class="text-3xl font-black italic uppercase tracking-wider text-center drop-shadow-md">Платиновый</h2>
                 <div class="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-gray-400 cursor-pointer active:scale-90" onclick="tg.showAlert('За первую активность на неделе дается +100 баллов. Пропустил неделю = -100 баллов.')">ℹ️</div>
             </div>
 
@@ -252,9 +285,9 @@
         <div class="bento-card bg-[#0a0a0a] !p-6">
             <div class="flex justify-between items-center mb-6">
                 <div class="flex items-center gap-4">
-                    <div class="text-gray-500 text-xl font-bold cursor-pointer active:scale-90 transition-transform" onclick="tg.showAlert('Предыдущий месяц')">‹</div>
-                    <h3 class="text-[12px] text-white font-black uppercase tracking-widest">Март 2026</h3>
-                    <div class="text-gray-500 text-xl font-bold cursor-pointer active:scale-90 transition-transform" onclick="tg.showAlert('Следующий месяц')">›</div>
+                    <div class="text-gray-500 text-2xl font-bold cursor-pointer active:scale-90 transition-transform px-2" onclick="changeMonth(-1)">‹</div>
+                    <h3 class="text-[12px] text-white font-black uppercase tracking-widest w-24 text-center" id="current-month-text">Март 2026</h3>
+                    <div class="text-gray-500 text-2xl font-bold cursor-pointer active:scale-90 transition-transform px-2" onclick="changeMonth(1)">›</div>
                 </div>
                 <span class="text-[9px] text-[#FF6B00] font-black uppercase tracking-wider cursor-pointer active:opacity-50">История ›</span>
             </div>
@@ -309,38 +342,69 @@
             document.getElementById('avatar-container-prof').innerText = user.first_name.charAt(0);
         }
 
-        // Stories Клуба
+        // Stories
         const storiesData = [{ preview: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', title: 'Найм МОП' }, { preview: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', title: 'Разбор' }, { preview: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=200', title: 'Скрипты' }];
         const storiesList = document.getElementById('stories-list');
         storiesData.forEach(s => { storiesList.innerHTML += `<div class="flex flex-col items-center gap-3 active:scale-95 transition-transform"><div class="story-item"><img src="${s.preview}"></div><div class="text-[10px] font-bold text-gray-400 text-center uppercase">${s.title}</div></div>`; });
 
-        // ================= УМНЫЙ КАЛЕНДАРЬ АКТИВНОСТИ =================
-        const calTrack = document.getElementById('calendar-track');
-        const days = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
-        let calHTML = '';
-        
-        for(let i = 1; i <= 30; i++) {
-            const dayName = days[(i-1) % 7];
-            let statusClass = 'cal-missed'; 
-            let content = `<div class="text-xl font-black italic">${i}</div>`;
-            
-            if (i === 4 || i === 7 || i === 11) {
-                statusClass = 'cal-attended'; 
-                content = `<div class="text-2xl font-black">✓</div>`;
-            } else if (i === 12) {
-                statusClass = 'cal-today';
-                content = `<div class="text-xl font-black italic text-[#FF6B00]">${i}</div>`;
-            }
+        // ================= УМНЫЙ КАЛЕНДАРЬ С ПЕРЕКЛЮЧЕНИЕМ v9.8 =================
+        const monthsData = [
+            { name: 'Январь 2026', days: 31, active: [5, 12, 19] },
+            { name: 'Февраль 2026', days: 28, active: [2, 9, 16, 23] },
+            { name: 'Март 2026', days: 31, active: [4, 7, 11], today: 12 },
+            { name: 'Апрель 2026', days: 30, active: [] }
+        ];
+        let currentMonthIdx = 2; // По умолчанию Март
 
-            calHTML += `
-                <div class="cal-day ${statusClass}" onclick="tg.showAlert('День ${i}. За первую активность на неделе дается +100 баллов!')">
-                    <div class="text-[10px] font-black mb-1 ${i===4||i===7||i===11 ? 'text-white/80' : 'opacity-40'}">${dayName}</div>
-                    ${content}
-                </div>
-            `;
+        function renderCalendar() {
+            const m = monthsData[currentMonthIdx];
+            document.getElementById('current-month-text').innerText = m.name;
+            
+            const calTrack = document.getElementById('calendar-track');
+            const daysArr = ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'ВС'];
+            let calHTML = '';
+            
+            for(let i = 1; i <= m.days; i++) {
+                const dayName = daysArr[(i-1) % 7];
+                let statusClass = 'cal-missed'; 
+                let content = `<div class="text-xl font-black italic">${i}</div>`;
+                
+                if (m.active.includes(i)) {
+                    statusClass = 'cal-attended'; 
+                    content = `<div class="text-2xl font-black">✓</div>`;
+                } else if (m.today === i) {
+                    statusClass = 'cal-today';
+                    content = `<div class="text-xl font-black italic text-[#FF6B00]">${i}</div>`;
+                }
+
+                calHTML += `
+                    <div class="cal-day ${statusClass}" onclick="tg.showAlert('День ${i}. ${statusClass === 'cal-attended' ? '+100 баллов!' : 'Нет активности.'}')">
+                        <div class="text-[10px] font-black mb-1 ${statusClass === 'cal-attended' ? 'text-white/80' : 'opacity-40'}">${dayName}</div>
+                        ${content}
+                    </div>
+                `;
+            }
+            calTrack.innerHTML = calHTML;
+            
+            // Скроллим к сегодняшнему дню, если он есть в месяце
+            if (m.today) {
+                setTimeout(() => { calTrack.scrollLeft = (m.today - 2) * 70; }, 100);
+            } else {
+                calTrack.scrollLeft = 0;
+            }
         }
-        calTrack.innerHTML = calHTML;
-        setTimeout(() => { calTrack.scrollLeft = 300; }, 500);
+
+        // Функция переключения месяцев
+        window.changeMonth = function(dir) {
+            currentMonthIdx += dir;
+            if (currentMonthIdx < 0) currentMonthIdx = 0;
+            if (currentMonthIdx >= monthsData.length) currentMonthIdx = monthsData.length - 1;
+            renderCalendar();
+        };
+        
+        // Первый рендер календаря
+        renderCalendar();
+
 
         // ================= 3D ГЛОБУС =================
         let myGlobe = null;
