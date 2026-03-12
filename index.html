@@ -18,22 +18,20 @@
             user-select: none; -webkit-user-select: none; 
             min-height: 100vh; height: auto;
             overflow-y: auto; overflow-x: hidden;
-            -webkit-overflow-scrolling: touch; /* МАГИЯ СКРОЛЛА IOS */
+            -webkit-overflow-scrolling: touch;
             background-attachment: fixed;
             background-image: radial-gradient(circle at 50% -10%, rgba(255, 85, 0, 0.15), transparent 60%);
-            padding-bottom: 20px; 
         }
         
         .bento-card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 28px; padding: 20px; transition: all 0.2s ease; position: relative; overflow: hidden; }
         
-        /* КНОПКА PRO */
         @keyframes proPulse { 
             0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); } 
             70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); border-color: rgba(255, 107, 0, 0.1); } 
             100% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); } 
         }
         .pro-badge { animation: proPulse 2s infinite; }
-
+        
         .story-item { width: 90px; height: 120px; border-radius: 24px; padding: 3px; border: 2px solid var(--orange); filter: drop-shadow(0 0 10px rgba(255, 107, 0, 0.5)); background: #000; flex-shrink: 0; }
         .story-item img { width: 100%; height: 100%; border-radius: 20px; object-fit: cover; }
         
@@ -42,281 +40,686 @@
         .tab-item.active { color: #fff; }
         .tab-item.active svg { stroke: var(--orange); filter: drop-shadow(0 0 5px var(--orange)); }
         .tab-item svg { width: 22px; height: 22px; stroke-width: 2.5; }
-
+        
         .kino-continue-card { width: 220px; flex-shrink: 0; position: relative; scroll-snap-align: start; }
         .kino-continue-img { width: 100%; height: 124px; border-radius: 12px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
         .kino-number { position: absolute; left: -10px; top: -10px; font-size: 140px; font-weight: 900; font-style: italic; line-height: 0.7; background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 80%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; z-index: 10; pointer-events: none; }
         .kino-top-card { width: 140px; flex-shrink: 0; position: relative; padding-left: 20px; }
         .kino-top-img { width: 115px; height: 160px; border-radius: 14px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
-
+        
         .rank-hexagon-min { background: #111; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); display: flex; align-items: center; justify-content: center; }
+        
         .hidden-screen { display: none !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
         .city-btn { padding: 8px 18px; border-radius: 25px; font-size: 10px; font-weight: 900; text-transform: uppercase; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #777; flex-shrink: 0; transition: 0.3s; cursor: pointer; }
         .city-btn.active { background: rgba(255, 107, 0, 0.15); border-color: #FF6B00; color: #FF6B00; box-shadow: 0 0 15px rgba(255,107,0,0.3); }
-
+        
         .cal-day { min-width: 62px; height: 80px; border-radius: 22px; background: #0f0f0f; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
         .cal-missed { background: #0a0a0a; border: 1px solid rgba(255,255,255,0.05); opacity: 0.6; }
         .cal-attended { background: linear-gradient(135deg, #FF6B00, #cc4400); border: 1px solid #FF6B00; color: white; box-shadow: 0 0 15px rgba(255,107,0,0.3); }
         .cal-today { background: #111; border: 1px solid #FF6B00; box-shadow: inset 0 0 10px rgba(255,107,0,0.1); }
+        
+        /* Загрузка */
+        #loading-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s; }
+        .spinner { border: 4px solid rgba(255, 107, 0, 0.1); border-left-color: #FF6B00; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="max-w-md mx-auto relative p-4">
+<body class="max-w-md mx-auto relative">
 
-    <div class="flex justify-between items-end mt-4 mb-8 px-1">
-        <div>
-            <div class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-1">Салам, Боец</div>
-            <div class="text-2xl font-black tracking-tighter lowercase">v<span class="text-[#FF6B00]">i</span>be sales<span class="text-[#FF6B00]">comunity</span></div>
-        </div>
-        <div class="pro-badge bg-[#111] border border-gray-800 px-5 py-2.5 rounded-full flex items-center gap-2">
-            <div class="w-2 h-2 bg-[#FF6B00] rounded-full"></div>
-            <span class="text-[11px] font-black text-white uppercase">PRO</span>
+    <div id="loading-overlay">
+        <div class="flex flex-col items-center">
+            <div class="spinner mb-4"></div>
+            <div class="text-xs font-black uppercase tracking-[0.2em] text-[#FF6B00]">Синхронизация</div>
         </div>
     </div>
 
-    <div id="home-screen" class="space-y-6">
-        <div class="bento-card bg-gradient-to-br from-[#FF6B00] to-[#CC4400] border-none h-44 flex justify-between items-center cursor-pointer active:scale-[0.98] transition-transform" onclick="switchTab('education-screen', 0)">
-            <div><div class="text-white/80 text-[11px] font-bold uppercase tracking-widest mb-1">Академия</div><h2 class="text-4xl font-black italic uppercase leading-none">Обучение</h2></div>
-            <div class="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center font-black text-xl shadow-lg pl-1">
-                <svg viewBox="0 0 24 24" fill="white" class="w-8 h-8"><path d="M8 5v14l11-7z"/></svg>
+    <div id="onboarding-screen" class="hidden-screen fixed inset-0 bg-[#000] z-[2000] flex flex-col justify-center px-4 space-y-8 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,85,0,0.2),transparent_70%)] pb-20 overflow-y-auto">
+        <div class="text-center mt-10">
+            <h1 class="text-4xl font-black italic uppercase mb-3 tracking-tighter">Кто ты по <span class="text-[#FF6B00]">жизни?</span></h1>
+            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest leading-relaxed">Выбери свою роль,<br>чтобы мы настроили VIBE под тебя.</p>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bento-card !p-6 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/20 hover:border-[#FF6B00]/60" onclick="registerUser('МОП')">
+                <span class="text-5xl mb-3 drop-shadow-md">📞</span>
+                <h3 class="text-sm font-black uppercase italic">МОП</h3>
+                <p class="text-[8px] text-gray-500 uppercase mt-1">Менеджер</p>
+            </div>
+            <div class="bento-card !p-6 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/20 hover:border-[#FF6B00]/60" onclick="registerUser('РОП')">
+                <span class="text-5xl mb-3 drop-shadow-md">👔</span>
+                <h3 class="text-sm font-black uppercase italic text-[#FF6B00]">РОП</h3>
+                <p class="text-[8px] text-gray-500 uppercase mt-1">Руководитель</p>
+            </div>
+            <div class="bento-card !p-6 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/20 hover:border-[#FF6B00]/60" onclick="registerUser('Предприниматель')">
+                <span class="text-5xl mb-3 drop-shadow-md">💼</span>
+                <h3 class="text-sm font-black uppercase italic">Бизнес</h3>
+                <p class="text-[8px] text-gray-500 uppercase mt-1">Владелец</p>
+            </div>
+            <div class="bento-card !p-6 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/20 hover:border-[#FF6B00]/60" onclick="registerUser('Фрилансер')">
+                <span class="text-5xl mb-3 drop-shadow-md">💻</span>
+                <h3 class="text-sm font-black uppercase italic">Фриланс</h3>
+                <p class="text-[8px] text-gray-500 uppercase mt-1">Сам за себя</p>
             </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
-            <div class="bento-card h-36 flex flex-col justify-end">🎙️<h3 class="text-base font-black uppercase italic mt-2">Эфиры</h3><p class="text-[9px] text-gray-500 font-bold uppercase">Записи</p></div>
-            <div class="bento-card h-36 flex flex-col justify-end border-[#FF6B00]/20 active:scale-95 transition-transform" onclick="switchTab('fighters-screen', 0)">⭐<h3 class="text-base font-black uppercase italic mt-2 text-[#FF6B00]">Бойцы</h3><p class="text-[9px] text-gray-500 font-bold uppercase">База спецов</p></div>
-            <div class="bento-card h-36 flex flex-col justify-end">📚<h3 class="text-base font-black uppercase italic mt-2">Книги</h3><p class="text-[9px] text-gray-500 font-bold uppercase">Библиотека</p></div>
-            <div class="bento-card h-36 flex flex-col justify-end">💼<h3 class="text-base font-black uppercase italic mt-2">Проекты</h3><p class="text-[9px] text-gray-500 font-bold uppercase">HH.VIBE</p></div>
-        </div>
-        <div class="space-y-4">
-            <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2">Твой прогресс</h4>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bento-card !p-5">
-                    <div class="text-[9px] text-gray-500 font-bold mb-3 uppercase">Продажи</div>
-                    <div class="flex justify-between text-[11px] font-black mb-2 uppercase"><span>Lvl 10</span><span>100%</span></div>
-                    <div class="w-full bg-black/50 h-1.5 rounded-full"><div class="bg-[#FF6B00] w-full h-full rounded-full shadow-[0_0_8px_#FF6B00]"></div></div>
-                </div>
-                <div class="bento-card !p-5">
-                    <div class="text-[9px] text-gray-500 font-bold mb-3 uppercase">Психология</div>
-                    <div class="flex justify-between text-[11px] font-black mb-2 uppercase"><span>Lvl 4</span><span>45%</span></div>
-                    <div class="w-full bg-black/50 h-1.5 rounded-full"><div class="bg-[#FF6B00] w-[45%] h-full rounded-full shadow-[0_0_8px_#FF6B00]"></div></div>
-                </div>
-            </div>
-        </div>
-        <div class="h-32 w-full shrink-0"></div> </div>
-
-    <div id="education-screen" class="hidden-screen px-1 space-y-6">
-        <div class="flex items-center gap-4 cursor-pointer active:opacity-60 transition-opacity" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Академия</h2></div>
-        <div class="bento-card !p-0 border-[#FF6B00]/40 overflow-hidden relative cursor-pointer active:scale-[0.98] transition-transform shadow-[0_15px_30px_-10px_rgba(255,107,0,0.2)]">
-            <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="w-full h-64 object-cover opacity-80">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-            <div class="absolute inset-0 flex items-center justify-center"><div class="w-16 h-16 bg-[#FF6B00] backdrop-blur-md rounded-full flex items-center justify-center pl-1.5 shadow-[0_0_20px_#FF6B00]"><svg viewBox="0 0 24 24" fill="white" class="w-8 h-8"><path d="M8 5v14l11-7z"/></svg></div></div>
-            <div class="absolute bottom-0 left-0 w-full p-5"><div class="text-[10px] text-[#FF6B00] font-black uppercase tracking-[0.2em] mb-1.5">Модуль 3 • Урок 1</div><h3 class="text-xl font-black italic text-white leading-tight mb-3">Жесткий дожим <br>в B2B продажах</h3><div class="w-full bg-white/20 h-1.5 rounded-full overflow-hidden"><div class="bg-[#FF6B00] w-[65%] h-full rounded-full"></div></div><div class="flex justify-between text-[9px] font-bold text-gray-300 mt-2 uppercase"><span>Осталось 12:40</span><span>65% Просмотрено</span></div></div>
-        </div>
-        <div class="flex gap-6 border-b border-white/10 px-2"><div class="text-[11px] font-black uppercase text-white border-b-2 border-[#FF6B00] pb-3">Уроки</div><div class="text-[11px] font-bold uppercase text-gray-500 pb-3">Материалы</div></div>
-        <div class="space-y-3">
-            <div class="bento-card !p-4 bg-[#111] border-[#FF6B00]/40 flex items-center gap-4 cursor-pointer"><div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF6B00] to-[#cc4400] flex items-center justify-center pl-1"><svg viewBox="0 0 24 24" fill="white" class="w-6 h-6"><path d="M8 5v14l11-7z"/></svg></div><div class="flex-1"><div class="text-[9px] text-[#FF6B00] font-bold uppercase mb-1">Урок 1 • 25 мин</div><div class="text-sm font-black italic text-white">Техника возврата клиента</div></div></div>
-            <div class="bento-card !p-4 bg-[#0a0a0a] flex items-center gap-4 opacity-70"><div class="w-12 h-12 rounded-2xl bg-green-900/30 border border-green-500/30 flex items-center justify-center text-green-500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div><div class="flex-1"><div class="text-[9px] text-gray-500 font-bold uppercase mb-1">Урок 2 • 18 мин</div><div class="text-sm font-black italic text-gray-300">Обход секретарей</div></div></div>
-        </div>
-        <div class="h-32 w-full shrink-0"></div> </div>
-
-    <div id="fighters-screen" class="hidden-screen px-1 space-y-6">
-        <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← База Бойцов</h2></div>
-        <div class="grid grid-cols-2 gap-4">
-            <div class="bento-card !p-8 flex flex-col items-center text-center active:scale-95 transition-transform" onclick="tg.showAlert('МОП')"><span class="text-6xl mb-4">📞</span><h3 class="text-xl font-black uppercase italic">МОП</h3></div>
-            <div class="bento-card !p-8 flex flex-col items-center text-center active:scale-95 transition-transform" onclick="tg.showAlert('РОП')"><span class="text-6xl mb-4">👔</span><h3 class="text-xl font-black uppercase italic text-[#FF6B00]">РОП</h3></div>
-        </div>
-        <div class="h-32 w-full shrink-0"></div>
     </div>
 
-    <div id="club-screen" class="hidden-screen">
-        <h2 class="text-3xl font-black italic uppercase mb-6 px-1 text-white">VIBE CLUB</h2>
-        <div class="flex gap-4 overflow-x-auto pb-6 no-scrollbar px-1" id="stories-list"></div>
-        <div class="mt-2 px-1">
-            <h4 class="text-[13px] text-white font-black mb-4 uppercase tracking-widest">Продолжить просмотр</h4>
-            <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
-                <div class="kino-continue-card active:scale-[0.98] transition-transform"><div class="relative"><img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="kino-continue-img"><div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800"><div class="bg-[#FF6B00] w-[75%] h-full shadow-[0_0_8px_#FF6B00]"></div></div></div><div class="mt-3"><h4 class="text-[13px] font-black italic text-white truncate">Жесткий дожим</h4><p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Модуль 3</p></div></div>
-                <div class="kino-continue-card active:scale-[0.98] transition-transform"><div class="relative"><img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800" class="kino-continue-img"><div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800"><div class="bg-[#FF6B00] w-[15%] h-full"></div></div></div><div class="mt-3"><h4 class="text-[13px] font-black italic text-white truncate">Разбор Алматы</h4><p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Эфир 12.03</p></div></div>
+    <div id="main-app-container" class="hidden-screen p-4">
+        
+        <div class="flex justify-between items-end mt-4 mb-8 px-1">
+            <div>
+                <div class="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mb-1 user-role-display">Боец</div>
+                <div class="text-2xl font-black tracking-tighter lowercase">v<span class="text-[#FF6B00]">i</span>be sales<span class="text-[#FF6B00]">comunity</span></div>
+            </div>
+            <div class="pro-badge bg-[#111] border border-gray-800 px-5 py-2.5 rounded-full flex items-center gap-2">
+                <div class="w-2 h-2 bg-[#FF6B00] rounded-full"></div>
+                <span class="text-[11px] font-black text-white uppercase">PRO</span>
             </div>
         </div>
-        <div class="mt-8 px-1">
-            <h4 class="text-[13px] text-white font-black mb-4 uppercase tracking-widest">⚡ Топ эфиров месяца</h4>
-            <div class="flex gap-4 overflow-x-auto pb-8 no-scrollbar">
-                <div class="kino-top-card active:scale-95 transition-transform"><div class="kino-number">1</div><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=400" class="kino-top-img"></div>
-                <div class="kino-top-card active:scale-95 transition-transform"><div class="kino-number">2</div><img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400" class="kino-top-img"></div>
-                <div class="kino-top-card active:scale-95 transition-transform"><div class="kino-number">3</div><img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400" class="kino-top-img"></div>
+
+        <div id="home-screen" class="space-y-6">
+            <div class="bento-card bg-gradient-to-br from-[#FF6B00] to-[#CC4400] border-none h-44 flex justify-between items-center cursor-pointer active:scale-[0.98] transition-transform" onclick="switchTab('education-screen', 0)">
+                <div>
+                    <div class="text-white/80 text-[11px] font-bold uppercase tracking-widest mb-1">Академия</div>
+                    <h2 class="text-4xl font-black italic uppercase leading-none">Обучение</h2>
+                </div>
+                <div class="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center font-black text-xl shadow-lg pl-1">
+                    <svg viewBox="0 0 24 24" fill="white" class="w-8 h-8"><path d="M8 5v14l11-7z"/></svg>
+                </div>
             </div>
-        </div>
-        <div class="flex gap-5 border-b border-white/10 mt-2 mb-6 px-2"><div class="text-xs font-black uppercase text-white border-b-2 border-[#FF6B00] pb-3">Лента</div><div class="text-xs font-bold uppercase text-gray-500 pb-3">Анонсы</div><div class="text-xs font-bold uppercase text-gray-500 pb-3">Стена Побед</div></div>
-        <div class="px-1 space-y-4 pb-10"><div class="bento-card !p-4 bg-[#0a0a0a]"><div class="flex items-center justify-between mb-4"><div class="flex items-center gap-3"><div class="w-10 h-10 bg-gradient-to-br from-[#FF6B00] to-[#aa3300] rounded-full flex items-center justify-center font-black">V</div><div><div class="text-xs font-black">VIBE Official</div><div class="text-[9px] text-gray-500 uppercase mt-1">2 часа назад</div></div></div><div class="bg-[#FF6B00]/10 text-[#FF6B00] text-[8px] font-black px-2 py-1 rounded-md uppercase border border-[#FF6B00]/30">Событие</div></div><img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800" class="w-full h-44 object-cover rounded-2xl mb-4"><h4 class="text-base font-black italic uppercase text-white mb-2">Разбор звонков в Алматы</h4><p class="text-[11px] text-gray-400 leading-relaxed">В эту субботу собираемся вживую.</p><div class="flex justify-between items-center mt-5 pt-4 border-t border-white/5"><div class="flex gap-4"><span class="text-gray-500 text-[10px] font-black">🔥 142</span></div><button class="bg-[#111] border border-[#FF6B00]/40 text-[#FF6B00] px-5 py-2 rounded-xl text-[9px] font-black uppercase active:scale-95">Я буду</button></div></div></div>
-        <div class="h-32 w-full shrink-0"></div> </div>
-
-    <div id="abonement-screen" class="hidden-screen space-y-6">
-        <h2 class="text-3xl font-black italic uppercase text-white">Абонемент</h2>
-        <div class="bento-card border-[#FF6B00]/40 bg-gradient-to-br from-[#1a110a] to-[#050505] p-8">
-            <div class="flex justify-between mb-10"><div><div class="text-[10px] text-[#FF6B00] font-black tracking-widest uppercase">VIBE PASS</div><div class="text-3xl font-black italic uppercase user-name-profile">Боец</div></div><div class="text-[10px] text-gray-600 font-bold uppercase">VIBE.042</div></div>
-            <div class="flex justify-between items-end"><div><div class="flex items-center gap-2 mb-2"><div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-[10px] font-bold uppercase">Активен</span></div><div class="text-lg font-black italic text-[#FF6B00]">51 ДЕНЬ</div></div><button class="bg-[#1a1a1a] border border-white/10 px-5 py-2 rounded-xl text-[10px] font-black uppercase italic active:scale-95">Продлить</button></div>
-        </div>
-        <div class="space-y-3">
-            <div class="bento-card !p-5 flex items-center justify-between active:scale-98 cursor-pointer"><div class="flex items-center gap-4"><span>🛍️</span><span class="text-xs font-black uppercase italic">Купить абонемент</span></div><span class="text-gray-600">›</span></div>
-            <div class="bento-card !p-5 flex items-center justify-between active:scale-98 cursor-pointer"><div class="flex items-center gap-4"><span>🎁</span><span class="text-xs font-black uppercase italic">Купить в подарок</span></div><span class="text-gray-600">›</span></div>
-        </div>
-        <div class="h-32 w-full shrink-0"></div> </div>
-
-    <div id="map-screen" class="hidden-screen space-y-4">
-        <h2 class="text-3xl font-black italic uppercase px-1">VIBE WORLD</h2>
-        <div class="flex gap-2 overflow-x-auto pb-2 px-1 no-scrollbar" id="city-selector"></div>
-        <div class="bento-card h-[450px] bg-[#000] border-[#FF6B00]/30 p-0 relative overflow-hidden" id="globe-wrapper">
-            <div id="globe-container" class="absolute inset-0"></div>
-            <div class="absolute bottom-6 left-6 z-20 pointer-events-none">
-                <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Текущая точка</div>
-                <div class="text-2xl font-black italic text-[#FF6B00] drop-shadow-[0_0_10px_#FF6B00]" id="current-city-name">АЛМАТЫ</div>
-            </div>
-        </div>
-        <div class="grid grid-cols-2 gap-3 mt-6">
-            <div class="bento-card !p-4 text-center border-cyan-900/30 active:scale-95 cursor-pointer"><div class="text-cyan-400 font-black italic uppercase text-xs">ПРИЗЕМЛИЛСЯ</div></div>
-            <div class="bento-card !p-4 text-center border-orange-900/30 active:scale-95 cursor-pointer"><div class="text-[#FF6B00] font-black italic uppercase text-xs">СТОЛИЦА</div></div>
-        </div>
-        <div class="h-32 w-full shrink-0"></div> </div>
-
-    <div id="profile-screen" class="hidden-screen px-1 space-y-6">
-        <div class="flex items-center justify-between mt-2">
-            <div class="flex items-center gap-5">
-                <div class="w-16 h-16 rounded-2xl bg-gray-900 border-2 border-[#FF6B00] flex items-center justify-center text-2xl font-black text-white" id="avatar-container-prof">?</div>
-                <div><h2 class="text-2xl font-black italic uppercase leading-none user-name-profile">Загрузка...</h2><span class="text-[11px] text-gray-500 font-bold tracking-widest mt-1 block">ID: VIBE.042</span></div>
-            </div>
-            <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-xl active:scale-90 transition-transform">⚙️</div>
-        </div>
-
-        <div class="flex justify-around items-center py-5 border border-white/5 rounded-[30px] bg-[#080808]">
-            <div class="text-center active:scale-95 transition-transform"><div class="text-xl font-black text-white italic">15</div><div class="text-[9px] text-gray-500 font-bold uppercase mt-1">Подписчики</div></div>
-            <div class="w-px h-8 bg-white/10"></div>
-            <div class="text-center active:scale-95 transition-transform"><div class="text-xl font-black text-white italic">11</div><div class="text-[9px] text-gray-500 font-bold uppercase mt-1">Подписки</div></div>
-            <div class="w-px h-8 bg-white/10"></div>
-            <div class="text-center text-[#FF6B00] active:scale-95 transition-transform">📸<div class="text-[9px] font-bold uppercase mt-1">Instagram</div></div>
-        </div>
-
-        <div class="bento-card border-[#FF6B00]/30 bg-gradient-to-t from-[#050505] to-[#150d08] p-6">
-            <div class="flex justify-between items-center mb-6"><h3 class="text-[11px] text-gray-400 font-black uppercase tracking-widest">Мой рейтинг</h3><span class="text-[10px] text-[#FF6B00] font-black uppercase cursor-pointer" onclick="switchTab('rating-screen', 4)">Топ Лидеров ›</span></div>
             
-            <div class="flex gap-2 overflow-x-auto no-scrollbar py-2 mb-4 items-center justify-center">
-                <div class="shrink-0 w-20 opacity-40"><svg viewBox="0 0 100 100" class="w-16 h-16"><defs><linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE066" /><stop offset="50%" stop-color="#FFB300" /><stop offset="100%" stop-color="#996B00" /></linearGradient><path id="star-s" d="M50 36 l4 11 h12 l-10 7 4 11 -10 -7 -10 7 4 -11 -10 -7 h12 z" /></defs><polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-gold)" /><polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5" /><use href="#star-s" fill="#fff" /></svg></div>
-                <div class="shrink-0 w-36 flex flex-col items-center relative"><div class="absolute inset-0 bg-[#FF6B00]/20 blur-[30px] rounded-full"></div><svg viewBox="0 0 100 100" class="w-28 h-28 drop-shadow-2xl relative z-10"><defs><linearGradient id="grad-plat" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FF9B30" /><stop offset="50%" stop-color="#FF5500" /><stop offset="100%" stop-color="#802A00" /></linearGradient><path id="star-b" d="M50 35 l5 14 h15 l-12 9 5 14 -13 -9 -13 9 5 -14 -12 -9 h15 z" /></defs><polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-plat)" /><polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5" /><use href="#star-b" fill="#fff" /></svg></div>
-                <div class="shrink-0 w-20 opacity-40"><svg viewBox="0 0 100 100" class="w-16 h-16"><defs><linearGradient id="grad-sap" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7A8BFF" /><stop offset="50%" stop-color="#2541B2" /><stop offset="100%" stop-color="#0B1B66" /></linearGradient></defs><polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-sap)" /><polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5" /><use href="#star-s" fill="#fff" /></svg></div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bento-card h-36 flex flex-col justify-end">
+                    🎙️
+                    <h3 class="text-base font-black uppercase italic mt-2">Эфиры</h3>
+                    <p class="text-[9px] text-gray-500 font-bold uppercase">Записи</p>
+                </div>
+                <div class="bento-card h-36 flex flex-col justify-end border-[#FF6B00]/20 active:scale-95 transition-transform" onclick="switchTab('fighters-screen', 0)">
+                    ⭐
+                    <h3 class="text-base font-black uppercase italic mt-2 text-[#FF6B00]">Бойцы</h3>
+                    <p class="text-[9px] text-gray-500 font-bold uppercase">База спецов</p>
+                </div>
+                <div class="bento-card h-36 flex flex-col justify-end">
+                    📚
+                    <h3 class="text-base font-black uppercase italic mt-2">Книги</h3>
+                    <p class="text-[9px] text-gray-500 font-bold uppercase">Библиотека</p>
+                </div>
+                <div class="bento-card h-36 flex flex-col justify-end">
+                    💼
+                    <h3 class="text-base font-black uppercase italic mt-2">Проекты</h3>
+                    <p class="text-[9px] text-gray-500 font-bold uppercase">HH.VIBE</p>
+                </div>
             </div>
 
-            <div class="text-center mb-6"><h2 class="text-3xl font-black italic uppercase tracking-wider user-league-name">ПЛАТИНОВЫЙ</h2></div>
-            <div class="flex justify-between text-[11px] font-black text-gray-400 mb-3 uppercase"><span>1400</span><span class="text-white text-lg user-score-val">0 PTS</span><span>1999</span></div>
-            <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden mb-6"><div class="bg-[#FF6B00] h-full rounded-full shadow-[0_0_12px_#FF6B00] score-bar-fill" style="width: 0%"></div></div>
-
-            <div class="grid grid-cols-2 gap-3"><div class="bg-[#050505] border border-white/5 rounded-2xl p-4 flex items-center gap-3">🔥<div><div class="text-sm font-black text-white user-streak-val">0 нед</div><div class="text-[8px] text-gray-500 uppercase font-bold">Актив</div></div></div><div class="bg-[#050505] border border-white/5 rounded-2xl p-4 flex items-center gap-3">👑<div><div class="text-sm font-black text-white">8 недель</div><div class="text-[8px] text-gray-500 uppercase font-bold">Рекорд</div></div></div></div>
-        </div>
-
-        <div class="bento-card bg-[#0a0a0a] !p-6">
-            <div class="flex justify-between items-center mb-6"><div class="flex items-center gap-4"><div class="text-gray-500 text-2xl font-bold cursor-pointer active:scale-90 px-2" onclick="changeMonth(-1)">‹</div><h3 class="text-[12px] text-white font-black uppercase tracking-widest w-24 text-center" id="current-month-text">Март 2026</h3><div class="text-gray-500 text-2xl font-bold cursor-pointer active:scale-90 px-2" onclick="changeMonth(1)">›</div></div><span class="text-[9px] text-[#FF6B00] font-black uppercase tracking-wider">История ›</span></div>
-            <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2" id="calendar-track"></div>
-        </div>
-
-        <div class="bento-card !p-6 bg-[#0a0a0a] mb-6">
-            <h3 class="text-[11px] text-white font-black uppercase mb-6 tracking-widest">Достижения (34)</h3>
-            <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2">
-                <div class="bg-[#050505] rounded-3xl p-5 border border-white/5 min-w-[130px] text-center">🤝<div class="text-[10px] font-black uppercase text-gray-400 mt-2">Напарник</div></div>
-                <div class="bg-[#050505] rounded-3xl p-5 border border-[#FF6B00]/40 min-w-[130px] text-center shadow-lg">🚀<div class="text-[10px] font-black uppercase text-[#FF6B00] mt-2">Птичка</div></div>
+            <div class="space-y-4">
+                <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2">Твой прогресс</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bento-card !p-5">
+                        <div class="text-[9px] text-gray-500 font-bold mb-3 uppercase">Продажи</div>
+                        <div class="flex justify-between text-[11px] font-black mb-2 uppercase"><span>Lvl 10</span><span>100%</span></div>
+                        <div class="w-full bg-black/50 h-1.5 rounded-full">
+                            <div class="bg-[#FF6B00] w-full h-full rounded-full shadow-[0_0_8px_#FF6B00]"></div>
+                        </div>
+                    </div>
+                    <div class="bento-card !p-5">
+                        <div class="text-[9px] text-gray-500 font-bold mb-3 uppercase">Психология</div>
+                        <div class="flex justify-between text-[11px] font-black mb-2 uppercase"><span>Lvl 4</span><span>45%</span></div>
+                        <div class="w-full bg-black/50 h-1.5 rounded-full">
+                            <div class="bg-[#FF6B00] w-[45%] h-full rounded-full shadow-[0_0_8px_#FF6B00]"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
+            
+            <div class="h-32 w-full shrink-0"></div> </div>
+
+        <div id="education-screen" class="hidden-screen px-1 space-y-6">
+            <div class="flex items-center gap-4 cursor-pointer active:opacity-60 transition-opacity" onclick="switchTab('home-screen', 0)">
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter">← Академия</h2>
+            </div>
+            
+            <div class="bento-card !p-0 border-[#FF6B00]/40 overflow-hidden relative shadow-[0_15px_30px_-10px_rgba(255,107,0,0.2)] cursor-pointer active:scale-[0.98] transition-transform">
+                <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="w-full h-64 object-cover opacity-80">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <div class="w-16 h-16 bg-[#FF6B00] backdrop-blur-md rounded-full flex items-center justify-center pl-1.5 shadow-[0_0_20px_#FF6B00]">
+                        <svg viewBox="0 0 24 24" fill="white" class="w-8 h-8"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                </div>
+                <div class="absolute bottom-0 left-0 w-full p-5">
+                    <div class="text-[10px] text-[#FF6B00] font-black uppercase tracking-[0.2em] mb-1.5 drop-shadow-md">Модуль 3 • Урок 1</div>
+                    <h3 class="text-xl font-black italic text-white leading-tight mb-3 drop-shadow-lg">Жесткий дожим <br>в B2B продажах</h3>
+                    <div class="w-full bg-white/20 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-[#FF6B00] w-[65%] h-full rounded-full shadow-[0_0_10px_#FF6B00]"></div>
+                    </div>
+                    <div class="flex justify-between text-[9px] font-bold text-gray-300 mt-2 uppercase tracking-widest">
+                        <span>Осталось 12:40</span><span>65% Просмотрено</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-6 border-b border-white/10 px-2 mt-6 mb-2">
+                <div class="text-[11px] font-black uppercase text-white border-b-2 border-[#FF6B00] pb-3">Уроки</div>
+                <div class="text-[11px] font-bold uppercase text-gray-500 pb-3 cursor-pointer">Доп. Материалы</div>
+            </div>
+
+            <div class="space-y-3 pb-6">
+                <div class="bento-card !p-4 bg-[#111] border-[#FF6B00]/40 flex items-center gap-4 cursor-pointer">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF6B00] to-[#cc4400] flex items-center justify-center pl-1 shadow-[0_0_15px_rgba(255,107,0,0.3)]">
+                        <svg viewBox="0 0 24 24" fill="white" class="w-6 h-6"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-[9px] text-[#FF6B00] font-bold uppercase mb-1 tracking-widest">Урок 1 • 25 мин</div>
+                        <div class="text-sm font-black italic text-white leading-tight">Техника возврата клиента</div>
+                    </div>
+                </div>
+
+                <div class="bento-card !p-4 bg-[#0a0a0a] flex items-center gap-4 opacity-70 cursor-pointer">
+                    <div class="w-12 h-12 rounded-2xl bg-green-900/30 border border-green-500/30 flex items-center justify-center text-green-500">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-[9px] text-gray-500 font-bold uppercase mb-1 tracking-widest">Урок 2 • 18 мин</div>
+                        <div class="text-sm font-black italic text-gray-300 leading-tight">Обход секретарей и блокеров</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-32 w-full shrink-0"></div> </div>
+
+        <div id="fighters-screen" class="hidden-screen px-1 space-y-6">
+            <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)">
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter">← База Бойцов</h2>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bento-card !p-8 flex flex-col items-center text-center active:scale-95 transition-transform">
+                    <span class="text-6xl mb-4">📞</span>
+                    <h3 class="text-xl font-black uppercase italic">МОП</h3>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase mt-2">Менеджеры</p>
+                </div>
+                <div class="bento-card !p-8 flex flex-col items-center text-center active:scale-95 transition-transform">
+                    <span class="text-6xl mb-4">👔</span>
+                    <h3 class="text-xl font-black uppercase italic text-[#FF6B00]">РОП</h3>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase mt-2">Руководители</p>
+                </div>
+            </div>
+
+            <div class="h-32 w-full shrink-0"></div> </div>
+
+        <div id="club-screen" class="hidden-screen">
+            <h2 class="text-3xl font-black italic uppercase mb-6 px-1 text-white">VIBE CLUB</h2>
+            
+            <div class="flex gap-4 overflow-x-auto pb-6 no-scrollbar px-1" id="stories-list"></div>
+            
+            <div class="mt-2 px-1">
+                <h4 class="text-[13px] text-white font-black mb-4 uppercase tracking-widest">Продолжить просмотр</h4>
+                <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+                    <div class="kino-continue-card active:scale-[0.98] transition-transform">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="kino-continue-img">
+                            <div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800">
+                                <div class="bg-[#FF6B00] w-[75%] h-full shadow-[0_0_8px_#FF6B00]"></div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <h4 class="text-[13px] font-black italic text-white truncate">Жесткий дожим</h4>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Модуль 3</p>
+                        </div>
+                    </div>
+                    <div class="kino-continue-card active:scale-[0.98] transition-transform">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800" class="kino-continue-img">
+                            <div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800">
+                                <div class="bg-[#FF6B00] w-[15%] h-full"></div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <h4 class="text-[13px] font-black italic text-white truncate">Разбор Алматы</h4>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Эфир 12.03</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 px-1">
+                <h4 class="text-[13px] text-white font-black mb-4 uppercase tracking-widest">⚡ Топ эфиров месяца</h4>
+                <div class="flex gap-4 overflow-x-auto pb-8 no-scrollbar">
+                    <div class="kino-top-card active:scale-95 transition-transform"><div class="kino-number">1</div><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=400" class="kino-top-img"></div>
+                    <div class="kino-top-card active:scale-95 transition-transform"><div class="kino-number">2</div><img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400" class="kino-top-img"></div>
+                    <div class="kino-top-card active:scale-95 transition-transform"><div class="kino-number">3</div><img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400" class="kino-top-img"></div>
+                </div>
+            </div>
+
+            <div class="flex gap-5 border-b border-white/10 mt-2 mb-6 px-2">
+                <div class="text-xs font-black uppercase text-white border-b-2 border-[#FF6B00] pb-3">Лента</div>
+                <div class="text-xs font-bold uppercase text-gray-500 pb-3">Анонсы</div>
+                <div class="text-xs font-bold uppercase text-gray-500 pb-3">Стена Побед</div>
+            </div>
+
+            <div class="px-1 space-y-4 pb-10">
+                <div class="bento-card !p-4 bg-[#0a0a0a]">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-[#FF6B00] to-[#aa3300] rounded-full flex items-center justify-center font-black">V</div>
+                            <div>
+                                <div class="text-xs font-black">VIBE Official</div>
+                                <div class="text-[9px] text-gray-500 uppercase mt-1">2 часа назад</div>
+                            </div>
+                        </div>
+                        <div class="bg-[#FF6B00]/10 text-[#FF6B00] text-[8px] font-black px-2 py-1 rounded-md uppercase border border-[#FF6B00]/30">Событие</div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800" class="w-full h-44 object-cover rounded-2xl mb-4">
+                    <h4 class="text-base font-black italic uppercase text-white mb-2">Разбор звонков в Алматы</h4>
+                    <p class="text-[11px] text-gray-400 leading-relaxed">В эту субботу собираемся вживую. Будем слушать ваши записи, находить ошибки и переписывать скрипты.</p>
+                    <div class="flex justify-between items-center mt-5 pt-4 border-t border-white/5">
+                        <div class="flex gap-4">
+                            <span class="text-gray-500 text-[10px] font-black">🔥 142</span>
+                            <span class="text-gray-500 text-[10px] font-black">💬 24</span>
+                        </div>
+                        <button class="bg-[#111] border border-[#FF6B00]/40 text-[#FF6B00] px-5 py-2 rounded-xl text-[9px] font-black uppercase active:scale-95">Я буду</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="h-32 w-full shrink-0"></div> </div>
+
+        <div id="abonement-screen" class="hidden-screen space-y-6">
+            <h2 class="text-3xl font-black italic uppercase text-white">Абонемент</h2>
+            <div class="bento-card border-[#FF6B00]/40 bg-gradient-to-br from-[#1a110a] to-[#050505] p-8">
+                <div class="flex justify-between mb-10">
+                    <div>
+                        <div class="text-[10px] text-[#FF6B00] font-black tracking-widest uppercase">VIBE PASS</div>
+                        <div class="text-3xl font-black italic uppercase user-name-profile">Боец</div>
+                    </div>
+                    <div class="text-[10px] text-gray-600 font-bold uppercase">VIBE.042</div>
+                </div>
+                <div class="flex justify-between items-end">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span class="text-[10px] font-bold uppercase">Активен</span>
+                        </div>
+                        <div class="text-lg font-black italic text-[#FF6B00]">51 ДЕНЬ</div>
+                    </div>
+                    <button class="bg-[#1a1a1a] border border-white/10 px-5 py-2 rounded-xl text-[10px] font-black uppercase italic active:scale-95">Продлить</button>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <div class="bento-card !p-5 flex items-center justify-between active:scale-98 cursor-pointer">
+                    <div class="flex items-center gap-4"><span>🛍️</span><span class="text-xs font-black uppercase italic">Купить абонемент</span></div>
+                    <span class="text-gray-600">›</span>
+                </div>
+                <div class="bento-card !p-5 flex items-center justify-between active:scale-98 cursor-pointer">
+                    <div class="flex items-center gap-4"><span>🎁</span><span class="text-xs font-black uppercase italic">Купить в подарок</span></div>
+                    <span class="text-gray-600">›</span>
+                </div>
+                <div class="bento-card !p-5 flex items-center justify-between active:scale-98 cursor-pointer">
+                    <div class="flex items-center gap-4"><span>🎟️</span><span class="text-xs font-black uppercase italic">Промокод</span></div>
+                    <span class="text-gray-600">›</span>
+                </div>
+            </div>
+
+            <div class="h-32 w-full shrink-0"></div> </div>
+
+        <div id="map-screen" class="hidden-screen space-y-4">
+            <h2 class="text-3xl font-black italic uppercase px-1">VIBE WORLD</h2>
+            <div class="flex gap-2 overflow-x-auto pb-2 px-1 no-scrollbar" id="city-selector"></div>
+            <div class="bento-card h-[450px] bg-[#000] border-[#FF6B00]/30 p-0 relative overflow-hidden" id="globe-wrapper">
+                <div id="globe-container" class="absolute inset-0"></div>
+                <div class="absolute bottom-6 left-6 z-20 pointer-events-none">
+                    <div class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Текущая точка</div>
+                    <div class="text-2xl font-black italic text-[#FF6B00] drop-shadow-[0_0_10px_#FF6B00]" id="current-city-name">АЛМАТЫ</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mt-6">
+                <div class="bento-card !p-4 text-center border-cyan-900/30 active:scale-95 cursor-pointer">
+                    <div class="text-cyan-400 font-black italic uppercase text-xs">ПРИЗЕМЛИЛСЯ</div>
+                    <div class="text-[8px] text-gray-500 font-bold uppercase mt-1">Сигнал для местных</div>
+                </div>
+                <div class="bento-card !p-4 text-center border-orange-900/30 active:scale-95 cursor-pointer">
+                    <div class="text-[#FF6B00] font-black italic uppercase text-xs">СТОЛИЦА</div>
+                    <div class="text-[8px] text-gray-500 font-bold uppercase mt-1">Захват точки</div>
+                </div>
+            </div>
+
+            <div class="h-32 w-full shrink-0"></div> </div>
+
+        <div id="profile-screen" class="hidden-screen px-1 space-y-6">
+            <div class="flex items-center justify-between mt-2">
+                <div class="flex items-center gap-5">
+                    <div class="w-16 h-16 rounded-2xl bg-gray-900 border-2 border-[#FF6B00] flex items-center justify-center text-2xl font-black text-white shadow-[0_0_15px_rgba(255,107,0,0.2)]" id="avatar-container-prof">?</div>
+                    <div>
+                        <h2 class="text-2xl font-black italic uppercase leading-none user-name-profile">Загрузка...</h2>
+                        <span class="text-[11px] text-gray-500 font-bold tracking-widest mt-1 block">ID: VIBE.042</span>
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-xl active:scale-90 transition-transform">⚙️</div>
+            </div>
+
+            <div class="flex justify-around items-center py-5 border border-white/5 rounded-[30px] bg-[#080808]">
+                <div class="text-center active:scale-95 transition-transform cursor-pointer">
+                    <div class="text-xl font-black text-white italic">15</div>
+                    <div class="text-[9px] text-gray-500 font-bold uppercase mt-1">Подписчики</div>
+                </div>
+                <div class="w-px h-8 bg-white/10"></div>
+                <div class="text-center active:scale-95 transition-transform cursor-pointer">
+                    <div class="text-xl font-black text-white italic">11</div>
+                    <div class="text-[9px] text-gray-500 font-bold uppercase mt-1">Подписки</div>
+                </div>
+                <div class="w-px h-8 bg-white/10"></div>
+                <div class="text-center text-[#FF6B00] active:scale-95 transition-transform cursor-pointer">
+                    📸<div class="text-[9px] font-bold uppercase mt-1">Instagram</div>
+                </div>
+            </div>
+
+            <div class="bento-card border-[#FF6B00]/30 bg-gradient-to-t from-[#050505] to-[#150d08] p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-[11px] text-gray-400 font-black uppercase tracking-widest">Мой рейтинг</h3>
+                    <span class="text-[10px] text-[#FF6B00] font-black uppercase cursor-pointer" onclick="switchTab('rating-screen', 4)">Топ ›</span>
+                </div>
+                
+                <div class="flex gap-2 overflow-x-auto no-scrollbar py-2 mb-4 items-center justify-center">
+                    <div class="shrink-0 w-20 opacity-40">
+                        <svg viewBox="0 0 100 100" class="w-16 h-16">
+                            <defs><linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFE066" /><stop offset="50%" stop-color="#FFB300" /><stop offset="100%" stop-color="#996B00" /></linearGradient><path id="star-s" d="M50 36 l4 11 h12 l-10 7 4 11 -10 -7 -10 7 4 -11 -10 -7 h12 z" /></defs>
+                            <polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-gold)" />
+                            <polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5" />
+                            <use href="#star-s" fill="#fff" />
+                        </svg>
+                    </div>
+                    <div class="shrink-0 w-36 flex flex-col items-center relative">
+                        <div class="absolute inset-0 bg-[#FF6B00]/20 blur-[30px] rounded-full"></div>
+                        <svg viewBox="0 0 100 100" class="w-28 h-28 drop-shadow-2xl relative z-10">
+                            <defs><linearGradient id="grad-plat" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FF9B30" /><stop offset="50%" stop-color="#FF5500" /><stop offset="100%" stop-color="#802A00" /></linearGradient><path id="star-b" d="M50 35 l5 14 h15 l-12 9 5 14 -13 -9 -13 9 5 -14 -12 -9 h15 z" /></defs>
+                            <polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-plat)" />
+                            <polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5" />
+                            <use href="#star-b" fill="#fff" />
+                        </svg>
+                    </div>
+                    <div class="shrink-0 w-20 opacity-40">
+                        <svg viewBox="0 0 100 100" class="w-16 h-16">
+                            <defs><linearGradient id="grad-sap" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#7A8BFF" /><stop offset="50%" stop-color="#2541B2" /><stop offset="100%" stop-color="#0B1B66" /></linearGradient></defs>
+                            <polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="url(#grad-sap)" />
+                            <polygon points="50,13 83,32 83,68 50,87 17,68 17,32" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.5" />
+                            <use href="#star-s" fill="#fff" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="text-center mb-6">
+                    <h2 class="text-3xl font-black italic uppercase tracking-wider user-league-name">ПЛАТИНОВЫЙ</h2>
+                </div>
+                <div class="flex justify-between text-[11px] font-black text-gray-400 mb-3 uppercase">
+                    <span>1400</span><span class="text-white text-lg user-score-val">0 PTS</span><span>1999</span>
+                </div>
+                <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden mb-6">
+                    <div class="bg-[#FF6B00] h-full rounded-full shadow-[0_0_12px_#FF6B00] score-bar-fill" style="width: 0%"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-[#050505] border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+                        <div class="text-2xl drop-shadow-[0_0_8px_rgba(255,107,0,0.6)]">🔥</div>
+                        <div>
+                            <div class="text-sm font-black text-white user-streak-val">0 нед</div>
+                            <div class="text-[8px] text-gray-500 uppercase font-bold">Актив</div>
+                        </div>
+                    </div>
+                    <div class="bg-[#050505] border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+                        <div class="text-2xl drop-shadow-[0_0_8px_rgba(255,215,0,0.4)]">👑</div>
+                        <div>
+                            <div class="text-sm font-black text-white">8 недель</div>
+                            <div class="text-[8px] text-gray-500 uppercase font-bold">Рекорд</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bento-card bg-[#0a0a0a] !p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="text-gray-500 text-2xl font-bold cursor-pointer active:scale-90 px-2" onclick="changeMonth(-1)">‹</div>
+                        <h3 class="text-[12px] text-white font-black uppercase tracking-widest w-24 text-center" id="current-month-text">Март 2026</h3>
+                        <div class="text-gray-500 text-2xl font-bold cursor-pointer active:scale-90 px-2" onclick="changeMonth(1)">›</div>
+                    </div>
+                    <span class="text-[9px] text-[#FF6B00] font-black uppercase tracking-wider">История ›</span>
+                </div>
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-2" id="calendar-track"></div>
+            </div>
+
+            <div class="bento-card !p-6 bg-[#0a0a0a] mb-6">
+                <h3 class="text-[11px] text-white font-black uppercase mb-6 tracking-widest">Достижения (34)</h3>
+                <div class="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                    <div class="bg-[#050505] rounded-3xl p-5 border border-white/5 min-w-[130px] text-center">
+                        <div class="text-4xl mb-3 grayscale opacity-50">🤝</div>
+                        <div class="text-[10px] font-black uppercase text-gray-400 mt-2">Напарник</div>
+                    </div>
+                    <div class="bg-[#050505] rounded-3xl p-5 border border-[#FF6B00]/40 min-w-[130px] text-center shadow-[0_0_15px_rgba(255,107,0,0.1)] relative overflow-hidden">
+                        <div class="absolute inset-0 bg-[#FF6B00]/5"></div>
+                        <div class="text-4xl mb-3 drop-shadow-lg z-10 relative">🚀</div>
+                        <div class="text-[10px] font-black uppercase text-[#FF6B00] z-10 relative mt-2">Птичка</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="h-32 w-full shrink-0"></div> </div>
+
+        <div id="rating-screen" class="hidden-screen px-1 space-y-6">
+            <div class="flex items-center gap-4 cursor-pointer active:opacity-50" onclick="switchTab('profile-screen', 4)">
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter">← Рейтинг</h2>
+            </div>
+            <div class="bento-card bg-[#050505] border-white/5 !p-8">
+                <div class="grid grid-cols-3 gap-3 items-end text-center">
+                    <div>
+                        <div class="rank-hexagon-min w-16 h-16 border border-gray-600 mb-3 text-lg font-black text-gray-500">2</div>
+                        <div class="text-[11px] font-black text-gray-400">Сержан</div>
+                    </div>
+                    <div>
+                        <div class="rank-hexagon-min w-24 h-24 border border-[#FFD700] mb-4 text-3xl font-black text-[#FFD700] shadow-[0_0_15px_rgba(255,215,0,0.2)]">1</div>
+                        <div class="text-[13px] font-black text-white italic uppercase">Марат К.</div>
+                    </div>
+                    <div>
+                        <div class="rank-hexagon-min w-16 h-16 border border-[#CD7F32] mb-3 text-lg font-black text-[#CD7F32]">3</div>
+                        <div class="text-[11px] font-black text-gray-400">Алия</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bento-card border-[#FF6B00]/50 !p-6 bg-gradient-to-r from-[#111] to-[#0a0a0a] flex items-center gap-5 shadow-xl">
+                <div class="text-2xl font-black italic text-[#FF6B00]">#42</div>
+                <div class="w-14 h-14 rounded-2xl bg-gray-900 border-2 border-[#FF6B00] flex items-center justify-center font-black text-xl">Б</div>
+                <div>
+                    <div class="text-sm font-black italic text-white user-name-profile">Боец</div>
+                    <div class="text-[10px] text-[#FF6B00] font-bold mt-1 tracking-widest user-league-name">...</div>
+                </div>
+                <div class="ml-auto text-xl font-black text-white italic user-score-val">0</div>
+            </div>
+            
+            <div class="h-32 w-full shrink-0"></div> </div>
+
+        <div id="main-tabbar" class="tabbar">
+            <div class="tab-item active" onclick="switchTab('home-screen', 0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span>Домой</span></div>
+            <div class="tab-item" onclick="switchTab('club-screen', 1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m12-10a4 4 0 01-4-4 4 4 0 014-4 4 4 0 014 4 4 4 0 01-4 4z"/></svg><span>Клуб</span></div>
+            <div class="tab-item" onclick="switchTab('abonement-screen', 2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><span>Пасс</span></div>
+            <div class="tab-item" onclick="switchTab('map-screen', 3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a17 17 0 000 18M12 3a17 17 0 010 18"/></svg><span>Карта</span></div>
+            <div class="tab-item" onclick="switchTab('profile-screen', 4)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span>Профиль</span></div>
         </div>
-        <div class="h-32 w-full shrink-0"></div> </div>
 
-    <div id="rating-screen" class="hidden-screen px-1 space-y-6">
-        <div class="flex items-center gap-4 cursor-pointer active:opacity-50" onclick="switchTab('profile-screen', 4)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Рейтинг</h2></div>
-        <div class="bento-card bg-[#050505] border-white/5 !p-8"><div class="grid grid-cols-3 gap-3 items-end text-center"><div><div class="rank-hexagon-min w-16 h-16 border border-gray-600 mb-3 text-lg font-black text-gray-500">2</div><div class="text-[11px] font-black text-gray-400">Сержан</div></div><div><div class="rank-hexagon-min w-24 h-24 border border-[#FFD700] mb-4 text-3xl font-black text-[#FFD700]">1</div><div class="text-[13px] font-black text-white italic uppercase">Марат К.</div></div><div><div class="rank-hexagon-min w-16 h-16 border border-[#CD7F32] mb-3 text-lg font-black text-[#CD7F32]">3</div><div class="text-[11px] font-black text-gray-400">Алия</div></div></div></div>
-        <div class="bento-card border-[#FF6B00]/50 !p-6 bg-gradient-to-r from-[#111] to-[#0a0a0a] flex items-center gap-5 shadow-xl"><div class="text-2xl font-black italic text-[#FF6B00]">#42</div><div class="w-14 h-14 rounded-2xl bg-gray-900 border-2 border-[#FF6B00] flex items-center justify-center font-black text-xl">Б</div><div><div class="text-sm font-black italic text-white user-name-profile">Боец</div><div class="text-[10px] text-[#FF6B00] font-bold mt-1 tracking-widest user-league-name">...</div></div><div class="ml-auto text-xl font-black text-white italic user-score-val">0</div></div>
-        <div class="h-32 w-full shrink-0"></div> </div>
-
-    <div class="tabbar">
-        <div class="tab-item active" onclick="switchTab('home-screen', 0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg><span>Домой</span></div>
-        <div class="tab-item" onclick="switchTab('club-screen', 1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m12-10a4 4 0 01-4-4 4 4 0 014-4 4 4 0 014 4 4 4 0 01-4 4z"/></svg><span>Клуб</span></div>
-        <div class="tab-item" onclick="switchTab('abonement-screen', 2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg><span>Пасс</span></div>
-        <div class="tab-item" onclick="switchTab('map-screen', 3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M3.6 9h16.8M3.6 15h16.8"/><path d="M12 3a17 17 0 000 18M12 3a17 17 0 010 18"/></svg><span>Карта</span></div>
-        <div class="tab-item" onclick="switchTab('profile-screen', 4)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span>Профиль</span></div>
-    </div>
-
-    <script>
-        // ИНИЦИАЛИЗАЦИЯ SUPABASE
+    </div> <script>
         const SB_URL = 'https://mgdrugepjudttjxgedvp.supabase.co';
         const SB_KEY = 'sb_publishable_X_5OwtCeeKQRHa36JLJedA_qo84O6YA';
         const supabase = supabasejs.createClient(SB_URL, SB_KEY);
         const tg = window.Telegram.WebApp;
         tg.ready(); tg.expand();
+        tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000');
 
-        async function syncUser() {
+        async function checkAuth() {
             const user = tg.initDataUnsafe?.user;
-            if (!user) return;
             
+            // Заглушка для теста в браузере (на компе)
+            if (!user) {
+                document.getElementById('loading-overlay').style.opacity = '0';
+                setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+                document.getElementById('main-app-container').classList.remove('hidden-screen');
+                return;
+            }
+            
+            // Проверка юзера в базе
             let { data: fighter, error } = await supabase.from('users').select('*').eq('tg_id', user.id).single();
 
-            if (!fighter) {
-                const { data: newUser } = await supabase.from('users').insert([
-                    { tg_id: user.id, first_name: user.first_name, username: user.username, score: 1600, league: 'Платиновый', streak: 4 }
-                ]).select().single();
-                fighter = newUser;
-                tg.showAlert(`Салам, ${user.first_name}! Ты в базе VIBE.`);
-            }
+            document.getElementById('loading-overlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
 
-            if (fighter) {
-                document.querySelectorAll('.user-name-profile').forEach(el => el.innerText = fighter.first_name);
-                document.querySelectorAll('.user-score-val').forEach(el => el.innerText = `${fighter.score} PTS`);
-                document.querySelectorAll('.user-league-name').forEach(el => el.innerText = fighter.league.toUpperCase());
-                document.querySelectorAll('.user-streak-val').forEach(el => el.innerText = `${fighter.streak} нед`);
-                document.getElementById('avatar-container-prof').innerText = fighter.first_name.charAt(0);
-                
-                const progress = ((fighter.score - 1400) / (1999 - 1400)) * 100;
-                document.querySelectorAll('.score-bar-fill').forEach(el => el.style.width = `${Math.min(100, Math.max(5, progress))}%`);
+            if (!fighter) {
+                // Юзера нет -> Показываем онбординг (выбор роли)
+                document.getElementById('onboarding-screen').classList.remove('hidden-screen');
+            } else {
+                // Юзер есть -> Показываем аппку
+                document.getElementById('main-app-container').classList.remove('hidden-screen');
+                updateUI(fighter);
             }
         }
-        syncUser();
 
-        //Stories
+        async function registerUser(role) {
+            const user = tg.initDataUnsafe?.user;
+            if (!user) return;
+
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('loading-overlay').style.opacity = '1';
+
+            // Создаем новую запись в БД
+            const { data: newUser, error } = await supabase.from('users').insert([
+                { 
+                    tg_id: user.id, 
+                    first_name: user.first_name, 
+                    username: user.username, 
+                    role: role, 
+                    score: 100, 
+                    league: 'Новичок', 
+                    streak: 1 
+                }
+            ]).select().single();
+
+            // Переход в само приложение
+            document.getElementById('onboarding-screen').classList.add('hidden-screen');
+            document.getElementById('loading-overlay').style.opacity = '0';
+            setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+            document.getElementById('main-app-container').classList.remove('hidden-screen');
+            
+            updateUI(newUser);
+            tg.showAlert(`Добро пожаловать в VIBE, ${newUser.first_name}! Твоя роль: ${role}.`);
+        }
+
+        function updateUI(fighter) {
+            if(!fighter) return;
+            document.querySelectorAll('.user-name-profile').forEach(el => el.innerText = fighter.first_name);
+            document.querySelectorAll('.user-score-val').forEach(el => el.innerText = `${fighter.score} PTS`);
+            document.querySelectorAll('.user-league-name').forEach(el => el.innerText = fighter.league.toUpperCase());
+            document.querySelectorAll('.user-streak-val').forEach(el => el.innerText = `${fighter.streak} нед`);
+            document.querySelectorAll('.user-role-display').forEach(el => el.innerText = fighter.role || 'Боец');
+            
+            if(fighter.first_name) {
+                document.getElementById('avatar-container-prof').innerText = fighter.first_name.charAt(0);
+            }
+            
+            const progress = ((fighter.score - 0) / (2000 - 0)) * 100;
+            document.querySelectorAll('.score-bar-fill').forEach(el => el.style.width = `${Math.min(100, Math.max(5, progress))}%`);
+        }
+
+        // Старт!
+        checkAuth();
+
+        // СТОРИС
         const storiesList = document.getElementById('stories-list');
-        [{p:'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', t:'Найм МОП'},{p:'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', t:'Разбор'},{p:'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=200', t:'Скрипты'}].forEach(s => { storiesList.innerHTML += `<div class="flex flex-col items-center gap-3"><div class="story-item"><img src="${s.p}"></div><div class="text-[10px] font-bold text-gray-400 uppercase">${s.t}</div></div>`; });
+        [
+            {p:'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', t:'Найм МОП'},
+            {p:'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', t:'Разбор'},
+            {p:'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=200', t:'Скрипты'}
+        ].forEach(s => { 
+            storiesList.innerHTML += `<div class="flex flex-col items-center gap-3"><div class="story-item"><img src="${s.p}"></div><div class="text-[10px] font-bold text-gray-400 uppercase">${s.t}</div></div>`; 
+        });
 
-        //Calendar
-        const months = [{n:'Январь 2026', d:31, a:[5,12]},{n:'Февраль 2026', d:28, a:[2,9,23]},{n:'Март 2026', d:31, a:[4,7,11], t:12}];
+        // КАЛЕНДАРЬ
+        const months = [
+            {n:'Январь 2026', d:31, a:[5,12]},
+            {n:'Февраль 2026', d:28, a:[2,9,23]},
+            {n:'Март 2026', d:31, a:[4,7,11], t:12}
+        ];
         let curM = 2;
         function renderCal() {
-            const m = months[curM]; document.getElementById('current-month-text').innerText = m.n;
-            const track = document.getElementById('calendar-track'); const days = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС']; let html = '';
+            const m = months[curM]; 
+            document.getElementById('current-month-text').innerText = m.n;
+            const track = document.getElementById('calendar-track'); 
+            const days = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС']; 
+            let html = '';
             for(let i=1; i<=m.d; i++) {
-                const name = days[(i-1)%7]; let cls = 'cal-missed'; let content = i;
-                if(m.a.includes(i)) { cls = 'cal-attended'; content = '✓'; } else if(m.t === i) { cls = 'cal-today'; }
+                const name = days[(i-1)%7]; 
+                let cls = 'cal-missed'; 
+                let content = i;
+                if(m.a.includes(i)) { 
+                    cls = 'cal-attended'; 
+                    content = '✓'; 
+                } else if(m.t === i) { 
+                    cls = 'cal-today'; 
+                }
                 html += `<div class="cal-day ${cls}"><div class="text-[10px] font-black mb-1 opacity-40">${name}</div><div class="text-xl font-black">${content}</div></div>`;
             }
-            track.innerHTML = html; if(m.t) track.scrollLeft = (m.t-2)*70;
+            track.innerHTML = html; 
+            if(m.t) track.scrollLeft = (m.t-2)*70;
         }
-        window.changeMonth = d => { curM=Math.max(0,Math.min(months.length-1, curM+d)); renderCal(); };
+        window.changeMonth = d => { 
+            curM=Math.max(0,Math.min(months.length-1, curM+d)); 
+            renderCal(); 
+        };
         renderCal();
 
-        //Globe
+        // ГЛОБУС
         let globe = null;
         function initGlobe() {
             if(globe) return;
-            const cities = [{id:'alm', lat:43.2, lng:76.8, n:'Алматы'},{id:'ast', lat:51.1, lng:71.4, n:'Астана'},{id:'dub', lat:25.2, lng:55.2, n:'Дубай'}];
+            const cities = [
+                {id:'alm', lat:43.2, lng:76.8, n:'Алматы'},
+                {id:'ast', lat:51.1, lng:71.4, n:'Астана'},
+                {id:'dub', lat:25.2, lng:55.2, n:'Дубай'}
+            ];
             const selector = document.getElementById('city-selector');
-            cities.forEach((c, i) => { selector.innerHTML += `<div class="city-btn ${i===0?'active':''}" onclick="fly('${c.id}', this)">${c.n}</div>`; });
-            globe = Globe()(document.getElementById('globe-container')).width(document.getElementById('globe-wrapper').clientWidth).height(450).backgroundColor('rgba(0,0,0,0)').globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg').showAtmosphere(true).atmosphereColor('#FF6B00').ringsData(cities).ringColor(()=>'#FF6B00').labelsData(cities).labelText(d=>d.n.toUpperCase()).labelColor(()=>'#FF6B00').labelSize(1.8).pointOfView({lat:43.2, lng:76.8, altitude:1.8});
-            globe.controls().autoRotate = true; globe.controls().enableZoom = false;
+            cities.forEach((c, i) => { 
+                selector.innerHTML += `<div class="city-btn ${i===0?'active':''}" onclick="fly('${c.id}', this)">${c.n}</div>`; 
+            });
+            globe = Globe()(document.getElementById('globe-container'))
+                .width(document.getElementById('globe-wrapper').clientWidth)
+                .height(450)
+                .backgroundColor('rgba(0,0,0,0)')
+                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
+                .showAtmosphere(true)
+                .atmosphereColor('#FF6B00')
+                .ringsData(cities)
+                .ringColor(()=>'#FF6B00')
+                .labelsData(cities)
+                .labelText(d=>d.n.toUpperCase())
+                .labelColor(()=>'#FF6B00')
+                .labelSize(1.8)
+                .pointOfView({lat:43.2, lng:76.8, altitude:1.8});
+            globe.controls().autoRotate = true; 
+            globe.controls().enableZoom = false;
         }
+        
         window.fly = (id, btn) => {
-            document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+            document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active')); 
+            btn.classList.add('active');
             const c = {alm:[43.2,76.8], ast:[51.1,71.4], dub:[25.2,55.2]}[id];
             document.getElementById('current-city-name').innerText = btn.innerText.toUpperCase();
             globe.pointOfView({lat:c[0], lng:c[1], altitude:1.8}, 1500);
         };
 
+        // НАВИГАЦИЯ МЕЖДУ ЭКРАНАМИ
         const screens = ['home-screen', 'club-screen', 'abonement-screen', 'map-screen', 'profile-screen', 'fighters-screen', 'rating-screen', 'education-screen'];
         function switchTab(id, idx) {
             screens.forEach(s => document.getElementById(s).classList.add('hidden-screen'));
             document.getElementById(id).classList.remove('hidden-screen');
-            if(idx !== null && idx < 5) { document.querySelectorAll('.tabbar .tab-item').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tabbar .tab-item')[idx].classList.add('active'); }
+            if(idx !== null && idx < 5) { 
+                document.querySelectorAll('.tabbar .tab-item').forEach(t => t.classList.remove('active')); 
+                document.querySelectorAll('.tabbar .tab-item')[idx].classList.add('active'); 
+            }
             if (id === 'map-screen') setTimeout(initGlobe, 100);
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
