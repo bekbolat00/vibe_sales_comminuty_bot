@@ -133,10 +133,10 @@
             </div>
             
             <div class="grid grid-cols-2 gap-4">
-                <div class="bento-card h-36 flex flex-col justify-end">🎙️<h3 class="text-base font-black uppercase italic mt-2">Эфиры</h3><p class="text-[9px] text-gray-500 font-bold uppercase">Записи</p></div>
-                <div class="bento-card h-36 flex flex-col justify-end border-[#FF6B00]/20 active:scale-95 transition-transform" onclick="switchTab('fighters-screen', 0)">⭐<h3 class="text-base font-black uppercase italic mt-2 text-[#FF6B00]">Бойцы</h3><p class="text-[9px] text-gray-500 font-bold uppercase">База спецов</p></div>
-                <div class="bento-card h-36 flex flex-col justify-end">📚<h3 class="text-base font-black uppercase italic mt-2">Книги</h3><p class="text-[9px] text-gray-500 font-bold uppercase">Библиотека</p></div>
-                <div class="bento-card h-36 flex flex-col justify-end">💼<h3 class="text-base font-black uppercase italic mt-2">Проекты</h3><p class="text-[9px] text-gray-500 font-bold uppercase">HH.VIBE</p></div>
+                <div class="bento-card h-36 flex flex-col justify-end cursor-pointer active:scale-95 transition-transform" onclick="switchTab('streams-screen', 0)">🎙️<h3 class="text-base font-black uppercase italic mt-2">Эфиры</h3><p class="text-[9px] text-gray-500 font-bold uppercase">Записи</p></div>
+                <div class="bento-card h-36 flex flex-col justify-end border-[#FF6B00]/20 cursor-pointer active:scale-95 transition-transform" onclick="switchTab('fighters-screen', 0)">⭐<h3 class="text-base font-black uppercase italic mt-2 text-[#FF6B00]">Бойцы</h3><p class="text-[9px] text-gray-500 font-bold uppercase">База спецов</p></div>
+                <div class="bento-card h-36 flex flex-col justify-end cursor-pointer active:scale-95 transition-transform" onclick="switchTab('books-screen', 0)">📚<h3 class="text-base font-black uppercase italic mt-2">Книги</h3><p class="text-[9px] text-gray-500 font-bold uppercase">Библиотека</p></div>
+                <div class="bento-card h-36 flex flex-col justify-end cursor-pointer active:scale-95 transition-transform" onclick="switchTab('projects-screen', 0)">💼<h3 class="text-base font-black uppercase italic mt-2">Проекты</h3><p class="text-[9px] text-gray-500 font-bold uppercase">HH.VIBE</p></div>
             </div>
 
             <div class="space-y-4">
@@ -153,41 +153,41 @@
             <div class="flex items-center gap-4 cursor-pointer active:opacity-60 transition-opacity" onclick="switchTab('home-screen', 0)">
                 <h2 class="text-3xl font-black italic uppercase tracking-tighter">← Академия</h2>
             </div>
-            
             <div class="bento-card !p-0 border-[#FF6B00]/40 overflow-hidden relative shadow-[0_15px_30px_-10px_rgba(255,107,0,0.2)] h-64 bg-black">
-                <video id="academy-video" class="w-full h-full object-cover hidden" controls playsinline>
-                    <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
-                </video>
-
+                <video id="academy-video" class="w-full h-full object-cover hidden" controls playsinline><source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4"></video>
                 <div id="video-cover" class="absolute inset-0 w-full h-full cursor-pointer active:scale-[0.98] transition-transform" onclick="playAcademyVideo()">
-                    <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="w-full h-full object-cover opacity-80">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                    <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="w-full h-full object-cover opacity-80"><div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
                     <div class="absolute inset-0 flex items-center justify-center"><div class="w-16 h-16 bg-[#FF6B00] backdrop-blur-md rounded-full flex items-center justify-center pl-1.5 shadow-[0_0_20px_#FF6B00]"><svg viewBox="0 0 24 24" fill="white" class="w-8 h-8"><path d="M8 5v14l11-7z"/></svg></div></div>
-                    
-                    <div class="absolute bottom-0 left-0 w-full p-5 pointer-events-none">
-                        <div id="video-subtitle" class="text-[10px] text-[#FF6B00] font-black uppercase tracking-[0.2em] mb-1.5 drop-shadow-md">Модуль 3 • Урок 1</div>
-                        <h3 id="video-title" class="text-xl font-black italic text-white leading-tight mb-3 drop-shadow-lg">Жесткий дожим <br>в B2B продажах</h3>
-                        <div class="w-full bg-white/20 h-1.5 rounded-full overflow-hidden"><div class="bg-[#FF6B00] w-[0%] h-full rounded-full shadow-[0_0_10px_#FF6B00]"></div></div>
-                    </div>
+                    <div class="absolute bottom-0 left-0 w-full p-5 pointer-events-none"><div id="video-subtitle" class="text-[10px] text-[#FF6B00] font-black uppercase tracking-[0.2em] mb-1.5 drop-shadow-md">Модуль 3 • Урок 1</div><h3 id="video-title" class="text-xl font-black italic text-white leading-tight mb-3 drop-shadow-lg">Жесткий дожим <br>в B2B продажах</h3><div class="w-full bg-white/20 h-1.5 rounded-full overflow-hidden"><div class="bg-[#FF6B00] w-[0%] h-full rounded-full shadow-[0_0_10px_#FF6B00]"></div></div></div>
                 </div>
             </div>
-
-            <div class="flex gap-6 border-b border-white/10 px-2 mt-6 mb-2">
-                <div class="text-[11px] font-black uppercase text-white border-b-2 border-[#FF6B00] pb-3">Уроки</div><div class="text-[11px] font-bold uppercase text-gray-500 pb-3">Доп. Материалы</div>
-            </div>
-
+            <div class="flex gap-6 border-b border-white/10 px-2 mt-6 mb-2"><div class="text-[11px] font-black uppercase text-white border-b-2 border-[#FF6B00] pb-3">Уроки</div><div class="text-[11px] font-bold uppercase text-gray-500 pb-3">Доп. Материалы</div></div>
             <div class="space-y-3 pb-6">
                 <div class="bento-card !p-4 bg-[#111] border-[#FF6B00]/40 flex items-center gap-4 cursor-pointer" onclick="changeLesson('https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', 'Техника возврата клиента', 'Урок 1 • 25 мин')">
                     <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF6B00] to-[#cc4400] flex items-center justify-center pl-1 shadow-[0_0_15px_rgba(255,107,0,0.3)]"><svg viewBox="0 0 24 24" fill="white" class="w-6 h-6"><path d="M8 5v14l11-7z"/></svg></div>
                     <div class="flex-1"><div class="text-[9px] text-[#FF6B00] font-bold uppercase mb-1 tracking-widest">Урок 1 • 25 мин</div><div class="text-sm font-black italic text-white leading-tight">Техника возврата клиента</div></div>
                 </div>
-
                 <div class="bento-card !p-4 bg-[#0a0a0a] flex items-center gap-4 cursor-pointer" onclick="changeLesson('https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', 'Обход секретарей и блокеров', 'Урок 2 • 18 мин')">
                     <div class="w-12 h-12 rounded-2xl bg-[#222] border border-white/10 flex items-center justify-center text-white"><svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M8 5v14l11-7z"/></svg></div>
                     <div class="flex-1"><div class="text-[9px] text-gray-500 font-bold uppercase mb-1 tracking-widest">Урок 2 • 18 мин</div><div class="text-sm font-black italic text-gray-300 leading-tight">Обход секретарей и блокеров</div></div>
                 </div>
             </div>
             <div class="h-32 w-full shrink-0"></div>
+        </div>
+
+        <div id="streams-screen" class="hidden-screen px-1 space-y-6">
+            <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Эфиры</h2></div>
+            <div class="text-center py-20 text-gray-500 font-black uppercase italic tracking-widest opacity-20 text-2xl">Скоро запуск...</div>
+        </div>
+
+        <div id="books-screen" class="hidden-screen px-1 space-y-6">
+            <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Книги</h2></div>
+            <div class="text-center py-20 text-gray-500 font-black uppercase italic tracking-widest opacity-20 text-2xl">Библиотека пуста</div>
+        </div>
+
+        <div id="projects-screen" class="hidden-screen px-1 space-y-6">
+            <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Проекты</h2></div>
+            <div class="text-center py-20 text-gray-500 font-black uppercase italic tracking-widest opacity-20 text-2xl">Нет заказов</div>
         </div>
 
         <div id="fighters-screen" class="hidden-screen px-1 space-y-6">
@@ -352,7 +352,6 @@
 
         checkAuth();
 
-        // ================= ФУНКЦИИ ПЛЕЕРА =================
         function playAcademyVideo() {
             const cover = document.getElementById('video-cover');
             const video = document.getElementById('academy-video');
@@ -377,11 +376,9 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        // СТОРИС
         const storiesList = document.getElementById('stories-list');
         [{p:'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', t:'Найм МОП'},{p:'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', t:'Разбор'},{p:'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=200', t:'Скрипты'}].forEach(s => { storiesList.innerHTML += `<div class="flex flex-col items-center gap-3"><div class="story-item"><img src="${s.p}"></div><div class="text-[10px] font-bold text-gray-400 uppercase">${s.t}</div></div>`; });
 
-        // КАЛЕНДАРЬ
         const months = [{n:'Январь 2026', d:31, a:[5,12]},{n:'Февраль 2026', d:28, a:[2,9,23]},{n:'Март 2026', d:31, a:[4,7,11], t:12}];
         let curM = 2;
         function renderCal() {
@@ -397,7 +394,6 @@
         window.changeMonth = d => { curM=Math.max(0,Math.min(months.length-1, curM+d)); renderCal(); };
         renderCal();
 
-        // КАРТА
         let globe = null;
         const cities = [
             {id:'alm', lat:43.2, lng:76.8, nameRu:'Алматы', nameEn:'ALMATY'},
@@ -422,59 +418,43 @@
             if(c) { document.getElementById('current-city-name').innerText = c.nameRu.toUpperCase(); globe.pointOfView({lat:c.lat, lng:c.lng, altitude:1.8}, 1500); }
         };
 
-        window.selectLocation = (id) => {
+        window.selectLocation = async (id) => {
             document.getElementById('location-modal').classList.add('hidden-screen');
             const c = cities.find(x => x.id === id);
-            if(c) { const btns = document.querySelectorAll('.city-btn'); let targetBtn = null; btns.forEach(b => { if(b.innerText.toUpperCase() === c.nameRu.toUpperCase()) targetBtn = b; }); fly(id, targetBtn); }
+            if (!c) return;
+
+            const btns = document.querySelectorAll('.city-btn');
+            let targetBtn = null;
+            btns.forEach(b => { if(b.innerText.toUpperCase() === c.nameRu.toUpperCase()) targetBtn = b; });
+            fly(id, targetBtn);
+
+            try {
+                const user = tg.initDataUnsafe?.user;
+                if (!user) return;
+                const { error } = await db.from('users').update({ city: c.nameRu, lat: c.lat, lng: c.lng }).eq('tg_id', user.id);
+                if (error) { console.error("Ошибка сохранения локации:", error.message); } 
+                else { tg.showAlert(`Твоя позиция на карте обновлена: ${c.nameRu} 🚀`); }
+            } catch (e) { console.error("Критическая ошибка:", e); }
         };
 
-        const screens = ['home-screen', 'club-screen', 'abonement-screen', 'map-screen', 'profile-screen', 'fighters-screen', 'rating-screen', 'education-screen'];
+        const screens = ['home-screen', 'club-screen', 'abonement-screen', 'map-screen', 'profile-screen', 'fighters-screen', 'rating-screen', 'education-screen', 'streams-screen', 'books-screen', 'projects-screen'];
+        
         function switchTab(id, idx) {
-            screens.forEach(s => document.getElementById(s).classList.add('hidden-screen'));
+            screens.forEach(s => {
+                const el = document.getElementById(s);
+                if(el) el.classList.add('hidden-screen');
+            });
             document.getElementById(id).classList.remove('hidden-screen');
-            if(idx !== null && idx < 5) { document.querySelectorAll('.tabbar .tab-item').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tabbar .tab-item')[idx].classList.add('active'); }
+            
+            if(idx !== null && idx < 5) { 
+                document.querySelectorAll('.tabbar .tab-item').forEach(t => t.classList.remove('active')); 
+                document.querySelectorAll('.tabbar .tab-item')[idx].classList.add('active'); 
+            }
+            
             if (id !== 'education-screen') { const video = document.getElementById('academy-video'); if (video && !video.paused) { video.pause(); } }
             if (id === 'map-screen') setTimeout(initGlobe, 100);
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
-   
-    window.selectLocation = async (id) => {
-    // 1. Закрываем модалку
-    document.getElementById('location-modal').classList.add('hidden-screen');
-    
-    // 2. Находим данные города
-    const c = cities.find(x => x.id === id);
-    if (!c) return;
-
-    // 3. Красиво летим камерой (визуальный эффект)
-    const btns = document.querySelectorAll('.city-btn');
-    let targetBtn = null;
-    btns.forEach(b => { if(b.innerText.toUpperCase() === c.nRu.toUpperCase()) targetBtn = b; });
-    fly(id, targetBtn);
-
-    // 4. ГЛАВНОЕ: Сохраняем в Supabase
-    try {
-        const user = tg.initDataUnsafe?.user;
-        if (!user) return;
-
-        const { error } = await db
-            .from('users')
-            .update({ 
-                city: c.nRu, 
-                lat: c.lat, 
-                lng: c.lng 
-            })
-            .eq('tg_id', user.id);
-
-        if (error) {
-            console.error("Ошибка сохранения локации:", error.message);
-        } else {
-            tg.showAlert(`Твоя позиция на карте обновлена: ${c.nRu} 🚀`);
-        }
-    } catch (e) {
-        console.error("Критическая ошибка:", e);
-    }
-};
-         </script>
+    </script>
 </body>
 </html>
