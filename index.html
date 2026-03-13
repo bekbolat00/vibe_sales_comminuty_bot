@@ -442,18 +442,68 @@
         }
 
         // ================= МАГИЯ ЧИТАЛКИ КНИГ (ePub.js) =================
-        const booksDB = {
-            'ocean': {
-                title: 'Стратегия голубого океана', author: 'Чан Ким, Рене Моборн', category: 'Стратегия',
-                desc: 'Хватит толкаться локтями в переполненных нишах — научитесь создавать рынки, где у вас просто не будет конкурентов.',
-                cover: 'https://m.media-amazon.com/images/I/81A-mvlaRmL._AC_UF1000,1000_QL80_.jpg',
-                fileUrl: 'https://s3.amazonaws.com/moby-dick/moby-dick.epub' 
-            },
-            'sales': {
-                title: 'Сначала скажите НЕТ', author: 'Джим Кэмп', category: 'Продажи',
-                desc: 'Профессиональная система переговоров. Забудьте о принципе "win-win", который заставляет вас идти на компромиссы.',
-                cover: 'https://m.media-amazon.com/images/I/71uP1mNnO+L._AC_UF1000,1000_QL80_.jpg',
-                fileUrl: 'https://s3.amazonaws.com/moby-dick/moby-dick.epub'
+        let booksDB = {}; // Теперь это пустой карман, который заполнится из БД
+        let currentBookId = null;
+        let epubBook = null;
+        let epubRendition = null;
+        
+        let readingTimer = null;
+        let secondsLeft = 0;
+        let sessionStartTime = 0;
+        let pagesRead = 0; 
+
+        // 🔥 НОВАЯ ФУНКЦИЯ ЗАГРУЗКИ КНИГ ИЗ БАЗЫ ДАННЫХ
+        async function loadBooks() {
+            try {
+                const { data, error } = await db.from('books').select('*');
+                if (error) throw error;
+
+                const grid = document.getElementById('books-grid');
+                grid.innerHTML = ''; // Очищаем сетку
+                booksDB = {}; // Очищаем локальную базу
+
+                data.forEach(b => {
+                    // Сохраняем в локальный объект для модалки
+                    booksDB[b.id] = {
+                        title: b.title,
+                        author: b.author,
+                        category: b.category,
+                        desc: b.description,
+                        cover: b.cover_url,
+                        fileUrl: b.file_url
+                    };
+
+                    // Проверяем статус книги для пользователя (Прочитано/В процессе)
+                    let progressHTML = `<div class="bg-gray-600 w-[0%] h-full rounded-full"></div>`;
+                    let statusText = b.category;
+                    let titleOpacity = "text-white/80";
+
+                    if (currentUserData?.read_books?.includes(b.id)) {
+                        progressHTML = `<div class="bg-[#FF6B00] w-[100%] h-full rounded-full shadow-[0_0_10px_#FF6B00]"></div>`;
+                        statusText = "🏆 ПРОЧИТАНО";
+                    } else if (currentUserData?.reading_now?.includes(b.id)) {
+                        progressHTML = `<div class="bg-[#FF6B00] w-[50%] h-full rounded-full"></div>`;
+                        statusText = "⏳ ЧИТАЮ";
+                        titleOpacity = "text-white";
+                    }
+
+                    // Генерируем карточку
+                    grid.innerHTML += `
+                    <div class="bento-card !p-0 cursor-pointer active:scale-95 transition-transform border-white/5" onclick="openBookModal('${b.id}')">
+                        <div class="relative h-44 bg-[#050505] flex items-center justify-center overflow-hidden">
+                            <div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(45deg, #FF6B00 0, #FF6B00 2px, transparent 0, transparent 8px);"></div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#050505] to-transparent z-0"></div>
+                            <img src="${b.cover_url}" class="h-[80%] relative z-10 drop-shadow-[0_15px_15px_rgba(255,107,0,0.2)] rounded-r-md">
+                        </div>
+                        <div class="p-4 border-t border-white/5 bg-[#050505]">
+                            <div class="text-[8px] text-[#FF6B00] font-black uppercase mb-1 tracking-widest">${statusText}</div>
+                            <div class="text-xs font-black italic leading-tight ${titleOpacity} mb-2 truncate">${b.title}</div>
+                            <div class="w-full bg-white/5 h-1 rounded-full overflow-hidden">${progressHTML}</div>
+                        </div>
+                    </div>`;
+                });
+            } catch (e) {
+                console.error("Ошибка загрузки книг:", e);
             }
         };
 
