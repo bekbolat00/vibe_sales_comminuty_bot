@@ -438,5 +438,42 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
     </script>
+    window.selectLocation = async (id) => {
+    // 1. Закрываем модалку
+    document.getElementById('location-modal').classList.add('hidden-screen');
+    
+    // 2. Находим данные города
+    const c = cities.find(x => x.id === id);
+    if (!c) return;
+
+    // 3. Красиво летим камерой (визуальный эффект)
+    const btns = document.querySelectorAll('.city-btn');
+    let targetBtn = null;
+    btns.forEach(b => { if(b.innerText.toUpperCase() === c.nRu.toUpperCase()) targetBtn = b; });
+    fly(id, targetBtn);
+
+    // 4. ГЛАВНОЕ: Сохраняем в Supabase
+    try {
+        const user = tg.initDataUnsafe?.user;
+        if (!user) return;
+
+        const { error } = await db
+            .from('users')
+            .update({ 
+                city: c.nRu, 
+                lat: c.lat, 
+                lng: c.lng 
+            })
+            .eq('tg_id', user.id);
+
+        if (error) {
+            console.error("Ошибка сохранения локации:", error.message);
+        } else {
+            tg.showAlert(`Твоя позиция на карте обновлена: ${c.nRu} 🚀`);
+        }
+    } catch (e) {
+        console.error("Критическая ошибка:", e);
+    }
+};
 </body>
 </html>
