@@ -391,8 +391,9 @@
                     document.getElementById('onboarding-screen').classList.remove('hidden-screen');
                 } else {
                     document.getElementById('main-app-container').classList.remove('hidden-screen');
-                    currentUserData = fighter; // Сохранили юзера!
+                    currentUserData = fighter; 
                     updateUI(fighter);
+                    loadBooks(); // <--- ВОТ ЭТА НОВАЯ СТРОЧКА
                 }
             } catch (e) { console.log(e); }
         }
@@ -405,6 +406,7 @@
             document.getElementById('main-app-container').classList.remove('hidden-screen');
             currentUserData = newUser; // Сохранили юзера!
             updateUI(newUser);
+            loadBooks(); // <--- ВОТ СЮДА ВСТАВЛЯЕМ! Запускаем загрузку книг после регистрации
         }
 
         function updateUI(fighter) {
