@@ -4,79 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VIBE Ecosystem</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;0,700;0,900;1,900&display=swap" rel="stylesheet">
+    
     <script src="https://unpkg.com/globe.gl"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
 
     <style>
-        :root { 
-            --orange: #FF5500; 
-            --bg: #000000; 
-            --glass: rgba(15, 15, 15, 0.8); 
-            --glass-border: rgba(255, 255, 255, 0.08); 
-        }
-        
-        html, body { 
-            background-color: var(--bg); 
-            overscroll-behavior-y: none; 
-        }
-        
+        :root { --orange: #FF5500; --bg: #000000; --glass: rgba(15, 15, 15, 0.8); --glass-border: rgba(255, 255, 255, 0.08); }
+        html, body { background-color: var(--bg); overscroll-behavior-y: none; }
         body { 
-            color: #fff; 
-            font-family: 'Montserrat', sans-serif; 
-            user-select: none; 
-            -webkit-user-select: none; 
-            min-height: 100vh; 
-            height: auto;
-            overflow-y: auto; 
-            overflow-x: hidden;
+            color: #fff; font-family: 'Montserrat', sans-serif; 
+            user-select: none; -webkit-user-select: none; 
+            min-height: 100vh; height: auto;
+            overflow-y: auto; overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
             background-attachment: fixed;
             background-image: radial-gradient(circle at 50% -10%, rgba(255, 85, 0, 0.15), transparent 60%);
         }
         
-        .bento-card { 
-            background: var(--glass); 
-            backdrop-filter: blur(25px); 
-            border: 1px solid var(--glass-border); 
-            border-radius: 28px; 
-            padding: 20px; 
-            transition: all 0.2s ease; 
-            position: relative; 
-            overflow: hidden; 
-        }
+        .bento-card { background: var(--glass); backdrop-filter: blur(25px); border: 1px solid var(--glass-border); border-radius: 28px; padding: 20px; transition: all 0.2s ease; position: relative; overflow: hidden; }
         
         @keyframes proPulse { 
             0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); } 
             70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); border-color: rgba(255, 107, 0, 0.1); } 
             100% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.4); border-color: rgba(255, 107, 0, 0.5); } 
         }
-        
         .pro-badge { animation: proPulse 2s infinite; }
         
-        .story-item { 
-            width: 90px; height: 120px; border-radius: 24px; padding: 3px; 
-            border: 2px solid var(--orange); filter: drop-shadow(0 0 10px rgba(255, 107, 0, 0.5)); 
-            background: #000; flex-shrink: 0; 
-        }
-        
+        .story-item { width: 90px; height: 120px; border-radius: 24px; padding: 3px; border: 2px solid var(--orange); filter: drop-shadow(0 0 10px rgba(255, 107, 0, 0.5)); background: #000; flex-shrink: 0; }
         .story-item img { width: 100%; height: 100%; border-radius: 20px; object-fit: cover; }
         
-        .tabbar { 
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 90px; 
-            background: rgba(0, 0, 0, 0.96); backdrop-filter: blur(30px); 
-            border-top: 1px solid rgba(255,255,255,0.05); display: flex; 
-            justify-content: space-around; align-items: center; padding-bottom: 25px; z-index: 1000; 
-        }
-        
-        .tab-item { 
-            display: flex; flex-direction: column; align-items: center; gap: 5px; color: #555; 
-            font-size: 8px; font-weight: 800; text-transform: uppercase; flex: 1; 
-            transition: 0.2s; cursor: pointer; 
-        }
-        
+        .tabbar { position: fixed; bottom: 0; left: 0; width: 100%; height: 90px; background: rgba(0, 0, 0, 0.96); backdrop-filter: blur(30px); border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-around; align-items: center; padding-bottom: 25px; z-index: 1000; }
+        .tab-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #555; font-size: 8px; font-weight: 800; text-transform: uppercase; flex: 1; transition: 0.2s; cursor: pointer; }
         .tab-item.active { color: #fff; }
         .tab-item.active svg { stroke: var(--orange); filter: drop-shadow(0 0 5px var(--orange)); }
         .tab-item svg { width: 22px; height: 22px; stroke-width: 2.5; }
@@ -92,16 +57,8 @@
         .hidden-screen { display: none !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        .city-btn { 
-            padding: 8px 18px; border-radius: 25px; font-size: 10px; font-weight: 900; 
-            text-transform: uppercase; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); 
-            color: #777; flex-shrink: 0; transition: 0.3s; cursor: pointer; 
-        }
-        
-        .city-btn.active { 
-            background: rgba(255, 107, 0, 0.15); border-color: #FF6B00; 
-            color: #FF6B00; box-shadow: 0 0 15px rgba(255,107,0,0.3); 
-        }
+        .city-btn { padding: 8px 18px; border-radius: 25px; font-size: 10px; font-weight: 900; text-transform: uppercase; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #777; flex-shrink: 0; transition: 0.3s; cursor: pointer; }
+        .city-btn.active { background: rgba(255, 107, 0, 0.15); border-color: #FF6B00; color: #FF6B00; box-shadow: 0 0 15px rgba(255,107,0,0.3); }
         
         .cal-day { min-width: 62px; height: 80px; border-radius: 22px; background: #0f0f0f; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
         .cal-missed { background: #0a0a0a; border: 1px solid rgba(255,255,255,0.05); opacity: 0.6; }
@@ -111,6 +68,8 @@
         #loading-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s; }
         .spinner { border: 4px solid rgba(255, 107, 0, 0.1); border-left-color: #FF6B00; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        #viewer iframe { overflow: hidden !important; }
     </style>
 </head>
 <body class="max-w-md mx-auto relative">
@@ -127,18 +86,17 @@
             <h1 class="text-4xl font-black italic uppercase mb-3 tracking-tighter">Кто ты по <span class="text-[#FF6B00]">жизни?</span></h1>
             <p class="text-gray-400 text-xs font-bold uppercase tracking-widest leading-relaxed">Выбери свою роль,<br>чтобы мы настроили VIBE под тебя.</p>
         </div>
-        
         <div class="grid grid-cols-2 gap-4">
-            <div class="bento-card !p-6 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/20 hover:border-[#FF6B00]/60" onclick="registerUser('МОП')">
+            <div class="bento-card !p-6 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/20" onclick="registerUser('МОП')">
                 <span class="text-5xl mb-3 drop-shadow-md">📞</span><h3 class="text-sm font-black uppercase italic">МОП</h3><p class="text-[8px] text-gray-500 uppercase mt-1">Менеджер</p>
             </div>
-            <div class="bento-card !p-6 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/20 hover:border-[#FF6B00]/60" onclick="registerUser('РОП')">
+            <div class="bento-card !p-6 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/20" onclick="registerUser('РОП')">
                 <span class="text-5xl mb-3 drop-shadow-md">👔</span><h3 class="text-sm font-black uppercase italic text-[#FF6B00]">РОП</h3><p class="text-[8px] text-gray-500 uppercase mt-1">Руководитель</p>
             </div>
-            <div class="bento-card !p-6 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/20 hover:border-[#FF6B00]/60" onclick="registerUser('Предприниматель')">
+            <div class="bento-card !p-6 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/20" onclick="registerUser('Предприниматель')">
                 <span class="text-5xl mb-3 drop-shadow-md">💼</span><h3 class="text-sm font-black uppercase italic">Бизнес</h3><p class="text-[8px] text-gray-500 uppercase mt-1">Владелец</p>
             </div>
-            <div class="bento-card !p-6 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/20 hover:border-[#FF6B00]/60" onclick="registerUser('Фрилансер')">
+            <div class="bento-card !p-6 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/20" onclick="registerUser('Фрилансер')">
                 <span class="text-5xl mb-3 drop-shadow-md">💻</span><h3 class="text-sm font-black uppercase italic">Фриланс</h3><p class="text-[8px] text-gray-500 uppercase mt-1">Сам за себя</p>
             </div>
         </div>
@@ -158,6 +116,40 @@
                 <div class="bg-[#111] border border-white/10 rounded-2xl py-4 text-center text-xs font-black uppercase cursor-pointer active:scale-95 transition-transform" onclick="selectLocation('dub')">Дубай</div>
                 <div class="bg-[#111] border border-white/5 text-gray-500 rounded-2xl py-4 text-center text-xs font-black uppercase cursor-pointer active:scale-95 transition-transform" onclick="document.getElementById('location-modal').classList.add('hidden-screen')">Отмена</div>
             </div>
+        </div>
+    </div>
+
+    <div id="book-modal" class="hidden-screen fixed inset-0 bg-[#050505] z-[4000] overflow-y-auto pb-20">
+        <div class="relative h-80 bg-black flex items-center justify-center overflow-hidden border-b border-white/5">
+            <div class="absolute inset-0 opacity-20" style="background-image: repeating-linear-gradient(45deg, #FF6B00 0, #FF6B00 2px, transparent 0, transparent 15px);"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent z-0"></div>
+            <div class="absolute top-6 left-4 z-30 bg-black/50 backdrop-blur-md p-3 rounded-full cursor-pointer active:scale-90" onclick="document.getElementById('book-modal').classList.add('hidden-screen')">
+                <svg viewBox="0 0 24 24" stroke="white" stroke-width="2" fill="none" class="w-6 h-6"><path d="M15 19l-7-7 7-7"/></svg>
+            </div>
+            <img id="bm-cover" src="" class="h-[80%] relative z-10 drop-shadow-[0_20px_30px_rgba(255,107,0,0.3)] object-contain rounded-r-lg mt-6">
+        </div>
+        <div class="px-5 mt-6 relative z-20">
+            <div class="inline-block bg-[#FF6B00]/10 text-[#FF6B00] text-[9px] font-black px-3 py-1 rounded-md border border-[#FF6B00]/30 uppercase tracking-widest mb-3" id="bm-category">Категория</div>
+            <h2 id="bm-title" class="text-3xl font-black italic uppercase leading-tight mb-2 text-white">Название</h2>
+            <div id="bm-author" class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6">Автор</div>
+            <p id="bm-desc" class="text-xs text-gray-400 leading-relaxed font-medium mb-8">Описание...</p>
+            <button id="bm-btn" onclick="startReadingBook()" class="w-full bg-gradient-to-r from-[#FF6B00] to-[#cc4400] text-white py-5 rounded-2xl font-black italic uppercase text-sm shadow-[0_0_20px_rgba(255,107,0,0.4)] active:scale-[0.98] transition-transform flex items-center justify-center gap-3">
+                <span>📖 ЧИТАТЬ</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="reader-screen" class="hidden-screen fixed inset-0 bg-[#050505] z-[5000] flex flex-col">
+        <div class="flex justify-between items-center p-4 border-b border-white/5 bg-[#0a0a0a]">
+            <div class="text-[#FF6B00] font-black uppercase text-xs cursor-pointer active:opacity-50 tracking-widest" onclick="closeReader()">Закрыть</div>
+            <div id="reader-title" class="text-white font-black italic text-[11px] uppercase truncate w-1/2 text-center opacity-50">Книга</div>
+            <div class="w-12 text-right opacity-30 text-xs font-bold">Aa</div>
+        </div>
+        <div id="viewer" class="flex-1 w-full h-full relative bg-[#050505] text-white overflow-hidden"></div>
+        <div class="flex justify-between items-center p-5 border-t border-white/5 bg-[#0a0a0a]">
+            <button onclick="prevReaderPage()" class="bg-white/5 px-6 py-3 rounded-2xl text-white font-black text-xs uppercase tracking-widest active:scale-95 transition-transform border border-white/10">◀ Назад</button>
+            <div id="reader-progress" class="text-[10px] font-black text-[#FF6B00] uppercase tracking-widest">Загрузка...</div>
+            <button onclick="nextReaderPage()" class="bg-gradient-to-r from-[#FF6B00] to-[#cc4400] px-6 py-3 rounded-2xl text-white font-black text-xs uppercase tracking-widest shadow-[0_0_15px_rgba(255,107,0,0.3)] active:scale-95 transition-transform border border-[#FF6B00]/50">Вперед ▶</button>
         </div>
     </div>
 
@@ -223,21 +215,67 @@
             <div class="h-32 w-full shrink-0"></div>
         </div>
 
-        <div id="streams-screen" class="hidden-screen px-1 space-y-6">
-            <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Эфиры</h2></div>
-            <div class="text-center py-20 text-gray-500 font-black uppercase italic tracking-widest opacity-20 text-2xl">Скоро запуск...</div>
-        </div>
-
         <div id="books-screen" class="hidden-screen px-1 space-y-6">
-            <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Книги</h2></div>
-            <div class="text-center py-20 text-gray-500 font-black uppercase italic tracking-widest opacity-20 text-2xl">Библиотека пуста</div>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)">
+                    <h2 class="text-3xl font-black italic uppercase tracking-tighter">← Библиотека</h2>
+                </div>
+                <div class="text-[9px] font-black text-[#FF6B00] uppercase tracking-widest bg-[#FF6B00]/10 px-3 py-1.5 rounded-lg border border-[#FF6B00]/20">+50 PTS за книгу</div>
+            </div>
+
+            <div class="bento-card border-white/5 bg-[#0a0a0a] flex flex-col items-center text-center p-8">
+                <h3 class="text-[13px] font-black uppercase italic tracking-widest text-white mb-2">Цель Чтения</h3>
+                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-6">Читай каждый день</p>
+                <div class="w-40 h-20 relative overflow-hidden mb-6 flex justify-center">
+                    <div class="w-40 h-40 border-[8px] border-white/5 rounded-full absolute top-0"></div>
+                    <div class="w-40 h-40 border-[8px] border-[#FF6B00] rounded-full absolute top-0" style="clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%); transform: rotate(-45deg);"></div>
+                    <div class="absolute top-8 flex flex-col items-center">
+                        <span class="text-4xl font-black italic text-white leading-none">15</span>
+                        <span class="text-[9px] text-[#FF6B00] uppercase font-black mt-1 tracking-widest">Минут сегодня</span>
+                    </div>
+                </div>
+                <div class="flex justify-between w-full px-2 max-w-[250px] mt-2">
+                    <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-gray-600">ПН</div>
+                    <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-gray-600">ВТ</div>
+                    <div class="w-8 h-8 rounded-full bg-[#FF6B00] shadow-[0_0_10px_#FF6B00] flex items-center justify-center text-[10px] font-black text-white">СР</div>
+                    <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-gray-600">ЧТ</div>
+                    <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-gray-600">ПТ</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 pb-10" id="books-grid">
+                <div class="bento-card !p-0 cursor-pointer active:scale-95 transition-transform border-[#FF6B00]/30" onclick="openBookModal('ocean')">
+                    <div class="relative h-44 bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
+                        <div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(45deg, #FF6B00 0, #FF6B00 2px, transparent 0, transparent 8px);"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] to-transparent z-0"></div>
+                        <img src="https://m.media-amazon.com/images/I/81A-mvlaRmL._AC_UF1000,1000_QL80_.jpg" class="h-[80%] relative z-10 drop-shadow-[0_15px_15px_rgba(255,107,0,0.2)] rounded-r-md">
+                    </div>
+                    <div class="p-4 border-t border-white/5 bg-[#0a0a0a]">
+                        <div class="text-[8px] text-[#FF6B00] font-black uppercase mb-1 tracking-widest">Стратегия</div>
+                        <div class="text-xs font-black italic leading-tight text-white mb-2">Голубой океан</div>
+                        <div class="w-full bg-white/5 h-1 rounded-full overflow-hidden"><div class="bg-[#FF6B00] w-[15%] h-full rounded-full"></div></div>
+                    </div>
+                </div>
+
+                <div class="bento-card !p-0 cursor-pointer active:scale-95 transition-transform border-white/5" onclick="openBookModal('sales')">
+                    <div class="relative h-44 bg-[#050505] flex items-center justify-center overflow-hidden">
+                        <div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(-45deg, #fff 0, #fff 2px, transparent 0, transparent 8px);"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#050505] to-transparent z-0"></div>
+                        <img src="https://m.media-amazon.com/images/I/71uP1mNnO+L._AC_UF1000,1000_QL80_.jpg" class="h-[80%] relative z-10 drop-shadow-[0_15px_15px_rgba(255,255,255,0.05)] rounded-r-md">
+                    </div>
+                    <div class="p-4 border-t border-white/5 bg-[#050505]">
+                        <div class="text-[8px] text-gray-500 font-bold uppercase mb-1 tracking-widest">Продажи</div>
+                        <div class="text-xs font-black italic leading-tight text-white/80 mb-2">Сначала скажите НЕТ</div>
+                        <div class="w-full bg-white/5 h-1 rounded-full overflow-hidden"><div class="bg-gray-600 w-[0%] h-full rounded-full"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="h-32 w-full shrink-0"></div>
         </div>
 
-        <div id="projects-screen" class="hidden-screen px-1 space-y-6">
-            <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Проекты</h2></div>
-            <div class="text-center py-20 text-gray-500 font-black uppercase italic tracking-widest opacity-20 text-2xl">Нет заказов</div>
-        </div>
-
+        <div id="streams-screen" class="hidden-screen px-1 space-y-6"><div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Эфиры</h2></div><div class="text-center py-20 text-gray-500 font-black uppercase italic tracking-widest opacity-20 text-2xl">Скоро запуск...</div></div>
+        <div id="projects-screen" class="hidden-screen px-1 space-y-6"><div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Проекты</h2></div><div class="text-center py-20 text-gray-500 font-black uppercase italic tracking-widest opacity-20 text-2xl">Нет заказов</div></div>
+        
         <div id="fighters-screen" class="hidden-screen px-1 space-y-6">
             <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)">
                 <h2 class="text-3xl font-black italic uppercase tracking-tighter">← База Бойцов</h2>
@@ -273,7 +311,7 @@
                 <div id="globe-container" class="absolute inset-0"></div>
                 <div class="absolute top-4 right-4 bg-[#111]/80 backdrop-blur-md border border-gray-800 px-3 py-1.5 rounded-full flex items-center gap-2 z-10 shadow-[0_0_15px_rgba(255,107,0,0.2)]">
                     <div class="w-2 h-2 bg-[#FF6B00] rounded-full animate-pulse"></div>
-                    <span class="text-[9px] font-black text-white uppercase tracking-wider" id="fighters-count">Бойцов на карте: 1</span>
+                    <span class="text-[9px] font-black text-white uppercase tracking-wider" id="fighters-count">Бойцов на карте: ...</span>
                 </div>
                 <div class="absolute bottom-6 left-6 z-20 pointer-events-none">
                     <div class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">Фокус камеры</div>
@@ -330,7 +368,6 @@
         </div>
 
     </div>
-
     <script>
         const SB_URL = 'https://mgdrugepjudttjxgedvp.supabase.co';
         const SB_KEY = 'sb_publishable_X_5OwtCeeKQRHa36JLJedA_qo84O6YA';
@@ -338,69 +375,41 @@
         const db = supabase.createClient(SB_URL, SB_KEY);
         const tg = window.Telegram.WebApp;
         
-        tg.ready(); 
-        tg.expand();
-        tg.setHeaderColor('#000000'); 
-        tg.setBackgroundColor('#000000');
+        tg.ready(); tg.expand();
+        tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000');
+
+        let currentUserData = null; // Храним данные юзера тут
 
         async function checkAuth() {
             try {
                 const user = tg.initDataUnsafe?.user;
-                
                 if (!user) {
-                    document.getElementById('loading-overlay').style.opacity = '0';
-                    setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+                    document.getElementById('loading-overlay').style.display = 'none';
                     document.getElementById('main-app-container').classList.remove('hidden-screen');
                     return;
                 }
                 
-                let { data: fighter, error } = await db.from('users').select('*').eq('tg_id', user.id).single();
-
-                if (error && error.code !== 'PGRST116') { 
-                    console.log("DB Notice: ", error.message); 
-                }
-
-                document.getElementById('loading-overlay').style.opacity = '0';
-                setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
+                let { data: fighter } = await db.from('users').select('*').eq('tg_id', user.id).single();
+                document.getElementById('loading-overlay').style.display = 'none';
 
                 if (!fighter) {
                     document.getElementById('onboarding-screen').classList.remove('hidden-screen');
                 } else {
                     document.getElementById('main-app-container').classList.remove('hidden-screen');
+                    currentUserData = fighter; // Сохранили юзера!
                     updateUI(fighter);
                 }
-            } catch (e) { 
-                console.log(e); 
-            }
+            } catch (e) { console.log(e); }
         }
 
         async function registerUser(role) {
-            try {
-                const user = tg.initDataUnsafe?.user;
-                if (!user) return;
-
-                document.getElementById('loading-overlay').style.display = 'flex';
-                document.getElementById('loading-overlay').style.opacity = '1';
-
-                const { data: newUser, error } = await db.from('users').insert([
-                    { tg_id: user.id, first_name: user.first_name, username: user.username, role: role, score: 100, league: 'Новичок', streak: 1 }
-                ]).select().single();
-
-                if (error) {
-                    tg.showAlert("Ошибка регистрации: " + error.message);
-                    document.getElementById('loading-overlay').style.opacity = '0';
-                    setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
-                    return;
-                }
-
-                document.getElementById('onboarding-screen').classList.add('hidden-screen');
-                document.getElementById('loading-overlay').style.opacity = '0';
-                setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
-                document.getElementById('main-app-container').classList.remove('hidden-screen');
-                
-                updateUI(newUser);
-                tg.showAlert(`Добро пожаловать в VIBE, ${newUser.first_name}! Твоя роль: ${role}.`);
-            } catch (e) { console.log(e); }
+            const user = tg.initDataUnsafe?.user;
+            if (!user) return;
+            const { data: newUser } = await db.from('users').insert([{ tg_id: user.id, first_name: user.first_name, username: user.username, role: role, score: 100, league: 'Новичок', streak: 1 }]).select().single();
+            document.getElementById('onboarding-screen').classList.add('hidden-screen');
+            document.getElementById('main-app-container').classList.remove('hidden-screen');
+            currentUserData = newUser; // Сохранили юзера!
+            updateUI(newUser);
         }
 
         function updateUI(fighter) {
@@ -414,11 +423,11 @@
             if(fighter.first_name) {
                 document.getElementById('avatar-container-prof').innerText = fighter.first_name.charAt(0);
             }
-            
             const progress = ((fighter.score - 0) / (2000 - 0)) * 100;
             document.querySelectorAll('.score-bar-fill').forEach(el => el.style.width = `${Math.min(100, Math.max(5, progress))}%`);
         }
 
+        // ================= АКАДЕМИЯ (ВИДЕО) =================
         function playAcademyVideo() {
             const cover = document.getElementById('video-cover');
             const video = document.getElementById('academy-video');
@@ -430,201 +439,169 @@
         function changeLesson(videoUrl, mainTitle, subTitle) {
             const video = document.getElementById('academy-video');
             const cover = document.getElementById('video-cover');
-            
-            video.src = videoUrl;
-            video.load();
-            
+            video.src = videoUrl; video.load();
             document.getElementById('video-title').innerText = mainTitle;
             document.getElementById('video-subtitle').innerText = subTitle;
-            
-            video.classList.add('hidden');
-            cover.style.display = 'block';
-            
+            video.classList.add('hidden'); cover.style.display = 'block';
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        const storiesList = document.getElementById('stories-list');
-        [
-            {p:'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', t:'Найм МОП'},
-            {p:'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', t:'Разбор'},
-            {p:'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=200', t:'Скрипты'}
-        ].forEach(s => { 
-            storiesList.innerHTML += `<div class="flex flex-col items-center gap-3"><div class="story-item"><img src="${s.p}"></div><div class="text-[10px] font-bold text-gray-400 uppercase">${s.t}</div></div>`; 
-        });
+        // ================= МАГИЯ ЧИТАЛКИ КНИГ (ePub.js) =================
+        const booksDB = {
+            'ocean': {
+                title: 'Стратегия голубого океана', author: 'Чан Ким, Рене Моборн', category: 'Стратегия',
+                desc: 'Хватит толкаться локтями в переполненных нишах — научитесь создавать рынки, где у вас просто не будет конкурентов.',
+                cover: 'https://m.media-amazon.com/images/I/81A-mvlaRmL._AC_UF1000,1000_QL80_.jpg',
+                fileUrl: 'https://s3.amazonaws.com/moby-dick/moby-dick.epub' 
+            },
+            'sales': {
+                title: 'Сначала скажите НЕТ', author: 'Джим Кэмп', category: 'Продажи',
+                desc: 'Профессиональная система переговоров. Забудьте о принципе "win-win", который заставляет вас идти на компромиссы.',
+                cover: 'https://m.media-amazon.com/images/I/71uP1mNnO+L._AC_UF1000,1000_QL80_.jpg',
+                fileUrl: 'https://s3.amazonaws.com/moby-dick/moby-dick.epub'
+            }
+        };
 
-        const months = [
-            {n:'Январь 2026', d:31, a:[5,12]},
-            {n:'Февраль 2026', d:28, a:[2,9,23]},
-            {n:'Март 2026', d:31, a:[4,7,11], t:12}
-        ];
-        
-        let curM = 2;
-        
-        function renderCal() {
-            const m = months[curM]; 
-            document.getElementById('current-month-text').innerText = m.n;
-            const track = document.getElementById('calendar-track'); 
-            const days = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС']; 
-            let html = '';
+        let currentBookId = null;
+        let epubBook = null;
+        let epubRendition = null;
+
+        function openBookModal(id) {
+            currentBookId = id;
+            const b = booksDB[id];
+            document.getElementById('bm-title').innerText = b.title;
+            document.getElementById('bm-author').innerText = b.author;
+            document.getElementById('bm-category').innerText = b.category;
+            document.getElementById('bm-desc').innerText = b.desc;
+            document.getElementById('bm-cover').src = b.cover;
+            document.getElementById('book-modal').classList.remove('hidden-screen');
+        }
+
+        function startReadingBook() {
+            if (!currentBookId) return;
+            const b = booksDB[currentBookId];
             
+            // Прячем всё
+            document.getElementById('book-modal').classList.add('hidden-screen');
+            document.getElementById('main-app-container').classList.add('hidden-screen');
+            document.getElementById('main-tabbar').style.display = 'none';
+            
+            // Показываем читалку
+            const reader = document.getElementById('reader-screen');
+            reader.classList.remove('hidden-screen');
+            document.getElementById('reader-title').innerText = b.title;
+            document.getElementById('reader-progress').innerText = "Загрузка...";
+
+            // Рендерим книгу
+            const viewer = document.getElementById('viewer');
+            viewer.innerHTML = ''; 
+            
+            epubBook = ePub(b.fileUrl);
+            epubRendition = epubBook.renderTo("viewer", {
+                width: "100%", height: "100%", spread: "none", manager: "continuous", flow: "paginated"
+            });
+
+            // VIBE-стиль для текста
+            epubRendition.themes.default({
+                body: { background: '#050505 !important', color: '#ffffff !important' },
+                p: { 'font-family': 'Montserrat, sans-serif', 'font-size': '16px', 'line-height': '1.6' },
+                h1: { color: '#FF6B00 !important' }, h2: { color: '#FF6B00 !important' }
+            });
+
+            epubRendition.display();
+
+            epubRendition.on("relocated", function(location) {
+                document.getElementById('reader-progress').innerText = `Стр. ${location.start.displayed.page || '...'}`;
+            });
+        }
+
+        function nextReaderPage() { if(epubRendition) epubRendition.next(); }
+        function prevReaderPage() { if(epubRendition) epubRendition.prev(); }
+        
+        function closeReader() {
+            document.getElementById('reader-screen').classList.add('hidden-screen');
+            document.getElementById('main-app-container').classList.remove('hidden-screen');
+            document.getElementById('main-tabbar').style.display = 'flex';
+            if(epubBook) { epubBook.destroy(); epubBook = null; epubRendition = null; }
+            switchTab('books-screen', 0);
+        }
+
+        // ================= КЛУБ И СТОРИС =================
+        const storiesList = document.getElementById('stories-list');
+        [{p:'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=200', t:'Найм МОП'},{p:'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=200', t:'Разбор'},{p:'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=200', t:'Скрипты'}].forEach(s => { storiesList.innerHTML += `<div class="flex flex-col items-center gap-3"><div class="story-item"><img src="${s.p}"></div><div class="text-[10px] font-bold text-gray-400 uppercase">${s.t}</div></div>`; });
+
+        // ================= КАЛЕНДАРЬ =================
+        const months = [{n:'Январь 2026', d:31, a:[5,12]},{n:'Февраль 2026', d:28, a:[2,9,23]},{n:'Март 2026', d:31, a:[4,7,11], t:12}];
+        let curM = 2;
+        function renderCal() {
+            const m = months[curM]; document.getElementById('current-month-text').innerText = m.n;
+            const track = document.getElementById('calendar-track'); const days = ['ПН','ВТ','СР','ЧТ','ПТ','СБ','ВС']; let html = '';
             for(let i=1; i<=m.d; i++) {
-                const name = days[(i-1)%7]; 
-                let cls = 'cal-missed'; 
-                let content = i;
-                
-                if(m.a.includes(i)) { 
-                    cls = 'cal-attended'; 
-                    content = '✓'; 
-                } else if(m.t === i) { 
-                    cls = 'cal-today'; 
-                }
-                
+                const name = days[(i-1)%7]; let cls = 'cal-missed'; let content = i;
+                if(m.a.includes(i)) { cls = 'cal-attended'; content = '✓'; } else if(m.t === i) { cls = 'cal-today'; }
                 html += `<div class="cal-day ${cls}"><div class="text-[10px] font-black mb-1 opacity-40">${name}</div><div class="text-xl font-black">${content}</div></div>`;
             }
-            track.innerHTML = html; 
-            if(m.t) track.scrollLeft = (m.t-2)*70;
+            track.innerHTML = html; if(m.t) track.scrollLeft = (m.t-2)*70;
         }
-        
-        window.changeMonth = d => { 
-            curM=Math.max(0,Math.min(months.length-1, curM+d)); 
-            renderCal(); 
-        };
-        
+        window.changeMonth = d => { curM=Math.max(0,Math.min(months.length-1, curM+d)); renderCal(); };
         renderCal();
 
+        // ================= КАРТА И ГЛОБУС =================
         let globe = null;
-        
-        const cities = [
-            {id:'alm', lat:43.2, lng:76.8, nameRu:'Алматы', nameEn:'ALMATY'},
-            {id:'ast', lat:51.1, lng:71.4, nameRu:'Астана', nameEn:'ASTANA'},
-            {id:'ura', lat:51.2, lng:51.4, nameRu:'Уральск', nameEn:'URALSK'},
-            {id:'msk', lat:55.7, lng:37.6, nameRu:'Москва', nameEn:'MOSCOW'},
-            {id:'dub', lat:25.2, lng:55.2, nameRu:'Дубай', nameEn:'DUBAI'}
-        ];
+        const cities = [{id:'alm', lat:43.2, lng:76.8, nameRu:'Алматы', nameEn:'ALMATY'},{id:'ast', lat:51.1, lng:71.4, nameRu:'Астана', nameEn:'ASTANA'},{id:'ura', lat:51.2, lng:51.4, nameRu:'Уральск', nameEn:'URALSK'},{id:'msk', lat:55.7, lng:37.6, nameRu:'Москва', nameEn:'MOSCOW'},{id:'dub', lat:25.2, lng:55.2, nameRu:'Дубай', nameEn:'DUBAI'}];
 
         function initGlobe() {
             if(globe) return;
-            const selector = document.getElementById('city-selector');
-            selector.innerHTML = '';
-            
-            cities.forEach((c, i) => { 
-                selector.innerHTML += `<div class="city-btn ${i===1?'active':''}" onclick="fly('${c.id}', this)">${c.nameRu}</div>`; 
-            });
-            
-            globe = Globe()(document.getElementById('globe-container'))
-                .width(document.getElementById('globe-wrapper').clientWidth)
-                .height(450)
-                .backgroundColor('rgba(0,0,0,0)')
-                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
-                .showAtmosphere(true)
-                .atmosphereColor('#FF6B00')
-                .ringsData(cities)
-                .ringColor(()=>'#FF6B00')
-                .labelsData(cities)
-                .labelText(d => d.nameEn)
-                .labelColor(()=>'#FF6B00')
-                .labelSize(1.8)
-                .pointOfView({lat:51.1, lng:71.4, altitude:1.8});
-                
-            globe.controls().autoRotate = true; 
-            globe.controls().enableZoom = false;
+            const selector = document.getElementById('city-selector'); selector.innerHTML = '';
+            cities.forEach((c, i) => { selector.innerHTML += `<div class="city-btn ${i===1?'active':''}" onclick="fly('${c.id}', this)">${c.nameRu}</div>`; });
+            globe = Globe()(document.getElementById('globe-container')).width(document.getElementById('globe-wrapper').clientWidth).height(450).backgroundColor('rgba(0,0,0,0)').globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg').showAtmosphere(true).atmosphereColor('#FF6B00').ringsData(cities).ringColor(()=>'#FF6B00').labelsData(cities).labelText(d => d.nameEn).labelColor(()=>'#FF6B00').labelSize(1.8).pointOfView({lat:51.1, lng:71.4, altitude:1.8});
+            globe.controls().autoRotate = true; globe.controls().enableZoom = false;
         }
         
         window.fly = (id, btn) => {
-            document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active')); 
-            if(btn) btn.classList.add('active');
-            
+            document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active');
             const c = cities.find(x => x.id === id);
-            
-            if(c) { 
-                document.getElementById('current-city-name').innerText = c.nameRu.toUpperCase(); 
-                globe.pointOfView({lat:c.lat, lng:c.lng, altitude:1.8}, 1500); 
-            }
+            if(c) { document.getElementById('current-city-name').innerText = c.nameRu.toUpperCase(); globe.pointOfView({lat:c.lat, lng:c.lng, altitude:1.8}, 1500); }
         };
 
-        // ФУНКЦИЯ ПОДСЧЕТА БОЙЦОВ
         async function updateFightersCount() {
             try {
                 const { count, error } = await db.from('users').select('*', { count: 'exact', head: true }).not('city', 'is', null);
-                if (!error && count !== null) {
-                    document.getElementById('fighters-count').innerText = `Бойцов на карте: ${count}`;
-                }
-            } catch(e) { 
-                console.error("Ошибка счетчика:", e); 
-            }
+                if (!error && count !== null) { document.getElementById('fighters-count').innerText = `Бойцов на карте: ${count}`; }
+            } catch(e) { console.error("Ошибка:", e); }
         }
 
         window.selectLocation = async (id) => {
             document.getElementById('location-modal').classList.add('hidden-screen');
-            
-            const c = cities.find(x => x.id === id);
-            if (!c) return;
-
-            const btns = document.querySelectorAll('.city-btn');
-            let targetBtn = null;
-            
-            btns.forEach(b => { 
-                if(b.innerText.toUpperCase() === c.nameRu.toUpperCase()) targetBtn = b; 
-            });
-            
+            const c = cities.find(x => x.id === id); if (!c) return;
+            const btns = document.querySelectorAll('.city-btn'); let targetBtn = null;
+            btns.forEach(b => { if(b.innerText.toUpperCase() === c.nameRu.toUpperCase()) targetBtn = b; });
             fly(id, targetBtn);
-
             try {
-                const user = tg.initDataUnsafe?.user;
-                if (!user) return;
-                
-                const { error } = await db.from('users').update({ 
-                    city: c.nameRu, 
-                    lat: c.lat, 
-                    lng: c.lng 
-                }).eq('tg_id', user.id);
-                
-                if (error) { 
-                    console.error("Ошибка сохранения локации:", error.message); 
-                } else { 
-                    tg.showAlert(`Твоя позиция на карте обновлена: ${c.nameRu} 🚀`); 
-                    updateFightersCount();
-                }
-            } catch (e) { 
-                console.error("Критическая ошибка:", e); 
-            }
+                if (!currentUserData) return;
+                const { error } = await db.from('users').update({ city: c.nameRu, lat: c.lat, lng: c.lng }).eq('tg_id', currentUserData.tg_id);
+                if (!error) { tg.showAlert(`Твоя позиция на карте обновлена: ${c.nameRu} 🚀`); updateFightersCount(); }
+            } catch (e) { console.error(e); }
         };
 
-        const screens = [
-            'home-screen', 'club-screen', 'abonement-screen', 'map-screen', 
-            'profile-screen', 'fighters-screen', 'rating-screen', 'education-screen', 
-            'streams-screen', 'books-screen', 'projects-screen'
-        ];
+        // ================= НАВИГАЦИЯ =================
+        const screens = ['home-screen', 'club-screen', 'abonement-screen', 'map-screen', 'profile-screen', 'fighters-screen', 'rating-screen', 'education-screen', 'streams-screen', 'books-screen', 'projects-screen'];
         
         function switchTab(id, idx) {
-            screens.forEach(s => {
-                const el = document.getElementById(s);
-                if(el) el.classList.add('hidden-screen');
-            });
-            
+            screens.forEach(s => { const el = document.getElementById(s); if(el) el.classList.add('hidden-screen'); });
             document.getElementById(id).classList.remove('hidden-screen');
             
             if(idx !== null && idx < 5) { 
                 document.querySelectorAll('.tabbar .tab-item').forEach(t => t.classList.remove('active')); 
                 document.querySelectorAll('.tabbar .tab-item')[idx].classList.add('active'); 
             }
-            
-            if (id !== 'education-screen') { 
-                const video = document.getElementById('academy-video'); 
-                if (video && !video.paused) { video.pause(); } 
-            }
-            
-            if (id === 'map-screen') {
-                setTimeout(initGlobe, 100);
-                updateFightersCount();
-            }
-            
+            if (id !== 'education-screen') { const video = document.getElementById('academy-video'); if (video && !video.paused) { video.pause(); } }
+            if (id === 'map-screen') { setTimeout(initGlobe, 100); updateFightersCount(); }
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
 
-        // ЗАПУСКАЕМ ПРОВЕРКУ АВТОРИЗАЦИИ
         checkAuth();
-        
     </script>
 </body>
 </html>
+    
