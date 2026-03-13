@@ -437,7 +437,7 @@
             if (id === 'map-screen') setTimeout(initGlobe, 100);
             window.scrollTo({top: 0, behavior: 'smooth'});
         }
-    </script>
+   
     window.selectLocation = async (id) => {
     // 1. Закрываем модалку
     document.getElementById('location-modal').classList.add('hidden-screen');
@@ -475,5 +475,6 @@
         console.error("Критическая ошибка:", e);
     }
 };
+         </script>
 </body>
 </html>
