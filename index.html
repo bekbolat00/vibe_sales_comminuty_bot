@@ -297,7 +297,26 @@
             <div class="space-y-3"><div class="bento-card !p-5 flex items-center justify-between active:scale-98 cursor-pointer"><div class="flex items-center gap-4"><span>🛍️</span><span class="text-xs font-black uppercase italic">Купить абонемент</span></div><span class="text-gray-600">›</span></div><div class="bento-card !p-5 flex items-center justify-between active:scale-98 cursor-pointer"><div class="flex items-center gap-4"><span>🎁</span><span class="text-xs font-black uppercase italic">Купить в подарок</span></div><span class="text-gray-600">›</span></div></div>
             <div class="h-32 w-full shrink-0"></div>
         </div>
-
+<div id="map-screen" class="hidden-screen space-y-4">
+            <h2 class="text-3xl font-black italic uppercase px-1">VIBE WORLD</h2>
+            <div class="flex gap-2 overflow-x-auto pb-2 px-1 no-scrollbar" id="city-selector"></div>
+            <div class="bento-card h-[450px] bg-[#000] border-[#FF6B00]/30 p-0 relative overflow-hidden" id="globe-wrapper">
+                <div id="globe-container" class="absolute inset-0"></div>
+                <div class="absolute top-4 right-4 bg-[#111]/80 backdrop-blur-md border border-gray-800 px-3 py-1.5 rounded-full flex items-center gap-2 z-10 shadow-[0_0_15px_rgba(255,107,0,0.2)]">
+                    <div class="w-2 h-2 bg-[#FF6B00] rounded-full animate-pulse"></div>
+                    <span class="text-[9px] font-black text-white uppercase tracking-wider" id="fighters-count">Бойцов: ...</span>
+                </div>
+                <div class="absolute bottom-6 left-6 z-20 pointer-events-none">
+                    <div class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">Фокус камеры</div>
+                    <div class="text-2xl font-black italic text-[#FF6B00] drop-shadow-[0_0_10px_#FF6B00]" id="current-city-name">АСТАНА</div>
+                </div>
+            </div>
+            <div class="bento-card !p-4 flex flex-col items-center justify-center text-center cursor-pointer active:scale-95 transition-transform" onclick="document.getElementById('location-modal').classList.remove('hidden-screen')">
+                <div class="text-[#FF6B00] font-black italic uppercase text-sm">📍 Я ПРИЗЕМЛИЛСЯ</div>
+                <div class="text-[8px] text-gray-500 font-bold uppercase mt-1 tracking-widest">ОТМЕТИТЬ СВОЮ ПОЗИЦИЮ НА КАРТЕ</div>
+            </div>
+            <div class="h-32 w-full shrink-0"></div>
+        </div>
         <div id="profile-screen" class="hidden-screen px-1 space-y-6">
             <div class="flex items-center justify-between mt-2">
                 <div class="flex items-center gap-5"><div class="w-16 h-16 rounded-2xl bg-gray-900 border-2 border-[#FF6B00] flex items-center justify-center text-2xl font-black text-white shadow-[0_0_15px_rgba(255,107,0,0.2)]" id="avatar-container-prof">?</div><div><h2 class="text-2xl font-black italic uppercase leading-none user-name-profile">Загрузка...</h2><span class="text-[11px] text-gray-500 font-bold tracking-widest mt-1 block">ID: VIBE.042</span></div></div>
