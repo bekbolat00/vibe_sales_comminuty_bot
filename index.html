@@ -15,6 +15,10 @@
     <script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>
 
     <style>
+        /* КРУГЛОЙ ПРОГРЕСС-БАР ЦЕЛИ */
+        .progress-ring { transition: stroke-dashoffset 0.5s ease-in-out; }
+        .progress-circle-bg { stroke: rgba(255, 255, 255, 0.05); }
+        .progress-circle-fill { stroke: #FF6B00; filter: drop-shadow(0 0 5px rgba(255,107,0,0.5)); }
         :root { --orange: #FF5500; --bg: #000000; --glass: rgba(15, 15, 15, 0.8); --glass-border: rgba(255, 255, 255, 0.08); }
         html, body { background-color: var(--bg); overscroll-behavior-y: none; }
         body { color: #fff; font-family: 'Montserrat', sans-serif; user-select: none; -webkit-user-select: none; min-height: 100vh; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; background-attachment: fixed; background-image: radial-gradient(circle at 50% -10%, rgba(255, 85, 0, 0.15), transparent 60%); }
@@ -196,33 +200,53 @@
             <div class="h-32 w-full shrink-0"></div>
         </div>
 
-        <div id="books-screen" class="hidden-screen px-1 space-y-6">
-            <div class="flex items-center justify-between">
+        <div id="books-screen" class="hidden-screen space-y-8 pb-32">
+            <div class="px-5 pt-4 flex items-center justify-between">
                 <div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)">
                     <h2 class="text-3xl font-black italic uppercase tracking-tighter">← Библиотека</h2>
                 </div>
-                <div class="text-[9px] font-black text-[#FF6B00] uppercase tracking-widest bg-[#FF6B00]/10 px-3 py-1.5 rounded-lg border border-[#FF6B00]/20">+50 PTS за книгу</div>
-            </div>
-
-            <div class="bento-card border-white/5 bg-[#0a0a0a] flex flex-col items-center text-center p-8">
-                <h3 class="text-[13px] font-black uppercase italic tracking-widest text-white mb-2">Цель Чтения</h3>
-                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mb-6">Читай каждый день</p>
-                <div class="w-40 h-20 relative overflow-hidden mb-6 flex justify-center">
-                    <div class="w-40 h-40 border-[8px] border-white/5 rounded-full absolute top-0"></div>
-                    <div class="w-40 h-40 border-[8px] border-[#FF6B00] rounded-full absolute top-0" style="clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%); transform: rotate(-45deg);"></div>
-                    <div class="absolute top-8 flex flex-col items-center"><span class="text-4xl font-black italic text-white leading-none">15</span><span class="text-[9px] text-[#FF6B00] uppercase font-black mt-1 tracking-widest">Минут</span></div>
-                </div>
-                <div class="flex justify-between w-full px-2 max-w-[250px] mt-2">
-                    <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-gray-600">ПН</div>
-                    <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-gray-600">ВТ</div>
-                    <div class="w-8 h-8 rounded-full bg-[#FF6B00] shadow-[0_0_10px_#FF6B00] flex items-center justify-center text-[10px] font-black text-white">СР</div>
-                    <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-gray-600">ЧТ</div>
-                    <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[10px] font-black text-gray-600">ПТ</div>
+                <div class="w-10 h-10 bg-[#111] border border-white/10 rounded-full flex items-center justify-center cursor-pointer active:scale-90" onclick="changeDailyGoal()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2" class="w-5 h-5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 pb-10" id="books-grid"></div>
-            <div class="h-32 w-full shrink-0"></div>
+            <div class="px-5">
+                <div class="bg-gradient-to-br from-[#111] to-[#050505] rounded-[30px] border border-white/5 p-6 relative overflow-hidden shadow-2xl">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-[#FF6B00]/10 rounded-full blur-3xl"></div>
+                    <div class="flex justify-between items-center relative z-10">
+                        <div>
+                            <h3 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">Чтение за сегодня</h3>
+                            <div class="flex items-baseline gap-2 mb-1">
+                                <span id="dash-minutes-read" class="text-5xl font-black italic text-white">0</span>
+                                <span id="dash-goal-text" class="text-xs font-bold text-gray-600 uppercase tracking-widest">/ 15 МИН</span>
+                            </div>
+                            <p id="dash-status-text" class="text-[9px] text-[#FF6B00] uppercase font-black tracking-widest mt-2">🔥 Начни читать книгу</p>
+                        </div>
+                        
+                        <div class="relative w-24 h-24 flex items-center justify-center">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="40" fill="transparent" stroke-width="8" class="progress-circle-bg" />
+                                <circle id="dash-progress-circle" cx="50" cy="50" r="40" fill="transparent" stroke-width="8" class="progress-circle-fill progress-ring" stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" />
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center flex-col">
+                                <span class="text-xl font-black italic">📖</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between w-full mt-6 border-t border-white/5 pt-5">
+                        <div class="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center text-[9px] font-black text-gray-600">ПН</div>
+                        <div class="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center text-[9px] font-black text-gray-600">ВТ</div>
+                        <div class="w-7 h-7 rounded-full bg-[#FF6B00] shadow-[0_0_10px_#FF6B00] flex items-center justify-center text-[9px] font-black text-white">СР</div>
+                        <div class="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center text-[9px] font-black text-gray-600">ЧТ</div>
+                        <div class="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center text-[9px] font-black text-gray-600">ПТ</div>
+                        <div class="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center text-[9px] font-black text-gray-600">СБ</div>
+                        <div class="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center text-[9px] font-black text-gray-600">ВС</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="books-categories-container" class="space-y-8"></div>
         </div>
 
         <div id="streams-screen" class="hidden-screen px-1 space-y-6"><div class="flex items-center gap-4 cursor-pointer active:opacity-60" onclick="switchTab('home-screen', 0)"><h2 class="text-3xl font-black italic uppercase tracking-tighter">← Эфиры</h2></div><div class="text-center py-20 text-gray-500 font-black uppercase italic tracking-widest opacity-20 text-2xl">Скоро запуск...</div></div>
@@ -433,63 +457,83 @@
             if(fighter.first_name) { document.getElementById('avatar-container-prof').innerText = fighter.first_name.charAt(0); }
         }
 
-        // ================= МАГИЯ ЧИТАЛКИ И БАЗЫ КНИГ =================
+      // ================= МАГИЯ ЧИТАЛКИ И ГЛОБАЛЬНЫЙ ТРЕКЕР =================
         let booksDB = {}; 
         let currentBookId = null;
         let epubBook = null;
         let epubRendition = null;
         
-        let readingTimer = null;
-        let secondsLeft = 0;
+        // ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ТРЕКЕРА
+        let globalDailyGoal = 15; // Цель по умолчанию (в минутах)
+        let globalMinutesReadToday = 0; // Сколько уже прочитано сегодня
+        
         let sessionStartTime = 0;
-        let pagesRead = 0; 
+        let pagesReadSession = 0;
 
-        // ЗАГРУЗКА ИЗ SUPABASE
+        // ФУНКЦИЯ ОБНОВЛЕНИЯ ВИДЖЕТА ЦЕЛИ НА ГЛАВНОМ ЭКРАНЕ
+        function updateDashboardTracker() {
+            document.getElementById('dash-goal-text').innerText = `/ ${globalDailyGoal} МИН`;
+            document.getElementById('dash-minutes-read').innerText = globalMinutesReadToday;
+            
+            let percentage = Math.min(globalMinutesReadToday / globalDailyGoal, 1);
+            let offset = 251.2 - (251.2 * percentage); // 251.2 это длина окружности (2 * pi * r)
+            document.getElementById('dash-progress-circle').style.strokeDashoffset = offset;
+
+            if (percentage >= 1) {
+                document.getElementById('dash-status-text').innerText = "🏆 ЦЕЛЬ ВЫПОЛНЕНА! +50 PTS";
+                document.getElementById('dash-status-text').classList.replace('text-[#FF6B00]', 'text-green-500');
+            } else if (globalMinutesReadToday > 0) {
+                document.getElementById('dash-status-text').innerText = "⏳ В ПРОЦЕССЕ...";
+            }
+        }
+
+        // КНОПКА ИЗМЕНЕНИЯ ЦЕЛИ (Настройки в виджете)
+        function changeDailyGoal() {
+            let input = prompt("Установи свою новую цель чтения на день (в минутах):", globalDailyGoal);
+            let parsed = parseInt(input);
+            if (!isNaN(parsed) && parsed > 0) {
+                globalDailyGoal = parsed;
+                updateDashboardTracker();
+                tg.showAlert(`🎯 Новая цель: ${globalDailyGoal} минут в день!`);
+            }
+        }
+
         async function loadBooks() {
             try {
                 const { data, error } = await db.from('books').select('*');
                 if (error) throw error;
-
-                const grid = document.getElementById('books-grid');
-                grid.innerHTML = ''; 
-                booksDB = {}; 
-
+                const container = document.getElementById('books-categories-container');
+                container.innerHTML = ''; booksDB = {}; const groupedBooks = {};
+                
                 data.forEach(b => {
                     booksDB[b.id] = { title: b.title, author: b.author, category: b.category, desc: b.description, cover: b.cover_url, fileUrl: b.file_url };
-
-                    let progressHTML = `<div class="bg-gray-600 w-[0%] h-full rounded-full"></div>`;
-                    let statusText = b.category;
-                    let titleOpacity = "text-white/80";
-
-                    if (currentUserData?.read_books?.includes(b.id)) {
-                        progressHTML = `<div class="bg-[#FF6B00] w-[100%] h-full rounded-full shadow-[0_0_10px_#FF6B00]"></div>`;
-                        statusText = "🏆 ПРОЧИТАНО";
-                    } else if (currentUserData?.reading_now?.includes(b.id)) {
-                        progressHTML = `<div class="bg-[#FF6B00] w-[50%] h-full rounded-full"></div>`;
-                        statusText = "⏳ ЧИТАЮ";
-                        titleOpacity = "text-white";
-                    }
-
-                    grid.innerHTML += `
-                    <div class="bento-card !p-0 cursor-pointer active:scale-95 transition-transform border-white/5" onclick="openBookModal('${b.id}')">
-                        <div class="relative h-44 bg-[#050505] flex items-center justify-center overflow-hidden">
-                            <div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(45deg, #FF6B00 0, #FF6B00 2px, transparent 0, transparent 8px);"></div>
-                            <div class="absolute inset-0 bg-gradient-to-t from-[#050505] to-transparent z-0"></div>
-                            <img src="${b.cover_url}" class="h-[80%] relative z-10 drop-shadow-[0_15px_15px_rgba(255,107,0,0.2)] rounded-r-md">
-                        </div>
-                        <div class="p-4 border-t border-white/5 bg-[#050505]">
-                            <div class="text-[8px] text-[#FF6B00] font-black uppercase mb-1 tracking-widest">${statusText}</div>
-                            <div class="text-xs font-black italic leading-tight ${titleOpacity} mb-2 truncate">${b.title}</div>
-                            <div class="w-full bg-white/5 h-1 rounded-full overflow-hidden">${progressHTML}</div>
-                        </div>
-                    </div>`;
+                    if (!groupedBooks[b.category]) groupedBooks[b.category] = [];
+                    groupedBooks[b.category].push(b);
                 });
-            } catch (e) { console.error("Ошибка загрузки книг:", e); }
+
+                for (const [categoryName, booksArray] of Object.entries(groupedBooks)) {
+                    let categoryHTML = `<div class="pl-5"><div class="flex justify-between items-end pr-5 mb-4"><h3 class="text-[16px] font-black italic uppercase text-white">${categoryName}</h3></div><div class="flex gap-4 overflow-x-auto no-scrollbar pb-2 pr-5 snap-x">`;
+                    
+                    booksArray.forEach(b => {
+                        categoryHTML += `
+                            <div class="w-[140px] flex-shrink-0 snap-start cursor-pointer active:scale-95 transition-transform" onclick="openBookModal('${b.id}')">
+                                <div class="relative w-full h-[200px] bg-[#0a0a0a] rounded-xl overflow-hidden mb-3 border border-white/5 shadow-lg">
+                                    <div class="absolute inset-0 opacity-20" style="background-image: repeating-linear-gradient(45deg, #FF6B00 0, #FF6B00 2px, transparent 0, transparent 8px);"></div>
+                                    <img src="${b.cover_url}" class="w-full h-full object-cover relative z-10">
+                                </div>
+                                <h4 class="text-[11px] font-black italic text-white leading-tight mb-1 line-clamp-2">${b.title}</h4>
+                                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest truncate">${b.author}</p>
+                            </div>`;
+                    });
+                    categoryHTML += `</div></div>`;
+                    container.innerHTML += categoryHTML;
+                }
+                updateDashboardTracker(); // Инициализируем трекер при загрузке
+            } catch (e) { console.error(e); }
         }
 
         function openBookModal(id) {
-            currentBookId = id;
-            const b = booksDB[id];
+            currentBookId = id; const b = booksDB[id];
             document.getElementById('bm-title').innerText = b.title;
             document.getElementById('bm-author').innerText = b.author;
             document.getElementById('bm-category').innerText = b.category;
@@ -498,17 +542,13 @@
             document.getElementById('book-modal').classList.remove('hidden-screen');
         }
 
+        // ЗАПУСК ЧИТАЛКИ БЕЗ ВОПРОСОВ (Цель берется глобальная)
         function startReadingBook() {
             if (!currentBookId) return;
             const b = booksDB[currentBookId];
             
-            let goalInput = prompt("Сколько минут планируешь читать?", "15");
-            let goalMinutes = parseInt(goalInput);
-            if (isNaN(goalMinutes) || goalMinutes <= 0) goalMinutes = 15; 
-            
-            secondsLeft = goalMinutes * 60;
             sessionStartTime = Date.now();
-            pagesRead = 0; 
+            pagesReadSession = 0;
 
             document.getElementById('book-modal').classList.add('hidden-screen');
             document.getElementById('main-app-container').classList.add('hidden-screen');
@@ -518,18 +558,10 @@
             reader.classList.remove('hidden-screen');
             document.getElementById('reader-title').innerText = b.title;
             document.getElementById('reader-progress').innerText = "Загрузка...";
-            
-            updateTimerDisplay();
-            
-            clearInterval(readingTimer);
-            readingTimer = setInterval(() => {
-                if (secondsLeft > 0) { secondsLeft--; updateTimerDisplay(); } 
-                else { clearInterval(readingTimer); document.getElementById('reader-timer').innerText = "🎉 ЦЕЛЬ!"; document.getElementById('reader-timer').classList.add('animate-pulse'); }
-            }, 1000);
+            document.getElementById('reader-timer').innerText = "В ПРОЦЕССЕ";
 
             const viewer = document.getElementById('viewer');
             viewer.innerHTML = ''; 
-            
             epubBook = ePub(b.fileUrl);
             epubRendition = epubBook.renderTo("viewer", { width: "100%", height: "100%", spread: "none", manager: "continuous", flow: "paginated" });
 
@@ -542,29 +574,29 @@
             epubRendition.display();
             epubRendition.on("relocated", function(location) { document.getElementById('reader-progress').innerText = `Стр. ${location.start.displayed.page || '...'}`; });
         }
-        
-        function updateTimerDisplay() {
-            let m = Math.floor(secondsLeft / 60); let s = secondsLeft % 60;
-            document.getElementById('reader-timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-        }
 
-        function nextReaderPage() { if(epubRendition) { epubRendition.next(); pagesRead++; } }
+        function nextReaderPage() { if(epubRendition) { epubRendition.next(); pagesReadSession++; } }
         function prevReaderPage() { if(epubRendition) epubRendition.prev(); }
         
+        // ЗАКРЫТИЕ ЧИТАЛКИ И ПОДСЧЕТ ИТОГОВ
         function closeReader() {
-            clearInterval(readingTimer);
-            let minutesSpent = Math.round((Date.now() - sessionStartTime) / 60000);
+            // Считаем сколько минут провел в читалке
+            let minutesSpent = Math.max(1, Math.round((Date.now() - sessionStartTime) / 60000));
             
+            // Добавляем к глобальному трекеру
+            globalMinutesReadToday += minutesSpent;
+            updateDashboardTracker(); // Рисуем круг
+
             document.getElementById('reader-screen').classList.add('hidden-screen');
             document.getElementById('main-app-container').classList.remove('hidden-screen');
             document.getElementById('main-tabbar').style.display = 'flex';
-            document.getElementById('reader-timer').classList.remove('animate-pulse');
             
             if(epubBook) { epubBook.destroy(); epubBook = null; epubRendition = null; }
             switchTab('books-screen', 0);
 
-            setTimeout(() => {
-                tg.showAlert(`📊 ИТОГИ ЧТЕНИЯ:\n\nВремя: ${minutesSpent} мин.\nПрочитано: ${pagesRead} стр.\n\nПродолжай в том же духе, боец! 🐺`);
+            // Показываем результат
+            setTimeout(() => { 
+                tg.showAlert(`📊 ИТОГИ СЕССИИ:\n\nВремя: ${minutesSpent} мин.\nПрочитано: ${pagesReadSession} стр.\n\nПрогресс за сегодня: ${globalMinutesReadToday}/${globalDailyGoal} мин. Так держать! 🐺`); 
             }, 500);
         }
 
