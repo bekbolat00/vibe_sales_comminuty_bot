@@ -164,7 +164,12 @@ export function LessonPlayer({ videoId, userId }: LessonPlayerProps) {
       const savedSeconds =
         raw !== null && raw !== undefined ? Math.floor(Number(raw)) : 0;
 
-      const playerVars: Record<string, string | number | undefined> = {};
+      const playerVars: Record<string, string | number | undefined> = {
+        playsinline: 1, // КРИТИЧНО: чтобы Telegram/iOS не блокировал плеер
+        fs: 1, // Включает нативную кнопку полного экрана
+        rel: 0, // Убирает рекомендации чужих видео в конце
+        modestbranding: 1, // Убирает логотип YouTube
+      };
       if (savedSeconds > 0) {
         playerVars.start = savedSeconds;
       }

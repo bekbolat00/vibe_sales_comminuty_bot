@@ -3732,10 +3732,44 @@
                 document.getElementById('last-watched-cover').classList.remove('hidden'); 
             } else { container.classList.add('hidden-screen'); }
         }
+
+        async function loadContinueWatchingWidget(userId) {
+            if (!userId) return;
+            try {
+                const { data: row, error } = await db
+                    .from('video_progress')
+                    .select('video_id, stopped_at')
+                    .eq('user_id', userId)
+                    .order('updated_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+                if (error || !row || !row.video_id) return;
+                const videoId = row.video_id;
+                const imgEl = document.getElementById('last-watched-img');
+                if (!imgEl) return;
+                const maxUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+                const hqUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                imgEl.onerror = function () { this.onerror = null; this.src = hqUrl; };
+                imgEl.src = maxUrl;
+                const container = document.getElementById('last-watched-container');
+                if (container) container.classList.remove('hidden-screen');
+                const rawStop = row.stopped_at;
+                if (rawStop !== null && rawStop !== undefined && !Number.isNaN(Number(rawStop))) {
+                    const sec = Math.floor(Number(rawStop));
+                    const m = Math.floor(sec / 60);
+                    const s = sec % 60;
+                    const subEl = document.getElementById('last-watched-subtitle');
+                    if (subEl) subEl.innerText = `Академия • Продолжить с ${m}:${String(s).padStart(2, '0')}`;
+                }
+            } catch (e) { /* сеть / RLS */ }
+        }
         function playLastWatchedVideo() { document.getElementById('last-watched-cover').classList.add('hidden'); const video = document.getElementById('last-watched-video'); video.classList.remove('hidden'); video.play(); }
 
         function showAcademyMain() {
-            loadLastWatchedLesson(); document.getElementById('academy-modules-view').classList.add('hidden-screen');
+            loadLastWatchedLesson();
+            const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
+            if (cwUid) void loadContinueWatchingWidget(cwUid);
+            document.getElementById('academy-modules-view').classList.add('hidden-screen');
             document.getElementById('academy-lessons-view').classList.add('hidden-screen'); document.getElementById('academy-main-view').classList.remove('hidden-screen');
             if (typeof window.unmountLessonPlayer === 'function') window.unmountLessonPlayer();
         }
@@ -4665,7 +4699,11 @@
             if(idx !== null && idx < 5) { document.querySelectorAll('#main-tabbar .tab-item').forEach(t => t.classList.remove('active')); document.querySelectorAll('#main-tabbar .tab-item')[idx].classList.add('active'); }
             if (id === 'map-screen') { setTimeout(initGlobe, 100); }
             window.scrollTo({top: 0, behavior: 'smooth'});
-            if (id === 'education-screen') { loadLastWatchedLesson(); }
+            if (id === 'education-screen') {
+                loadLastWatchedLesson();
+                const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
+                if (cwUid) void loadContinueWatchingWidget(cwUid);
+            }
             if (id === 'rating-screen') { loadLeaderboard(window._lbCat || 'P4P'); startSeasonTimer(); }
             if (id === 'lootbox-screen') { loadTrophies(); }
             if (id === 'profile-screen') {
