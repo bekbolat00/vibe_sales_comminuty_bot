@@ -1,19 +1,19 @@
 import { createRoot, type Root } from "react-dom/client";
 import { LessonPlayer } from "./components/LessonPlayer";
 
-const DEFAULT_VIDEO_ID = "_QNJVYEjSZ0";
-
 let root: Root | null = null;
 
-function mountLessonPlayer(container: HTMLElement, userId: string) {
+function mountLessonPlayer(
+  container: HTMLElement,
+  userId: string,
+  videoId: string
+) {
   if (root) {
     root.unmount();
     root = null;
   }
   root = createRoot(container);
-  root.render(
-    <LessonPlayer videoId={DEFAULT_VIDEO_ID} userId={userId} />
-  );
+  root.render(<LessonPlayer videoId={videoId} userId={userId} />);
 }
 
 function unmountLessonPlayer() {
@@ -25,7 +25,11 @@ function unmountLessonPlayer() {
 
 declare global {
   interface Window {
-    mountLessonPlayer?: (container: HTMLElement, userId: string) => void;
+    mountLessonPlayer?: (
+      container: HTMLElement,
+      userId: string,
+      videoId: string
+    ) => void;
     unmountLessonPlayer?: () => void;
   }
 }

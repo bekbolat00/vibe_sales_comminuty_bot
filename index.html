@@ -1207,6 +1207,14 @@
                 <div><div class="text-white/80 text-[11px] font-bold uppercase tracking-widest mb-1">Академия</div><h2 class="text-4xl font-black italic uppercase leading-none">Обучение</h2></div>
                 <div class="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center font-black text-xl shadow-lg pl-1"><svg viewBox="0 0 24 24" fill="white" class="w-8 h-8"><path d="M8 5v14l11-7z"/></svg></div>
             </div>
+            <div id="home-continue-watching-wrap" class="hidden-screen space-y-2 px-1">
+                <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2">Продолжить просмотр</h4>
+                <div id="continue-watching-card-home" class="bento-card !p-0 border-[#FF6B00]/40 overflow-hidden relative shadow-[0_15px_30px_-10px_rgba(255,107,0,0.2)] h-40 bg-black cursor-pointer active:scale-[0.98] transition-transform">
+                    <div class="relative w-full h-full">
+                        <img alt="" class="w-full h-full object-cover opacity-90">
+                    </div>
+                </div>
+            </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="bento-card h-36 flex flex-col justify-end cursor-pointer active:scale-95" onclick="switchTab('streams-screen', 0)">🎙️<h3 class="text-base font-black uppercase italic mt-2">Эфиры</h3></div>
                 <div class="bento-card h-36 flex flex-col justify-end border-[#FF6B00]/20 cursor-pointer active:scale-95" onclick="switchTab('fighters-screen', 0)">⭐<h3 class="text-base font-black uppercase italic mt-2 text-[#FF6B00]">Бойцы</h3></div>
@@ -1271,9 +1279,8 @@
 
                 <div id="last-watched-container" class="hidden-screen space-y-4">
                     <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2">Продолжить просмотр</h4>
-                    <div class="bento-card !p-0 border-[#FF6B00]/40 overflow-hidden relative shadow-[0_15px_30px_-10px_rgba(255,107,0,0.2)] h-56 bg-black">
-                        <video id="last-watched-video" class="w-full h-full object-cover hidden" controls playsinline><source src="" type="video/mp4"></video>
-                        <div id="last-watched-cover" class="absolute inset-0 w-full h-full cursor-pointer active:scale-[0.98] transition-transform" onclick="playLastWatchedVideo()">
+                    <div id="continue-watching-card-academy" class="bento-card !p-0 border-[#FF6B00]/40 overflow-hidden relative shadow-[0_15px_30px_-10px_rgba(255,107,0,0.2)] h-56 bg-black cursor-pointer active:scale-[0.98] transition-transform">
+                        <div id="last-watched-cover" class="absolute inset-0 w-full h-full">
                             <img id="last-watched-img" src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="w-full h-full object-cover opacity-80">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
                             <div class="absolute inset-0 flex items-center justify-center"><div class="w-16 h-16 bg-[#FF6B00] backdrop-blur-md rounded-full flex items-center justify-center pl-1.5 shadow-[0_0_20px_#FF6B00]"><svg viewBox="0 0 24 24" fill="white" class="w-8 h-8"><path d="M8 5v14l11-7z"/></svg></div></div>
@@ -1695,7 +1702,7 @@
             <div class="mt-2 px-1">
                 <h4 class="text-[13px] text-white font-black mb-4 uppercase tracking-widest">Продолжить просмотр</h4>
                 <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x">
-                    <div class="kino-continue-card active:scale-[0.98] transition-transform snap-start">
+                    <div id="club-continue-watching-card" class="kino-continue-card active:scale-[0.98] transition-transform snap-start cursor-pointer">
                         <div class="relative"><img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="kino-continue-img"><div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800"><div class="bg-[#FF6B00] w-[75%] h-full shadow-[0_0_8px_#FF6B00]"></div></div></div>
                         <div class="mt-3"><h4 class="text-[13px] font-black italic text-white truncate">Жесткий дожим</h4><p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Модуль 3</p></div>
                     </div>
@@ -3709,9 +3716,9 @@
                     { 
                         id: 'm1', title: 'Фундамент продаж', desc: 'Мышление и база', 
                         lessons: [
-                            { id: 'l1', title: 'Роль продавца в B2B', time: '25 мин', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', desc: 'Вводный урок. Разбираем, почему продавец — это партнер, а не проситель. Настройка мышления перед звонком.', task: null },
-                            { id: 'l2', title: 'Идеальный клиент (ICP)', time: '18 мин', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', desc: 'Учимся не звонить всем подряд. Как составить портрет компании, которой точно нужен твой продукт.', task: {type: 'text', question: 'Напиши 3 главных критерия твоего идеального клиента для текущего продукта:'} },
-                            { id: 'l3', title: 'Квалификация BANT', time: '12 мин', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', desc: 'Задаем правильные вопросы, чтобы отсеять нецелевых лидов.', task: {type: 'test', question: 'Что означает буква N в методологии BANT?', options: ['Need (Потребность)', 'Name (Имя ЛПР)', 'Network (Сеть)'], correct: 0} }
+                            { id: 'l1', title: 'Роль продавца в B2B', time: '25 мин', youtubeId: '_QNJVYEjSZ0', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4', desc: 'Вводный урок. Разбираем, почему продавец — это партнер, а не проситель. Настройка мышления перед звонком.', task: null },
+                            { id: 'l2', title: 'Идеальный клиент (ICP)', time: '18 мин', youtubeId: '_QNJVYEjSZ0', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4', desc: 'Учимся не звонить всем подряд. Как составить портрет компании, которой точно нужен твой продукт.', task: {type: 'text', question: 'Напиши 3 главных критерия твоего идеального клиента для текущего продукта:'} },
+                            { id: 'l3', title: 'Квалификация BANT', time: '12 мин', youtubeId: '_QNJVYEjSZ0', url: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4', desc: 'Задаем правильные вопросы, чтобы отсеять нецелевых лидов.', task: {type: 'test', question: 'Что означает буква N в методологии BANT?', options: ['Need (Потребность)', 'Name (Имя ЛПР)', 'Network (Сеть)'], correct: 0} }
                         ]
                     }
                 ]
@@ -3720,21 +3727,68 @@
 
         let currentActiveCourse = null; let currentActiveModule = null; let currentLessonIdx = 0;
         let completedLessons = JSON.parse(localStorage.getItem('vibe_completed_lessons')) || [];
+        let continueWatchingVideoId = null;
 
         function loadLastWatchedLesson() {
-            const lastData = JSON.parse(localStorage.getItem(`vibe_last_watched_${currentUserData?.tg_id || 'guest'}`));
+            let lastData = null;
+            try {
+                const raw = localStorage.getItem(`vibe_last_watched_${currentUserData?.tg_id || 'guest'}`);
+                lastData = raw ? JSON.parse(raw) : null;
+            } catch (_) { lastData = null; }
             const container = document.getElementById('last-watched-container');
+            const acadCard = document.getElementById('continue-watching-card-academy');
+            if (!container) return;
             if (lastData) {
                 container.classList.remove('hidden-screen'); document.getElementById('last-watched-title').innerText = lastData.title;
                 document.getElementById('last-watched-subtitle').innerText = `${lastData.courseTitle} • ${lastData.moduleTitle}`;
                 document.getElementById('last-watched-img').src = lastData.courseImg;
-                const video = document.getElementById('last-watched-video'); video.src = lastData.url; video.classList.add('hidden'); 
-                document.getElementById('last-watched-cover').classList.remove('hidden'); 
-            } else { container.classList.add('hidden-screen'); }
+                if (acadCard) acadCard.onclick = function () { void openContinueWatchingLesson(); };
+            } else {
+                container.classList.add('hidden-screen');
+                if (acadCard) acadCard.onclick = null;
+            }
         }
 
-        async function loadContinueWatchingWidget(userId) {
-            if (!userId) return;
+        function openContinueWatchingPortal(userId, videoId) {
+            const uid = userId || ((currentUserData && currentUserData.tg_id != null) ? String(currentUserData.tg_id) : 'test_user_1');
+            const vid = String(videoId || '').trim();
+            if (!vid) return;
+            const screenIds = ['home-screen', 'club-screen', 'abonement-screen', 'map-screen', 'profile-screen', 'fighters-screen', 'rating-screen', 'education-screen', 'streams-screen', 'books-screen', 'projects-screen', 'my-books-screen', 'lootbox-screen'];
+            screenIds.forEach((sid) => {
+                const el = document.getElementById(sid);
+                if (el) el.classList.add('hidden-screen');
+            });
+            const edu = document.getElementById('education-screen');
+            if (edu) edu.classList.remove('hidden-screen');
+            const libBar = document.getElementById('library-tabbar');
+            const mainBar = document.getElementById('main-tabbar');
+            if (libBar) libBar.classList.add('hidden-screen');
+            if (mainBar) mainBar.classList.remove('hidden-screen');
+
+            document.getElementById('academy-main-view').classList.add('hidden-screen');
+            document.getElementById('academy-modules-view').classList.add('hidden-screen');
+            document.getElementById('academy-lessons-view').classList.remove('hidden-screen');
+
+            const lwTitle = document.getElementById('last-watched-title');
+            const lwSub = document.getElementById('last-watched-subtitle');
+            document.getElementById('video-title').innerText = lwTitle ? lwTitle.innerText : 'Урок';
+            document.getElementById('video-subtitle').innerText = lwSub ? lwSub.innerText : 'Академия';
+            document.getElementById('lesson-desc-text').innerText = 'Продолжи просмотр с того места, где остановился.';
+
+            const hwBlock = document.getElementById('homework-block');
+            if (hwBlock) hwBlock.classList.add('hidden');
+
+            const lessonPlayerEl = document.getElementById('lesson-player-root');
+            if (lessonPlayerEl && typeof window.mountLessonPlayer === 'function') {
+                window.mountLessonPlayer(lessonPlayerEl, uid, vid);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function loadContinueWatchingWidget(userId, cardElementId) {
+            if (!userId || !cardElementId) return;
+            const card = document.getElementById(cardElementId);
+            if (!card || !card.parentNode) return;
             try {
                 const { data: row, error } = await db
                     .from('video_progress')
@@ -3744,31 +3798,92 @@
                     .limit(1)
                     .maybeSingle();
                 if (error || !row || !row.video_id) return;
-                const videoId = row.video_id;
-                const imgEl = document.getElementById('last-watched-img');
-                if (!imgEl) return;
-                const maxUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-                const hqUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-                imgEl.onerror = function () { this.onerror = null; this.src = hqUrl; };
-                imgEl.src = maxUrl;
-                const container = document.getElementById('last-watched-container');
-                if (container) container.classList.remove('hidden-screen');
-                const rawStop = row.stopped_at;
-                if (rawStop !== null && rawStop !== undefined && !Number.isNaN(Number(rawStop))) {
-                    const sec = Math.floor(Number(rawStop));
-                    const m = Math.floor(sec / 60);
-                    const s = sec % 60;
-                    const subEl = document.getElementById('last-watched-subtitle');
-                    if (subEl) subEl.innerText = `Академия • Продолжить с ${m}:${String(s).padStart(2, '0')}`;
+                const videoId = String(row.video_id).trim();
+                if (!videoId) return;
+                continueWatchingVideoId = videoId;
+
+                const fresh = card.cloneNode(true);
+                card.parentNode.replaceChild(fresh, card);
+                const cardEl = document.getElementById(cardElementId);
+                if (!cardEl) return;
+
+                let img = cardEl.querySelector('img');
+                if (!img) {
+                    const holder = cardEl.querySelector('.relative') || cardEl;
+                    img = document.createElement('img');
+                    img.className = (cardElementId === 'continue-watching-card-home')
+                        ? 'w-full h-full object-cover opacity-90'
+                        : 'kino-continue-img';
+                    img.alt = '';
+                    holder.insertBefore(img, holder.firstChild);
                 }
+                img.src = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
+
+                const rawStop = row.stopped_at;
+                if (cardElementId === 'continue-watching-card-academy') {
+                    const container = document.getElementById('last-watched-container');
+                    if (container) container.classList.remove('hidden-screen');
+                    const titleEl = document.getElementById('last-watched-title');
+                    if (titleEl && (!titleEl.innerText || titleEl.innerText.trim() === 'Название урока')) titleEl.innerText = 'Продолжить просмотр';
+                    if (rawStop !== null && rawStop !== undefined && !Number.isNaN(Number(rawStop))) {
+                        const s = Math.floor(Number(rawStop));
+                        const m = Math.floor(s / 60);
+                        const rs = s % 60;
+                        const subEl = document.getElementById('last-watched-subtitle');
+                        if (subEl) subEl.innerText = 'Академия • Продолжить с ' + m + ':' + String(rs).padStart(2, '0');
+                    }
+                }
+                if (cardElementId === 'continue-watching-card-home') {
+                    const wrap = document.getElementById('home-continue-watching-wrap');
+                    if (wrap) wrap.classList.remove('hidden-screen');
+                }
+
+                cardEl.onclick = function () {
+                    openContinueWatchingPortal(userId, videoId);
+                };
+                cardEl.style.cursor = 'pointer';
             } catch (e) { /* сеть / RLS */ }
         }
-        function playLastWatchedVideo() { document.getElementById('last-watched-cover').classList.add('hidden'); const video = document.getElementById('last-watched-video'); video.classList.remove('hidden'); video.play(); }
+
+        async function openContinueWatchingLesson() {
+            const uid = (currentUserData && currentUserData.tg_id != null) ? String(currentUserData.tg_id) : null;
+            let videoId = continueWatchingVideoId;
+            if (!videoId && uid) {
+                try {
+                    const { data: row } = await db
+                        .from('video_progress')
+                        .select('video_id')
+                        .eq('user_id', uid)
+                        .order('updated_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+                    if (row && row.video_id) {
+                        videoId = row.video_id;
+                        continueWatchingVideoId = videoId;
+                    }
+                } catch (e) { /* ignore */ }
+            }
+            if (!videoId) {
+                const raw = localStorage.getItem(`vibe_last_watched_${currentUserData?.tg_id || 'guest'}`);
+                const lastData = raw ? JSON.parse(raw) : null;
+                const url = lastData && lastData.url;
+                if (url) {
+                    const m = String(url).match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                    if (m) videoId = m[1];
+                }
+            }
+            if (!videoId) {
+                if (typeof tg !== 'undefined' && tg.showAlert) tg.showAlert('Нет сохранённого прогресса просмотра.');
+                return;
+            }
+            const userId = uid || 'test_user_1';
+            openContinueWatchingPortal(userId, videoId);
+        }
 
         function showAcademyMain() {
             loadLastWatchedLesson();
             const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
-            if (cwUid) void loadContinueWatchingWidget(cwUid);
+            if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-card-academy');
             document.getElementById('academy-modules-view').classList.add('hidden-screen');
             document.getElementById('academy-lessons-view').classList.add('hidden-screen'); document.getElementById('academy-main-view').classList.remove('hidden-screen');
             if (typeof window.unmountLessonPlayer === 'function') window.unmountLessonPlayer();
@@ -3834,7 +3949,8 @@
             const lessonPlayerEl = document.getElementById('lesson-player-root');
             if (lessonPlayerEl && typeof window.mountLessonPlayer === 'function') {
                 const uid = (currentUserData && currentUserData.tg_id != null) ? String(currentUserData.tg_id) : 'test_user_1';
-                window.mountLessonPlayer(lessonPlayerEl, uid);
+                const yid = (l.youtubeId && String(l.youtubeId).trim()) ? String(l.youtubeId).trim() : '_QNJVYEjSZ0';
+                window.mountLessonPlayer(lessonPlayerEl, uid, yid);
             }
             
             document.getElementById('lesson-desc-text').innerText = l.desc;
@@ -4702,7 +4818,15 @@
             if (id === 'education-screen') {
                 loadLastWatchedLesson();
                 const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
-                if (cwUid) void loadContinueWatchingWidget(cwUid);
+                if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-card-academy');
+            }
+            if (id === 'home-screen') {
+                const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
+                if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-card-home');
+            }
+            if (id === 'club-screen') {
+                const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
+                if (cwUid) void loadContinueWatchingWidget(cwUid, 'club-continue-watching-card');
             }
             if (id === 'rating-screen') { loadLeaderboard(window._lbCat || 'P4P'); startSeasonTimer(); }
             if (id === 'lootbox-screen') { loadTrophies(); }
