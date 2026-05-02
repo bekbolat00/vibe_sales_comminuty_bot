@@ -1,0 +1,20 @@
+{
+  "name": "vibe-sales-community-bot",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:lesson-player": "vite build"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7"
+  }
+}
