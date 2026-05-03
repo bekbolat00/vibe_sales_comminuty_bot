@@ -1207,14 +1207,6 @@
                 <div><div class="text-white/80 text-[11px] font-bold uppercase tracking-widest mb-1">Академия</div><h2 class="text-4xl font-black italic uppercase leading-none">Обучение</h2></div>
                 <div class="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center font-black text-xl shadow-lg pl-1"><svg viewBox="0 0 24 24" fill="white" class="w-8 h-8"><path d="M8 5v14l11-7z"/></svg></div>
             </div>
-            <div id="home-continue-watching-wrap" class="hidden-screen space-y-2 px-1">
-                <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2">Продолжить просмотр</h4>
-                <div id="continue-watching-card-home" class="bento-card !p-0 border-[#FF6B00]/40 overflow-hidden relative shadow-[0_15px_30px_-10px_rgba(255,107,0,0.2)] h-40 bg-black cursor-pointer active:scale-[0.98] transition-transform">
-                    <div class="relative w-full h-full">
-                        <img alt="" class="w-full h-full object-cover opacity-90">
-                    </div>
-                </div>
-            </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="bento-card h-36 flex flex-col justify-end cursor-pointer active:scale-95" onclick="switchTab('streams-screen', 0)">🎙️<h3 class="text-base font-black uppercase italic mt-2">Эфиры</h3></div>
                 <div class="bento-card h-36 flex flex-col justify-end border-[#FF6B00]/20 cursor-pointer active:scale-95" onclick="switchTab('fighters-screen', 0)">⭐<h3 class="text-base font-black uppercase italic mt-2 text-[#FF6B00]">Бойцы</h3></div>
@@ -1303,6 +1295,16 @@
                 <div class="flex items-center gap-4 cursor-pointer active:opacity-60 transition-opacity" onclick="showAcademyMain()">
                     <h2 class="text-2xl font-black italic uppercase tracking-tighter text-gray-500">← <span id="course-title" class="text-white">Курс</span></h2>
                 </div>
+
+                <div id="academy-continue-watching-wrap" class="hidden-screen space-y-2 px-1">
+                    <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2">Продолжить просмотр</h4>
+                    <div id="continue-watching-academy" class="bento-card !p-0 border-[#FF6B00]/40 overflow-hidden relative shadow-[0_15px_30px_-10px_rgba(255,107,0,0.2)] h-40 bg-black cursor-pointer active:scale-[0.98] transition-transform">
+                        <div class="relative w-full h-full">
+                            <img alt="" class="w-full h-full object-cover opacity-90">
+                        </div>
+                    </div>
+                </div>
+
                 <div id="modules-list" class="space-y-3"></div>
                 <div class="h-32 w-full shrink-0"></div>
             </div>
@@ -1687,7 +1689,7 @@
             <div class="mt-2 px-1">
                 <h4 class="text-[13px] text-white font-black mb-4 uppercase tracking-widest">Продолжить просмотр</h4>
                 <div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x">
-                    <div id="club-continue-watching-card" class="kino-continue-card active:scale-[0.98] transition-transform snap-start cursor-pointer">
+                    <div id="continue-watching-club" class="kino-continue-card active:scale-[0.98] transition-transform snap-start cursor-pointer">
                         <div class="relative"><img src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="kino-continue-img"><div class="absolute bottom-0 left-0 w-full h-1 bg-gray-800"><div class="bg-[#FF6B00] w-[75%] h-full shadow-[0_0_8px_#FF6B00]"></div></div></div>
                         <div class="mt-3"><h4 class="text-[13px] font-black italic text-white truncate">Жесткий дожим</h4><p class="text-[10px] text-gray-500 font-bold uppercase mt-1">Модуль 3</p></div>
                     </div>
@@ -3721,7 +3723,7 @@
                 lastData = raw ? JSON.parse(raw) : null;
             } catch (_) { lastData = null; }
             const container = document.getElementById('last-watched-container');
-            const acadCard = document.getElementById('continue-watching-card-academy');
+            const acadCard = document.getElementById('continue-watching-academy');
             if (!container) return;
             if (lastData) {
                 container.classList.remove('hidden-screen'); document.getElementById('last-watched-title').innerText = lastData.title;
@@ -3802,7 +3804,7 @@
                 if (!img) {
                     const holder = cardEl.querySelector('.relative') || cardEl;
                     img = document.createElement('img');
-                    img.className = (cardElementId === 'continue-watching-card-home')
+                    img.className = (cardElementId === 'continue-watching-academy')
                         ? 'w-full h-full object-cover opacity-90'
                         : 'kino-continue-img';
                     img.alt = '';
@@ -3810,22 +3812,8 @@
                 }
                 img.src = 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg';
 
-                const rawStop = row.stopped_at;
-                if (cardElementId === 'continue-watching-card-academy') {
-                    const container = document.getElementById('last-watched-container');
-                    if (container) container.classList.remove('hidden-screen');
-                    const titleEl = document.getElementById('last-watched-title');
-                    if (titleEl && (!titleEl.innerText || titleEl.innerText.trim() === 'Название урока')) titleEl.innerText = 'Продолжить просмотр';
-                    if (rawStop !== null && rawStop !== undefined && !Number.isNaN(Number(rawStop))) {
-                        const s = Math.floor(Number(rawStop));
-                        const m = Math.floor(s / 60);
-                        const rs = s % 60;
-                        const subEl = document.getElementById('last-watched-subtitle');
-                        if (subEl) subEl.innerText = 'Академия • Продолжить с ' + m + ':' + String(rs).padStart(2, '0');
-                    }
-                }
-                if (cardElementId === 'continue-watching-card-home') {
-                    const wrap = document.getElementById('home-continue-watching-wrap');
+                if (cardElementId === 'continue-watching-academy') {
+                    const wrap = document.getElementById('academy-continue-watching-wrap');
                     if (wrap) wrap.classList.remove('hidden-screen');
                 }
 
@@ -3873,6 +3861,8 @@
 
         function showAcademyMain() {
             loadLastWatchedLesson();
+            const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
+            if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-academy');
             document.getElementById('academy-modules-view').classList.add('hidden-screen');
             document.getElementById('academy-lessons-view').classList.add('hidden-screen'); document.getElementById('academy-main-view').classList.remove('hidden-screen');
             if (typeof window.unmountLessonPlayer === 'function') window.unmountLessonPlayer();
@@ -3890,9 +3880,16 @@
                     </div>`;
             });
             document.getElementById('academy-main-view').classList.add('hidden-screen'); document.getElementById('academy-modules-view').classList.remove('hidden-screen'); window.scrollTo({top: 0, behavior: 'smooth'});
+            const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
+            if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-academy');
         }
 
-        function showAcademyModules() { document.getElementById('academy-lessons-view').classList.add('hidden-screen'); document.getElementById('academy-modules-view').classList.remove('hidden-screen'); if (typeof window.unmountLessonPlayer === 'function') window.unmountLessonPlayer(); }
+        function showAcademyModules() {
+            document.getElementById('academy-lessons-view').classList.add('hidden-screen'); document.getElementById('academy-modules-view').classList.remove('hidden-screen');
+            if (typeof window.unmountLessonPlayer === 'function') window.unmountLessonPlayer();
+            const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
+            if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-academy');
+        }
 
         function openModule(courseId, moduleIndex) {
             currentActiveModule = currentActiveCourse.modules[moduleIndex];
@@ -4806,14 +4803,12 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
             if (id === 'education-screen') {
                 loadLastWatchedLesson();
-            }
-            if (id === 'home-screen') {
                 const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
-                if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-card-home');
+                if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-academy');
             }
             if (id === 'club-screen') {
                 const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
-                if (cwUid) void loadContinueWatchingWidget(cwUid, 'club-continue-watching-card');
+                if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-club');
             }
             if (id === 'rating-screen') { loadLeaderboard(window._lbCat || 'P4P'); startSeasonTimer(); }
             if (id === 'lootbox-screen') { loadTrophies(); }
