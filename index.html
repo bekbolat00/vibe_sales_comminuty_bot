@@ -1277,21 +1277,6 @@
                     <h2 class="text-3xl font-black italic uppercase tracking-tighter">← Академия</h2>
                 </div>
 
-                <div id="last-watched-container" class="hidden-screen space-y-4">
-                    <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2">Продолжить просмотр</h4>
-                    <div id="continue-watching-card-academy" class="bento-card !p-0 border-[#FF6B00]/40 overflow-hidden relative shadow-[0_15px_30px_-10px_rgba(255,107,0,0.2)] h-56 bg-black cursor-pointer active:scale-[0.98] transition-transform">
-                        <div id="last-watched-cover" class="absolute inset-0 w-full h-full">
-                            <img id="last-watched-img" src="https://images.unsplash.com/photo-1556761175-5973dc0f32d7?w=800" class="w-full h-full object-cover opacity-80">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-                            <div class="absolute inset-0 flex items-center justify-center"><div class="w-16 h-16 bg-[#FF6B00] backdrop-blur-md rounded-full flex items-center justify-center pl-1.5 shadow-[0_0_20px_#FF6B00]"><svg viewBox="0 0 24 24" fill="white" class="w-8 h-8"><path d="M8 5v14l11-7z"/></svg></div></div>
-                            <div class="absolute bottom-0 left-0 w-full p-5 pointer-events-none">
-                                <div id="last-watched-subtitle" class="text-[10px] text-[#FF6B00] font-black uppercase tracking-[0.2em] mb-1.5 drop-shadow-md">Курс • Модуль</div>
-                                <h3 id="last-watched-title" class="text-lg font-black italic text-white leading-tight mb-2 drop-shadow-lg truncate">Название урока</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="space-y-4 pt-2">
                     <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2">Все курсы</h4>
                     <div class="bento-card !p-0 border-white/10 overflow-hidden relative shadow-lg h-40 cursor-pointer active:scale-95 transition-transform" onclick="openCourse('sales_fun')">
@@ -3765,15 +3750,21 @@
             if (libBar) libBar.classList.add('hidden-screen');
             if (mainBar) mainBar.classList.remove('hidden-screen');
 
-            document.getElementById('academy-main-view').classList.add('hidden-screen');
-            document.getElementById('academy-modules-view').classList.add('hidden-screen');
-            document.getElementById('academy-lessons-view').classList.remove('hidden-screen');
+            const amv = document.getElementById('academy-main-view');
+            const amod = document.getElementById('academy-modules-view');
+            const alv = document.getElementById('academy-lessons-view');
+            if (amv) amv.classList.add('hidden-screen');
+            if (amod) amod.classList.add('hidden-screen');
+            if (alv) alv.classList.remove('hidden-screen');
 
             const lwTitle = document.getElementById('last-watched-title');
             const lwSub = document.getElementById('last-watched-subtitle');
-            document.getElementById('video-title').innerText = lwTitle ? lwTitle.innerText : 'Урок';
-            document.getElementById('video-subtitle').innerText = lwSub ? lwSub.innerText : 'Академия';
-            document.getElementById('lesson-desc-text').innerText = 'Продолжи просмотр с того места, где остановился.';
+            const videoTitleEl = document.getElementById('video-title');
+            const videoSubEl = document.getElementById('video-subtitle');
+            const lessonDescEl = document.getElementById('lesson-desc-text');
+            if (videoTitleEl) videoTitleEl.innerText = lwTitle ? lwTitle.innerText : 'Урок';
+            if (videoSubEl) videoSubEl.innerText = lwSub ? lwSub.innerText : 'Академия';
+            if (lessonDescEl) lessonDescEl.innerText = 'Продолжи просмотр с того места, где остановился.';
 
             const hwBlock = document.getElementById('homework-block');
             if (hwBlock) hwBlock.classList.add('hidden');
@@ -3882,8 +3873,6 @@
 
         function showAcademyMain() {
             loadLastWatchedLesson();
-            const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
-            if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-card-academy');
             document.getElementById('academy-modules-view').classList.add('hidden-screen');
             document.getElementById('academy-lessons-view').classList.add('hidden-screen'); document.getElementById('academy-main-view').classList.remove('hidden-screen');
             if (typeof window.unmountLessonPlayer === 'function') window.unmountLessonPlayer();
@@ -4817,8 +4806,6 @@
             window.scrollTo({top: 0, behavior: 'smooth'});
             if (id === 'education-screen') {
                 loadLastWatchedLesson();
-                const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
-                if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-card-academy');
             }
             if (id === 'home-screen') {
                 const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
