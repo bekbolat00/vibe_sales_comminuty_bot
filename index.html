@@ -1330,24 +1330,29 @@
                     <p id="lesson-desc-text" class="text-xs text-gray-300 leading-relaxed">Описание...</p>
                 </div>
 
-                <div id="homework-block" class="bento-card !p-0 bg-gradient-to-br from-[#111] to-[#050505] border-[#FF6B00]/30 shadow-[0_0_15px_rgba(255,107,0,0.1)] hidden overflow-hidden">
+                <div id="homework-section" class="bento-card !p-0 bg-gradient-to-br from-[#111] to-[#050505] border-[#FF6B00]/20 shadow-[0_0_20px_rgba(255,107,0,0.08)] hidden overflow-hidden rounded-xl">
+                    <div id="homework-block" class="contents"></div>
                     <div class="p-5 flex items-center justify-between cursor-pointer active:bg-white/5 transition-colors" onclick="toggleHomework()">
                         <div class="flex items-center gap-3">
-                            <h4 class="text-[10px] text-[#FF6B00] font-black uppercase tracking-widest block">Задание</h4>
+                            <h4 class="text-[10px] text-[#FF6B00] font-black uppercase tracking-[0.2em] italic">ЗАДАНИЕ К УРОКУ</h4>
                             <span id="task-status-badge" class="bg-white/10 text-gray-400 text-[8px] font-black px-2 py-1 rounded uppercase">Ожидает</span>
                         </div>
                         <div id="hw-chevron" class="text-[#FF6B00] text-lg transition-transform duration-300">▼</div>
                     </div>
-                    
+
                     <div id="homework-content" class="px-5 pb-5 hidden">
-                        <p id="homework-question" class="text-sm font-medium text-white mb-4">Вопрос или задание...</p>
-                        
+                        <p id="homework-question" class="text-sm font-medium text-white mb-4 leading-relaxed">Вопрос или задание...</p>
+
                         <div id="task-text-input" class="hidden">
                             <textarea id="hw-answer" rows="3" placeholder="Напиши свой ответ здесь..." class="w-full bg-[#000] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#FF6B00] transition-colors mb-4"></textarea>
                         </div>
 
                         <div id="task-test-input" class="hidden space-y-2 mb-4"></div>
 
+                        <a id="hw-submit-link" href="#" target="_blank" rel="noopener noreferrer"
+                           class="hidden w-full bg-gradient-to-r from-[#FF6B00] to-[#cc4400] text-white py-3.5 rounded-xl font-black uppercase text-[11px] active:scale-95 transition-all shadow-[0_0_20px_rgba(255,107,0,0.35)] text-center block mb-3 tracking-widest">
+                            ОТПРАВИТЬ ОТЧЕТ →
+                        </a>
                         <button id="hw-submit-btn" onclick="submitHomework()" class="w-full bg-white text-black py-3 rounded-xl font-black uppercase text-[11px] active:scale-95 transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)]">Сдать задание</button>
                     </div>
                 </div>
@@ -3716,6 +3721,205 @@
         let completedLessons = JSON.parse(localStorage.getItem('vibe_completed_lessons')) || [];
         let continueWatchingVideoId = null;
 
+        // ─── DB-driven lessons ────────────────────────────────────────────────
+
+        // Загружает ВСЕ уроки без фильтра по курсу — для плоской академии
+        async function fetchAcademyContent(targetContainerId = 'modules-list') {
+            const container = document.getElementById(targetContainerId);
+            if (!container) return;
+            container.innerHTML = '<div class="text-center py-10 text-gray-600 text-[10px] font-bold uppercase tracking-widest">Загрузка уроков...</div>';
+
+            try {
+                const { data: lessons, error } = await db
+                    .from('lessons')
+                    .select('*')
+                    .order('order_index', { ascending: true });
+
+                if (error || !lessons || lessons.length === 0) {
+                    container.innerHTML = '<div class="text-center py-10 text-gray-500 text-[10px] font-bold uppercase tracking-widest">Уроки появятся скоро</div>';
+                    return;
+                }
+
+                window.currentDBLessons = lessons;
+                window.currentDBLessonIndex = undefined;
+                container.innerHTML = '';
+
+                lessons.forEach((lesson, index) => {
+                    const isCompleted = completedLessons.includes(lesson.id);
+                    const icon = isCompleted ? '✅' : '▶️';
+                    const div = document.createElement('div');
+                    div.className = 'bento-card !p-4 bg-[#111] border-white/5 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform';
+                    div.innerHTML = `
+                        <div class="w-12 h-12 rounded-2xl bg-[#050505] border border-white/10 flex items-center justify-center text-lg shadow-md">${icon}</div>
+                        <div class="flex-1">
+                            <div class="text-[9px] text-gray-500 font-bold uppercase mb-1 tracking-widest">Урок ${index + 1}</div>
+                            <div class="text-sm font-black italic text-white leading-tight">${lesson.title}</div>
+                            ${lesson.homework_text ? '<div class="text-[8px] text-[#FF6B00] font-bold uppercase mt-1.5 tracking-widest">📋 Есть задание</div>' : ''}
+                        </div>
+                        <div class="text-[#FF6B00] text-2xl font-light">›</div>`;
+                    div.onclick = () => {
+                        document.getElementById('academy-modules-view')?.classList.add('hidden-screen');
+                        document.getElementById('academy-main-view')?.classList.add('hidden-screen');
+                        document.getElementById('academy-lessons-view')?.classList.remove('hidden-screen');
+                        openLessonFromDB(index);
+                    };
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                console.error('fetchAcademyContent:', e);
+                container.innerHTML = '<div class="text-center py-10 text-gray-500 text-[10px] font-bold uppercase tracking-widest">Ошибка загрузки</div>';
+            }
+        }
+
+        async function loadLessonsList(courseId) {
+            const modulesList = document.getElementById('modules-list');
+            if (!modulesList) return;
+            modulesList.innerHTML = '<div class="text-center py-10 text-gray-600 text-[10px] font-bold uppercase tracking-widest">Загрузка уроков...</div>';
+
+            try {
+                const { data: lessons, error } = await db
+                    .from('lessons')
+                    .select('*')
+                    .eq('course_id', courseId)
+                    .order('order_index', { ascending: true });
+
+                if (error || !lessons || lessons.length === 0) {
+                    renderHardcodedModules(courseId);
+                    return;
+                }
+
+                window.currentDBLessons = lessons;
+                window.currentDBLessonIndex = undefined;
+                modulesList.innerHTML = '';
+                lessons.forEach((lesson, index) => {
+                    const isCompleted = completedLessons.includes(lesson.id);
+                    const icon = isCompleted ? '✅' : '▶️';
+                    const div = document.createElement('div');
+                    div.className = 'bento-card !p-4 bg-[#111] border-white/5 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform';
+                    div.innerHTML = `
+                        <div class="w-12 h-12 rounded-2xl bg-[#050505] border border-white/10 flex items-center justify-center text-lg shadow-md">${icon}</div>
+                        <div class="flex-1">
+                            <div class="text-[9px] text-gray-500 font-bold uppercase mb-1 tracking-widest">Урок ${index + 1}</div>
+                            <div class="text-sm font-black italic text-white leading-tight">${lesson.title}</div>
+                        </div>
+                        <div class="text-[#FF6B00] text-2xl font-light">›</div>`;
+                    div.onclick = () => openLessonFromDB(index);
+                    modulesList.appendChild(div);
+                });
+            } catch (e) {
+                console.error('loadLessonsList:', e);
+                renderHardcodedModules(courseId);
+            }
+        }
+
+        function renderHardcodedModules(courseId) {
+            const modulesList = document.getElementById('modules-list');
+            if (!modulesList) return;
+            const course = academyData[courseId];
+            if (!course) {
+                modulesList.innerHTML = '<div class="text-center py-10 text-gray-500 text-[10px] font-bold uppercase tracking-widest">Уроки появятся скоро</div>';
+                return;
+            }
+            window.currentDBLessons = null;
+            modulesList.innerHTML = '';
+            course.modules.forEach((m, index) => {
+                modulesList.innerHTML += `
+                    <div class="bento-card !p-5 bg-[#0a0a0a] border-white/5 cursor-pointer active:scale-95 transition-transform flex justify-between items-center" onclick="openModule('${courseId}', ${index})">
+                        <div class="flex gap-4 items-center"><div class="text-3xl font-black italic text-gray-800">0${index + 1}</div><div><h4 class="text-[13px] font-black italic text-white uppercase leading-tight truncate">${m.title}</h4><p class="text-[9px] text-gray-500 font-bold uppercase mt-1 tracking-widest">${m.desc} • ${m.lessons.length} урока</p></div></div>
+                        <div class="text-[#FF6B00] text-2xl font-light">›</div>
+                    </div>`;
+            });
+        }
+
+        function openLessonFromDB(index) {
+            const lessons = window.currentDBLessons;
+            const lesson = lessons && lessons[index];
+            if (!lesson) return;
+
+            window.currentDBLessonIndex = index;
+            const uid = (currentUserData && currentUserData.tg_id != null) ? String(currentUserData.tg_id) : 'test_user_1';
+            const videoId = String(lesson.video_id || '').trim();
+
+            document.getElementById('academy-modules-view').classList.add('hidden-screen');
+            document.getElementById('academy-lessons-view').classList.remove('hidden-screen');
+
+            const videoTitleEl = document.getElementById('video-title');
+            const videoSubEl = document.getElementById('video-subtitle');
+            if (videoTitleEl) videoTitleEl.innerText = lesson.title;
+            if (videoSubEl) videoSubEl.innerText = `Урок ${index + 1}`;
+            const lessonDescEl = document.getElementById('lesson-desc-text');
+            if (lessonDescEl) lessonDescEl.innerText = '';
+
+            if (videoId) {
+                const playerEl = document.getElementById('lesson-player-root');
+                if (playerEl && typeof window.mountLessonPlayer === 'function') {
+                    window.mountLessonPlayer(playerEl, uid, videoId);
+                }
+            }
+
+            updateHomeworkBlock(lesson);
+
+            const btnPrev = document.getElementById('btn-prev-lesson');
+            const btnNext = document.getElementById('btn-next-lesson');
+            if (btnPrev) {
+                if (index === 0) { btnPrev.classList.add('opacity-30', 'pointer-events-none'); }
+                else { btnPrev.classList.remove('opacity-30', 'pointer-events-none'); btnPrev.onclick = () => openLessonFromDB(index - 1); }
+            }
+            if (btnNext) {
+                if (index >= lessons.length - 1) { btnNext.classList.add('opacity-30', 'pointer-events-none'); }
+                else { btnNext.classList.remove('opacity-30', 'pointer-events-none'); btnNext.onclick = () => openLessonFromDB(index + 1); }
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateHomeworkBlock(lesson) {
+            const hwBlock = document.getElementById('homework-section');
+            const hwQuestion = document.getElementById('homework-question');
+            const hwLinkBtn = document.getElementById('hw-submit-link');
+            const hwSubmitBtn = document.getElementById('hw-submit-btn');
+            const hwContent = document.getElementById('homework-content');
+            const hwChevron = document.getElementById('hw-chevron');
+            const textInput = document.getElementById('task-text-input');
+            const testInput = document.getElementById('task-test-input');
+            const badge = document.getElementById('task-status-badge');
+
+            if (!lesson || !lesson.homework_text) {
+                if (hwBlock) hwBlock.classList.add('hidden');
+                return;
+            }
+
+            if (hwBlock) hwBlock.classList.remove('hidden');
+            if (hwContent) hwContent.classList.add('hidden');
+            if (hwChevron) hwChevron.style.transform = 'rotate(0deg)';
+            if (hwQuestion) hwQuestion.innerText = lesson.homework_text;
+            if (textInput) textInput.classList.add('hidden');
+            if (testInput) testInput.classList.add('hidden');
+            if (hwSubmitBtn) hwSubmitBtn.classList.add('hidden');
+
+            if (hwLinkBtn) {
+                if (lesson.homework_url) {
+                    hwLinkBtn.href = lesson.homework_url;
+                    hwLinkBtn.classList.remove('hidden');
+                } else {
+                    hwLinkBtn.classList.add('hidden');
+                }
+            }
+
+            const isCompleted = completedLessons.includes(lesson.id);
+            if (badge) {
+                if (isCompleted) {
+                    badge.innerText = 'Выполнено';
+                    badge.className = 'bg-green-500/20 text-green-500 text-[8px] font-black px-2 py-1 rounded uppercase';
+                } else {
+                    badge.innerText = 'Требуется сдача';
+                    badge.className = 'bg-[#FF6B00]/20 text-[#FF6B00] text-[8px] font-black px-2 py-1 rounded uppercase';
+                }
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+
         function loadLastWatchedLesson() {
             let lastData = null;
             try {
@@ -3736,7 +3940,7 @@
             }
         }
 
-        function openContinueWatchingPortal(userId, videoId) {
+        async function openContinueWatchingPortal(userId, videoId) {
             const uid = userId || ((currentUserData && currentUserData.tg_id != null) ? String(currentUserData.tg_id) : 'test_user_1');
             const vid = String(videoId || '').trim();
             if (!vid) return;
@@ -3768,7 +3972,7 @@
             if (videoSubEl) videoSubEl.innerText = lwSub ? lwSub.innerText : 'Академия';
             if (lessonDescEl) lessonDescEl.innerText = 'Продолжи просмотр с того места, где остановился.';
 
-            const hwBlock = document.getElementById('homework-block');
+            const hwBlock = document.getElementById('homework-section');
             if (hwBlock) hwBlock.classList.add('hidden');
 
             const lessonPlayerEl = document.getElementById('lesson-player-root');
@@ -3776,6 +3980,20 @@
                 window.mountLessonPlayer(lessonPlayerEl, uid, vid);
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Подтягиваем данные урока из БД по video_id (задание и заголовок)
+            try {
+                const { data: lesson } = await db
+                    .from('lessons')
+                    .select('*')
+                    .eq('video_id', vid)
+                    .maybeSingle();
+                if (lesson) {
+                    if (videoTitleEl) videoTitleEl.innerText = lesson.title;
+                    if (videoSubEl) videoSubEl.innerText = lesson.course_id || 'Академия';
+                    updateHomeworkBlock(lesson);
+                }
+            } catch (e) { /* сеть / RLS */ }
         }
 
         async function loadContinueWatchingWidget(userId, cardElementId) {
@@ -3869,19 +4087,17 @@
         }
 
         function openCourse(courseId) {
-            if(!academyData[courseId]) { tg.showAlert('Курс в разработке!'); return; }
-            currentActiveCourse = academyData[courseId]; document.getElementById('course-title').innerText = currentActiveCourse.title;
-            const modulesList = document.getElementById('modules-list'); modulesList.innerHTML = '';
-            currentActiveCourse.modules.forEach((m, index) => {
-                modulesList.innerHTML += `
-                    <div class="bento-card !p-5 bg-[#0a0a0a] border-white/5 cursor-pointer active:scale-95 transition-transform flex justify-between items-center" onclick="openModule('${courseId}', ${index})">
-                        <div class="flex gap-4 items-center"><div class="text-3xl font-black italic text-gray-800">0${index + 1}</div><div><h4 class="text-[13px] font-black italic text-white uppercase leading-tight truncate">${m.title}</h4><p class="text-[9px] text-gray-500 font-bold uppercase mt-1 tracking-widest">${m.desc} • ${m.lessons.length} урока</p></div></div>
-                        <div class="text-[#FF6B00] text-2xl font-light">›</div>
-                    </div>`;
-            });
-            document.getElementById('academy-main-view').classList.add('hidden-screen'); document.getElementById('academy-modules-view').classList.remove('hidden-screen'); window.scrollTo({top: 0, behavior: 'smooth'});
+            window.currentActiveCourseId = courseId;
+            currentActiveCourse = academyData[courseId] || null;
+            const courseTitle = currentActiveCourse ? currentActiveCourse.title : courseId;
+            document.getElementById('course-title').innerText = courseTitle;
+            document.getElementById('module-title').innerText = courseTitle;
+            document.getElementById('academy-main-view').classList.add('hidden-screen');
+            document.getElementById('academy-modules-view').classList.remove('hidden-screen');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             const cwUid = currentUserData && currentUserData.tg_id != null ? String(currentUserData.tg_id) : null;
             if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-academy');
+            void loadLessonsList(courseId);
         }
 
         function showAcademyModules() {
@@ -3962,17 +4178,18 @@
                 }
             }
 
-            const hwBlock = document.getElementById('homework-block');
+            const hwBlock = document.getElementById('homework-section');
             const hwContent = document.getElementById('homework-content');
             const hwChevron = document.getElementById('hw-chevron');
             const textInput = document.getElementById('task-text-input');
             const testInput = document.getElementById('task-test-input');
             const submitBtn = document.getElementById('hw-submit-btn');
+            const hwLinkBtn = document.getElementById('hw-submit-link');
             const badge = document.getElementById('task-status-badge');
 
-            // Сворачиваем задание при переходе на новый урок
             hwContent.classList.add('hidden');
             hwChevron.style.transform = 'rotate(0deg)';
+            if (hwLinkBtn) hwLinkBtn.classList.add('hidden');
 
             if (!l.task) {
                 hwBlock.classList.add('hidden');
@@ -4025,8 +4242,13 @@
         }
 
         function navigateLesson(direction) {
-            let newIdx = currentLessonIdx + direction;
-            if (newIdx >= 0 && newIdx < currentActiveModule.lessons.length) { changeLesson(newIdx); }
+            if (window.currentDBLessons && window.currentDBLessonIndex !== undefined) {
+                const newIdx = window.currentDBLessonIndex + direction;
+                if (newIdx >= 0 && newIdx < window.currentDBLessons.length) { openLessonFromDB(newIdx); }
+            } else if (currentActiveModule) {
+                let newIdx = currentLessonIdx + direction;
+                if (newIdx >= 0 && newIdx < currentActiveModule.lessons.length) { changeLesson(newIdx); }
+            }
         }
 
         function selectTestOption(idx) {
