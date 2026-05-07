@@ -1291,9 +1291,20 @@
                 <div class="h-32 w-full shrink-0"></div>
             </div>
 
-            <div id="academy-modules-view" class="hidden-screen space-y-6 pt-2">
-                <div class="flex items-center gap-4 cursor-pointer active:opacity-60 transition-opacity" onclick="showAcademyMain()">
-                    <h2 class="text-2xl font-black italic uppercase tracking-tighter text-gray-500">← <span id="course-title" class="text-white">Курс</span></h2>
+            <div id="academy-modules-view" class="hidden-screen space-y-5 pt-2">
+                <!-- Breadcrumb: Академия → Курс -->
+                <div class="flex items-center gap-2 cursor-pointer active:opacity-60 transition-opacity" onclick="showAcademyMain()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    <div>
+                        <div class="text-[9px] text-gray-600 font-bold uppercase tracking-widest">Академия</div>
+                        <h2 class="text-xl font-black italic uppercase tracking-tighter leading-none"><span id="course-title" class="text-white">Курс</span></h2>
+                    </div>
+                </div>
+
+                <!-- Подзаголовок раздела -->
+                <div class="flex items-center justify-between px-1">
+                    <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Модули курса</h4>
+                    <div id="modules-count-badge" class="text-[9px] text-[#FF6B00] font-black uppercase tracking-widest"></div>
                 </div>
 
                 <div id="academy-continue-watching-wrap" class="hidden-screen space-y-2 px-1">
@@ -1310,9 +1321,14 @@
             </div>
 
         <div id="academy-lessons-view" class="hidden-screen space-y-6 pt-2 pb-32">
+            <!-- Breadcrumb: Курс → Модуль -->
             <div class="flex items-center justify-between cursor-pointer transition-opacity px-1">
-                <div class="flex items-center gap-4 active:opacity-60" onclick="showAcademyModules()">
-                    <h2 class="text-2xl font-black italic uppercase tracking-tighter text-gray-500">← <span id="module-title" class="text-white">Модуль</span></h2>
+                <div class="flex items-center gap-2 active:opacity-60" onclick="showAcademyModules()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    <div>
+                        <div class="text-[9px] text-gray-600 font-bold uppercase tracking-widest"><span id="breadcrumb-course-title">Курс</span></div>
+                        <h2 class="text-xl font-black italic uppercase tracking-tighter leading-none text-white"><span id="module-title">Модуль</span></h2>
+                    </div>
                 </div>
             </div>
             
@@ -3723,7 +3739,102 @@
 
         // ─── DB-driven lessons ────────────────────────────────────────────────
 
-        // Загружает ВСЕ уроки без фильтра по курсу — для плоской академии
+        // ─── Вспомогательная функция: рендер уроков в аккордеон-контейнере ───
+        function _renderModulesAccordion(lessons, container) {
+            window.currentDBLessons = lessons;
+            window.currentDBLessonIndex = undefined;
+            container.innerHTML = '';
+
+            // Группировка по module_name с сохранением порядка
+            const moduleMap = new Map();
+            lessons.forEach((lesson) => {
+                const key = lesson.module_name || 'Основной модуль';
+                if (!moduleMap.has(key)) moduleMap.set(key, []);
+                moduleMap.get(key).push(lesson);
+            });
+
+            let moduleIdx = 0;
+            for (const [modName, modLessons] of moduleMap) {
+                const completedCount = modLessons.filter(l => completedLessons.includes(l.id)).length;
+                const pct = Math.round((completedCount / modLessons.length) * 100);
+                const numLabel = String(moduleIdx + 1).padStart(2, '0');
+
+                const lessonsInnerHTML = modLessons.map((lesson) => {
+                    const globalIdx = lessons.indexOf(lesson);
+                    const isCompleted = completedLessons.includes(lesson.id);
+                    const icon = isCompleted
+                        ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" class="w-5 h-5"><polyline points="20 6 9 17 4 12"></polyline></svg>`
+                        : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#FF6B00" class="w-4 h-4"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`;
+                    return `
+                        <div class="flex items-center gap-3 p-3.5 rounded-2xl bg-[#111] border border-white/5 cursor-pointer active:scale-[0.98] transition-transform lesson-row"
+                             data-lesson-index="${globalIdx}" data-module-name="${modName}">
+                            <div class="w-9 h-9 rounded-xl bg-[#050505] border border-white/10 flex items-center justify-center shadow-md flex-shrink-0">${icon}</div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-[8px] text-gray-500 font-bold uppercase tracking-widest">Урок ${globalIdx + 1}</div>
+                                <div class="text-[13px] font-black italic text-white leading-tight truncate">${lesson.title}</div>
+                                ${lesson.homework_text ? '<div class="text-[8px] text-[#FF6B00] font-bold uppercase mt-1 tracking-widest">📋 Задание</div>' : ''}
+                            </div>
+                            <div class="text-[#FF6B00] text-xl font-light flex-shrink-0">›</div>
+                        </div>`;
+                }).join('');
+
+                const modEl = document.createElement('div');
+                modEl.className = 'space-y-2';
+                modEl.innerHTML = `
+                    <div class="bento-card !p-5 bg-[#0a0a0a] border-white/8 cursor-pointer active:scale-[0.98] transition-transform flex items-center gap-4 module-header select-none">
+                        <div class="text-3xl font-black italic text-gray-700 w-10 flex-shrink-0">${numLabel}</div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-[13px] font-black italic text-white uppercase leading-tight">${modName}</h4>
+                            <div class="text-[9px] text-gray-500 font-bold uppercase mt-1 tracking-widest">
+                                ${modLessons.length} урок${modLessons.length > 1 ? 'а' : ''} · ${pct}% пройдено
+                            </div>
+                            <div class="w-full bg-black/60 h-1 rounded-full mt-2.5 overflow-hidden">
+                                <div class="bg-[#FF6B00] h-full rounded-full shadow-[0_0_6px_#FF6B00] transition-all duration-700" style="width:${pct}%"></div>
+                            </div>
+                        </div>
+                        <svg class="module-chevron w-5 h-5 text-[#FF6B00] transition-transform duration-300 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#FF6B00" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </div>
+                    <div class="module-lessons space-y-2 pl-2 hidden">
+                        ${lessonsInnerHTML}
+                    </div>`;
+
+                const header = modEl.querySelector('.module-header');
+                const lessonListEl = modEl.querySelector('.module-lessons');
+                const chevron = modEl.querySelector('.module-chevron');
+
+                header.addEventListener('click', () => {
+                    const isOpen = !lessonListEl.classList.contains('hidden');
+                    container.querySelectorAll('.module-lessons').forEach(el => el.classList.add('hidden'));
+                    container.querySelectorAll('.module-chevron').forEach(el => el.style.transform = '');
+                    if (!isOpen) {
+                        lessonListEl.classList.remove('hidden');
+                        chevron.style.transform = 'rotate(90deg)';
+                    }
+                });
+
+                modEl.querySelectorAll('.lesson-row').forEach(row => {
+                    row.addEventListener('click', () => {
+                        const idx = parseInt(row.dataset.lessonIndex, 10);
+                        const mName = row.dataset.moduleName || '';
+                        const moduleTitleEl = document.getElementById('module-title');
+                        if (moduleTitleEl) moduleTitleEl.innerText = mName;
+                        document.getElementById('academy-modules-view')?.classList.add('hidden-screen');
+                        document.getElementById('academy-lessons-view')?.classList.remove('hidden-screen');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        openLessonFromDB(idx);
+                    });
+                });
+
+                container.appendChild(modEl);
+                moduleIdx++;
+            }
+
+            // Обновить бейдж с количеством модулей
+            const badge = document.getElementById('modules-count-badge');
+            if (badge) badge.innerText = moduleIdx > 0 ? `${moduleIdx} модул${moduleIdx === 1 ? 'ь' : moduleIdx < 5 ? 'я' : 'ей'}` : '';
+        }
+
+        // Загружает ВСЕ уроки без фильтра по курсу и группирует по модулям
         async function fetchAcademyContent(targetContainerId = 'modules-list') {
             const container = document.getElementById(targetContainerId);
             if (!container) return;
@@ -3740,41 +3851,18 @@
                     return;
                 }
 
-                window.currentDBLessons = lessons;
-                window.currentDBLessonIndex = undefined;
-                container.innerHTML = '';
-
-                lessons.forEach((lesson, index) => {
-                    const isCompleted = completedLessons.includes(lesson.id);
-                    const icon = isCompleted ? '✅' : '▶️';
-                    const div = document.createElement('div');
-                    div.className = 'bento-card !p-4 bg-[#111] border-white/5 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform';
-                    div.innerHTML = `
-                        <div class="w-12 h-12 rounded-2xl bg-[#050505] border border-white/10 flex items-center justify-center text-lg shadow-md">${icon}</div>
-                        <div class="flex-1">
-                            <div class="text-[9px] text-gray-500 font-bold uppercase mb-1 tracking-widest">Урок ${index + 1}</div>
-                            <div class="text-sm font-black italic text-white leading-tight">${lesson.title}</div>
-                            ${lesson.homework_text ? '<div class="text-[8px] text-[#FF6B00] font-bold uppercase mt-1.5 tracking-widest">📋 Есть задание</div>' : ''}
-                        </div>
-                        <div class="text-[#FF6B00] text-2xl font-light">›</div>`;
-                    div.onclick = () => {
-                        document.getElementById('academy-modules-view')?.classList.add('hidden-screen');
-                        document.getElementById('academy-main-view')?.classList.add('hidden-screen');
-                        document.getElementById('academy-lessons-view')?.classList.remove('hidden-screen');
-                        openLessonFromDB(index);
-                    };
-                    container.appendChild(div);
-                });
+                _renderModulesAccordion(lessons, container);
             } catch (e) {
                 console.error('fetchAcademyContent:', e);
                 container.innerHTML = '<div class="text-center py-10 text-gray-500 text-[10px] font-bold uppercase tracking-widest">Ошибка загрузки</div>';
             }
         }
 
+        // Загружает уроки курса и рендерит иерархию: Модули → Уроки (аккордеон)
         async function loadLessonsList(courseId) {
             const modulesList = document.getElementById('modules-list');
             if (!modulesList) return;
-            modulesList.innerHTML = '<div class="text-center py-10 text-gray-600 text-[10px] font-bold uppercase tracking-widest">Загрузка уроков...</div>';
+            modulesList.innerHTML = '<div class="text-center py-10 text-gray-600 text-[10px] font-bold uppercase tracking-widest">Загрузка модулей...</div>';
 
             try {
                 const { data: lessons, error } = await db
@@ -3788,24 +3876,7 @@
                     return;
                 }
 
-                window.currentDBLessons = lessons;
-                window.currentDBLessonIndex = undefined;
-                modulesList.innerHTML = '';
-                lessons.forEach((lesson, index) => {
-                    const isCompleted = completedLessons.includes(lesson.id);
-                    const icon = isCompleted ? '✅' : '▶️';
-                    const div = document.createElement('div');
-                    div.className = 'bento-card !p-4 bg-[#111] border-white/5 flex items-center gap-4 cursor-pointer active:scale-[0.98] transition-transform';
-                    div.innerHTML = `
-                        <div class="w-12 h-12 rounded-2xl bg-[#050505] border border-white/10 flex items-center justify-center text-lg shadow-md">${icon}</div>
-                        <div class="flex-1">
-                            <div class="text-[9px] text-gray-500 font-bold uppercase mb-1 tracking-widest">Урок ${index + 1}</div>
-                            <div class="text-sm font-black italic text-white leading-tight">${lesson.title}</div>
-                        </div>
-                        <div class="text-[#FF6B00] text-2xl font-light">›</div>`;
-                    div.onclick = () => openLessonFromDB(index);
-                    modulesList.appendChild(div);
-                });
+                _renderModulesAccordion(lessons, modulesList);
             } catch (e) {
                 console.error('loadLessonsList:', e);
                 renderHardcodedModules(courseId);
@@ -4090,8 +4161,10 @@
             window.currentActiveCourseId = courseId;
             currentActiveCourse = academyData[courseId] || null;
             const courseTitle = currentActiveCourse ? currentActiveCourse.title : courseId;
-            document.getElementById('course-title').innerText = courseTitle;
-            document.getElementById('module-title').innerText = courseTitle;
+            const courseTitleEl = document.getElementById('course-title');
+            const breadcrumbEl = document.getElementById('breadcrumb-course-title');
+            if (courseTitleEl) courseTitleEl.innerText = courseTitle;
+            if (breadcrumbEl) breadcrumbEl.innerText = courseTitle;
             document.getElementById('academy-main-view').classList.add('hidden-screen');
             document.getElementById('academy-modules-view').classList.remove('hidden-screen');
             window.scrollTo({ top: 0, behavior: 'smooth' });
