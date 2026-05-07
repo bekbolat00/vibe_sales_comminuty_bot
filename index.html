@@ -1271,7 +1271,7 @@
 
                 <div class="space-y-4 pt-2">
                     <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest ml-2">Все курсы</h4>
-                    <div class="bento-card !p-0 border-white/10 overflow-hidden relative shadow-lg h-40 cursor-pointer active:scale-95 transition-transform" onclick="openCourse('sales_fun')">
+                    <div class="bento-card !p-0 border-white/10 overflow-hidden relative shadow-lg h-40 cursor-pointer active:scale-95 transition-transform" onclick="openCourse('vibe_sales')">
                         <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800" class="absolute inset-0 w-full h-full object-cover opacity-50">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
                         <div class="absolute bottom-5 left-5 right-5">
@@ -4242,7 +4242,7 @@
         function openCourse(courseId) {
             currentActiveCourseId = courseId;
             window.currentActiveCourseId = courseId;
-            const courseTitles = { 'sales_fun': 'Продавай в кайф', 'iron_sales': 'Железный Отдел Продаж' };
+            const courseTitles = { 'vibe_sales': 'Продавай в кайф', 'iron_sales': 'Железный Отдел Продаж' };
             currentCourseName = courseTitles[courseId] || courseId;
             currentActiveCourse = { title: currentCourseName };
 
