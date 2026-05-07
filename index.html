@@ -1356,11 +1356,18 @@
             </div>
 
             <div class="px-2 !mt-4">
-                <div id="video-subtitle" class="text-[#FF6B00] text-xs font-bold tracking-wider uppercase mb-1">Урок</div>
                 <h3 id="video-title" class="text-white text-xl font-black leading-tight mb-4">Название</h3>
 
                 <div id="lesson-description-block" class="hidden px-1 mt-2">
-                    <p id="lesson-desc-text" class="text-gray-300 text-sm leading-relaxed"></p>
+                    <div class="relative">
+                        <p id="lesson-desc-text" class="text-gray-300 text-sm leading-relaxed transition-all duration-300"
+                           style="-webkit-box-orient: vertical; -webkit-line-clamp: 4; display: -webkit-box; overflow: hidden;"></p>
+                        <div id="lesson-desc-fade" class="hidden absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#0d0d0d] to-transparent pointer-events-none"></div>
+                    </div>
+                    <button id="lesson-read-more-btn" onclick="toggleLessonDesc()"
+                            class="hidden text-sm text-[#FF6B00] font-semibold mt-2 cursor-pointer bg-transparent border-none p-0 active:opacity-70 transition-opacity">
+                        Читать полностью...
+                    </button>
                 </div>
 
                 <div id="homework-section" class="bento-card !p-0 bg-gradient-to-br from-[#111] to-[#050505] border-[#FF6B00]/20 shadow-[0_0_20px_rgba(255,107,0,0.08)] hidden overflow-hidden rounded-xl mt-6">
@@ -3899,6 +3906,60 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // --- Описание урока: хелперы ---
+        let lessonDescExpanded = false;
+
+        function setLessonDescription(rawText) {
+            const block   = document.getElementById('lesson-description-block');
+            const textEl  = document.getElementById('lesson-desc-text');
+            const btn     = document.getElementById('lesson-read-more-btn');
+            const fadeEl  = document.getElementById('lesson-desc-fade');
+
+            // сброс состояния
+            lessonDescExpanded = false;
+            if (textEl) {
+                textEl.style.webkitLineClamp = '4';
+                textEl.style.overflow = 'hidden';
+                textEl.style.display = '-webkit-box';
+            }
+
+            if (rawText) {
+                const html = rawText.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+                if (textEl) textEl.innerHTML = html;
+                if (block)  block.classList.remove('hidden');
+
+                // проверяем обрезку после рендера
+                requestAnimationFrame(() => {
+                    if (!textEl || !btn || !fadeEl) return;
+                    const clamped = textEl.scrollHeight > textEl.clientHeight + 2;
+                    btn.classList.toggle('hidden', !clamped);
+                    fadeEl.classList.toggle('hidden', !clamped);
+                });
+            } else {
+                if (textEl) textEl.innerHTML = '';
+                if (block)  block.classList.add('hidden');
+                if (btn)    btn.classList.add('hidden');
+                if (fadeEl) fadeEl.classList.add('hidden');
+            }
+        }
+
+        function toggleLessonDesc() {
+            const textEl = document.getElementById('lesson-desc-text');
+            const btn    = document.getElementById('lesson-read-more-btn');
+            const fadeEl = document.getElementById('lesson-desc-fade');
+            lessonDescExpanded = !lessonDescExpanded;
+            if (lessonDescExpanded) {
+                if (textEl) { textEl.style.webkitLineClamp = 'unset'; textEl.style.overflow = 'visible'; textEl.style.display = 'block'; }
+                if (btn)    btn.textContent = 'Скрыть';
+                if (fadeEl) fadeEl.classList.add('hidden');
+            } else {
+                if (textEl) { textEl.style.webkitLineClamp = '4'; textEl.style.overflow = 'hidden'; textEl.style.display = '-webkit-box'; }
+                if (btn)    btn.textContent = 'Читать полностью...';
+                if (fadeEl) fadeEl.classList.remove('hidden');
+            }
+        }
+        // --------------------------------
+
         // Открывает плеер для конкретного урока
         function playLesson(lesson, lessonList, lessonIdx) {
             currentLesson = lesson;
@@ -3913,19 +3974,9 @@
             document.getElementById('academy-lessons-view')?.classList.remove('hidden-screen');
 
             const videoTitleEl = document.getElementById('video-title');
-            const videoSubEl = document.getElementById('video-subtitle');
             if (videoTitleEl) videoTitleEl.innerText = lesson.title;
-            if (videoSubEl) videoSubEl.innerText = `Урок ${currentLessonIndex + 1} · ${currentModuleName}`;
 
-            const lessonDescBlock = document.getElementById('lesson-description-block');
-            const lessonDescEl = document.getElementById('lesson-desc-text');
-            if (lesson.description) {
-                if (lessonDescEl) lessonDescEl.innerHTML = lesson.description.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
-                if (lessonDescBlock) lessonDescBlock.classList.remove('hidden');
-            } else {
-                if (lessonDescEl) lessonDescEl.innerHTML = '';
-                if (lessonDescBlock) lessonDescBlock.classList.add('hidden');
-            }
+            setLessonDescription(lesson.description);
 
             if (videoId && typeof window.mountLessonPlayer === 'function') {
                 const playerEl = document.getElementById('lesson-player-root');
@@ -4106,15 +4157,9 @@
             if (alv) alv.classList.remove('hidden-screen');
 
             const lwTitle = document.getElementById('last-watched-title');
-            const lwSub = document.getElementById('last-watched-subtitle');
             const videoTitleEl = document.getElementById('video-title');
-            const videoSubEl = document.getElementById('video-subtitle');
-            const lessonDescBlock = document.getElementById('lesson-description-block');
-            const lessonDescEl = document.getElementById('lesson-desc-text');
             if (videoTitleEl) videoTitleEl.innerText = lwTitle ? lwTitle.innerText : 'Урок';
-            if (videoSubEl) videoSubEl.innerText = lwSub ? lwSub.innerText : 'Академия';
-            if (lessonDescEl) lessonDescEl.innerHTML = '';
-            if (lessonDescBlock) lessonDescBlock.classList.add('hidden');
+            setLessonDescription(null);
 
             const hwBlock = document.getElementById('homework-section');
             if (hwBlock) hwBlock.classList.add('hidden');
@@ -4134,14 +4179,7 @@
                     .maybeSingle();
                 if (lesson) {
                     if (videoTitleEl) videoTitleEl.innerText = lesson.title;
-                    if (videoSubEl) videoSubEl.innerText = lesson.course_id || 'Академия';
-                    if (lesson.description) {
-                        if (lessonDescEl) lessonDescEl.innerHTML = lesson.description.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
-                        if (lessonDescBlock) lessonDescBlock.classList.remove('hidden');
-                    } else {
-                        if (lessonDescEl) lessonDescEl.innerHTML = '';
-                        if (lessonDescBlock) lessonDescBlock.classList.add('hidden');
-                    }
+                    setLessonDescription(lesson.description);
                     updateHomeworkBlock(lesson);
                 }
             } catch (e) { /* сеть / RLS */ }
