@@ -1341,9 +1341,8 @@
             </div>
 
             <div class="px-2 space-y-4">
-                <div class="bg-[#0a0a0a] p-4 rounded-xl border border-white/5">
-                    <h4 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2 block">ОПИСАНИЕ УРОКА</h4>
-                    <p id="lesson-desc-text" class="text-xs text-gray-300 leading-relaxed">Описание...</p>
+                <div id="lesson-description-block" class="hidden px-1">
+                    <p id="lesson-desc-text" class="text-sm text-gray-300 leading-relaxed"></p>
                 </div>
 
                 <div id="homework-section" class="bento-card !p-0 bg-gradient-to-br from-[#111] to-[#050505] border-[#FF6B00]/20 shadow-[0_0_20px_rgba(255,107,0,0.08)] hidden overflow-hidden rounded-xl">
@@ -3918,8 +3917,15 @@
             const videoSubEl = document.getElementById('video-subtitle');
             if (videoTitleEl) videoTitleEl.innerText = lesson.title;
             if (videoSubEl) videoSubEl.innerText = `Урок ${index + 1}`;
+            const lessonDescBlock = document.getElementById('lesson-description-block');
             const lessonDescEl = document.getElementById('lesson-desc-text');
-            if (lessonDescEl) lessonDescEl.innerText = '';
+            if (lesson.description) {
+                if (lessonDescEl) lessonDescEl.innerHTML = lesson.description.replace(/\n/g, '<br>');
+                if (lessonDescBlock) lessonDescBlock.classList.remove('hidden');
+            } else {
+                if (lessonDescEl) lessonDescEl.innerHTML = '';
+                if (lessonDescBlock) lessonDescBlock.classList.add('hidden');
+            }
 
             if (videoId) {
                 const playerEl = document.getElementById('lesson-player-root');
@@ -4038,10 +4044,12 @@
             const lwSub = document.getElementById('last-watched-subtitle');
             const videoTitleEl = document.getElementById('video-title');
             const videoSubEl = document.getElementById('video-subtitle');
+            const lessonDescBlock = document.getElementById('lesson-description-block');
             const lessonDescEl = document.getElementById('lesson-desc-text');
             if (videoTitleEl) videoTitleEl.innerText = lwTitle ? lwTitle.innerText : 'Урок';
             if (videoSubEl) videoSubEl.innerText = lwSub ? lwSub.innerText : 'Академия';
-            if (lessonDescEl) lessonDescEl.innerText = 'Продолжи просмотр с того места, где остановился.';
+            if (lessonDescEl) lessonDescEl.innerHTML = '';
+            if (lessonDescBlock) lessonDescBlock.classList.add('hidden');
 
             const hwBlock = document.getElementById('homework-section');
             if (hwBlock) hwBlock.classList.add('hidden');
@@ -4062,6 +4070,13 @@
                 if (lesson) {
                     if (videoTitleEl) videoTitleEl.innerText = lesson.title;
                     if (videoSubEl) videoSubEl.innerText = lesson.course_id || 'Академия';
+                    if (lesson.description) {
+                        if (lessonDescEl) lessonDescEl.innerHTML = lesson.description.replace(/\n/g, '<br>');
+                        if (lessonDescBlock) lessonDescBlock.classList.remove('hidden');
+                    } else {
+                        if (lessonDescEl) lessonDescEl.innerHTML = '';
+                        if (lessonDescBlock) lessonDescBlock.classList.add('hidden');
+                    }
                     updateHomeworkBlock(lesson);
                 }
             } catch (e) { /* сеть / RLS */ }
