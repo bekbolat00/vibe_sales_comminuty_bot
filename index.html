@@ -875,6 +875,109 @@
             animation: trophy-modal-in .35s cubic-bezier(0.2, 0.8, 0.3, 1.2);
         }
 
+        /* ===== 3D BELT CARD (loadAndRenderTrophies) ===== */
+        .belt-3d-card {
+            position: relative;
+            background: linear-gradient(145deg, #1a1008 0%, #0e0e0e 50%, #1a1008 100%);
+            border: 1px solid rgba(255, 107, 0, 0.35);
+            border-radius: 24px;
+            padding: 20px 18px 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            box-shadow:
+                0 0 0 1px rgba(255, 107, 0, 0.12),
+                0 8px 32px rgba(0, 0, 0, 0.7),
+                0 0 40px rgba(255, 107, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        .belt-3d-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(255, 150, 0, 0.12), transparent 60%);
+            pointer-events: none;
+        }
+        .belt-3d-card::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: conic-gradient(transparent 0deg, rgba(255,107,0,0.04) 60deg, transparent 120deg);
+            animation: belt-shimmer 6s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes belt-shimmer { to { transform: rotate(360deg); } }
+        .belt-3d-card:hover {
+            transform: perspective(1000px) rotateY(-6deg) rotateX(2deg) translateY(-2px);
+            box-shadow:
+                0 0 0 1px rgba(255, 107, 0, 0.4),
+                0 16px 48px rgba(0, 0, 0, 0.8),
+                0 0 60px rgba(255, 107, 0, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+        .belt-3d-card:active {
+            transform: perspective(1000px) rotateY(-3deg) rotateX(1deg) scale(0.97);
+        }
+        .belt-3d-icon {
+            font-size: 52px;
+            line-height: 1;
+            display: block;
+            filter: drop-shadow(0 0 18px rgba(255, 150, 0, 0.7)) drop-shadow(0 4px 8px rgba(0,0,0,0.6));
+            transform: translateZ(20px);
+            margin-bottom: 12px;
+        }
+        .belt-3d-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: linear-gradient(90deg, #FF6B00, #cc4400);
+            color: #000;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            padding: 3px 9px;
+            border-radius: 999px;
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            box-shadow: 0 0 12px rgba(255,107,0,0.5);
+        }
+        .belt-3d-title {
+            font-size: 13px;
+            font-weight: 900;
+            font-style: italic;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+        .belt-3d-sub {
+            font-size: 9px;
+            font-weight: 700;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+        .belt-3d-verified {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            background: rgba(255, 107, 0, 0.15);
+            border: 1px solid rgba(255, 107, 0, 0.4);
+            display: flex; align-items: center; justify-content: center;
+            position: absolute;
+            bottom: 16px; right: 16px;
+        }
+        .belt-3d-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 14px;
+        }
+
         /* ===== ЗОЛОТОЙ СТАНДАРТ (Arsenal Gold Standard) ===== */
         .gs-chip {
             padding: 9px 16px;
@@ -1628,7 +1731,7 @@
                     </div>
                 </div>
                 <div class="px-5 py-5 space-y-3 relative z-10">
-                    <div id="my-trophies-list">
+                    <div id="my-trophies-list-container">
                         <div class="trophy-empty">
                             <div class="trophy-empty-icon">🥇</div>
                             <div class="trophy-empty-title">Пока пусто</div>
@@ -2600,7 +2703,6 @@
                     updateUI(fighter);
                     checkUnreadNotifications(fighter.tg_id);
                     refreshEvolution(fighter.tg_id);
-                    checkDailyLogin(fighter.tg_id, fighter);
                 }
             } catch (e) { 
                 document.getElementById('loading-overlay').style.display = 'none'; 
@@ -2832,7 +2934,7 @@
                 if(headerInitial) headerInitial.innerText = initial;
             }
             fetchFollowerCounts();
-            loadAndRenderTrophies(fighter.tg_id, 'my-trophies-list', 'my-trophies-count');
+            loadAndRenderTrophies(fighter.tg_id, 'my-trophies-list-container', 'my-trophies-count');
 
             // Обновление Кассы
             if (document.getElementById('sales-current-val')) {
@@ -5853,7 +5955,7 @@
             scoreBarEl.style.width = '0%';
             avatarEl.src = '';
             avatarEl.style.display = 'none';
-            const pubTrophyEl = document.getElementById('public-trophies-list');
+            const pubTrophyEl = document.getElementById('public-trophies-list-container');
             const pubCountEl  = document.getElementById('public-trophies-count');
             if (pubTrophyEl) pubTrophyEl.innerHTML = '<div class="trophy-empty"><div class="trophy-empty-icon">🥇</div><div class="trophy-empty-title">Загрузка...</div></div>';
             if (pubCountEl)  pubCountEl.innerText = '0';
@@ -5910,7 +6012,7 @@
                     subscribeBtn.className = 'w-full bg-[#111] border border-[#FF6B00]/40 text-[#FF6B00] py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform shadow-[0_0_15px_rgba(255,107,0,0.1)]';
                 }
 
-                loadAndRenderTrophies(targetId, 'public-trophies-list', 'public-trophies-count');
+                loadAndRenderTrophies(targetId, 'public-trophies-list-container', 'public-trophies-count');
 
             } catch(e) { console.error('openGuestProfile error:', e); }
         }
@@ -6240,13 +6342,13 @@
         }
         window.loadTrophies = loadTrophies;
 
-        // ================= ЕДИНАЯ ФУНКЦИЯ: ПОЯСА (user_trophies) =================
+        // ================= ЕДИНАЯ ФУНКЦИЯ: 3D ПОЯСА (user_trophies) =================
         /**
          * Загружает чемпионские пояса из public.user_trophies для любого пользователя
-         * и рендерит их в указанный контейнер.
+         * и рендерит их в указанный контейнер в виде 3D-карточек.
          *
-         * @param {string|number} targetUserId  — tg_id целевого пользователя
-         * @param {string}        containerId   — id div-контейнера для карточек
+         * @param {string|number} targetUserId    — tg_id целевого пользователя
+         * @param {string}        containerId     — id div-контейнера для карточек
          * @param {string}        countContainerId — id элемента со счётчиком
          */
         async function loadAndRenderTrophies(targetUserId, containerId, countContainerId) {
@@ -6279,26 +6381,25 @@
                     return;
                 }
 
-                container.innerHTML = trophies.map(trophy => {
-                    const isP4P   = String(trophy.trophy_type || '').toLowerCase() === 'p4p';
-                    const icon    = isP4P ? '🏆' : '🥇';
-                    const label   = isP4P ? 'ЧЕМПИОН P4P' : 'ЧЕМПИОН VIBE';
-                    const month   = _escapeHtml(trophy.award_month || '');
+                const cardsHTML = trophies.map(trophy => {
+                    const isP4P = String(trophy.trophy_type || '').toLowerCase() === 'p4p';
+                    const icon  = isP4P ? '🏆' : '🥇';
+                    const label = isP4P ? 'ЧЕМПИОН P4P' : 'ЧЕМПИОН VIBE';
+                    const sub   = isP4P ? 'Абсолютный чемпион · VIBE SALES' : 'Чемпион лиги · VIBE SALES';
+                    const month = _escapeHtml(trophy.award_month || '');
                     return `
-                    <div class="flex items-center gap-4 bg-[#1A1A1A] border border-[#FF6B00]/30 rounded-2xl px-4 py-4 shadow-[0_0_18px_rgba(255,107,0,0.08)] active:scale-[0.98] transition-transform">
-                        <div class="text-4xl leading-none shrink-0" style="filter:drop-shadow(0 0 10px rgba(255,107,0,0.5))">${icon}</div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="text-[13px] font-black uppercase tracking-widest text-white">${label}</span>
-                                ${month ? `<span class="bg-[#FF6B00] text-black text-[10px] font-black px-2 py-0.5 rounded uppercase leading-none">${month}</span>` : ''}
-                            </div>
-                            <div class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-1">Чемпионский пояс · VIBE SALES</div>
-                        </div>
-                        <div class="shrink-0 w-7 h-7 rounded-full border border-[#FF6B00]/40 flex items-center justify-center">
-                            <svg viewBox="0 0 24 24" stroke="#FF6B00" stroke-width="2.5" fill="none" class="w-3.5 h-3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <div class="belt-3d-card">
+                        ${month ? `<span class="belt-3d-badge">${month}</span>` : ''}
+                        <span class="belt-3d-icon">${icon}</span>
+                        <div class="belt-3d-title">${label}</div>
+                        <div class="belt-3d-sub">${sub}</div>
+                        <div class="belt-3d-verified">
+                            <svg viewBox="0 0 24 24" stroke="#FF6B00" stroke-width="2.5" fill="none" style="width:12px;height:12px"><polyline points="20 6 9 17 4 12"/></svg>
                         </div>
                     </div>`;
                 }).join('');
+
+                container.innerHTML = `<div class="belt-3d-grid">${cardsHTML}</div>`;
 
             } catch(e) {
                 console.warn('loadAndRenderTrophies error:', e);
@@ -7241,7 +7342,7 @@
                     </div>
                 </div>
                 <div class="px-5 py-5 space-y-3 relative z-10">
-                    <div id="public-trophies-list">
+                    <div id="public-trophies-list-container">
                         <div class="trophy-empty">
                             <div class="trophy-empty-icon">🥇</div>
                             <div class="trophy-empty-title">Пока пусто</div>
@@ -7427,7 +7528,7 @@
                 <!-- Кружки рендерятся через JS -->
             </div>
 
-            <button class="daily-bonus-btn" onclick="claimDailyBonus()">ЗАБРАТЬ</button>
+            <button class="daily-bonus-btn" onclick="claimDailyBonus()">ПОЛУЧИТЬ</button>
         </div>
     </div>
 
