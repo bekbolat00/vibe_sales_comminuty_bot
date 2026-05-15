@@ -1704,7 +1704,7 @@
                     </div>
                 </div>
                 <div class="px-5 py-5 relative z-10">
-                    <div id="trophy-grid" class="trophy-grid">
+                    <div id="inventory-trophies-container" class="trophy-grid">
                         <div class="trophy-empty">
                             <div class="trophy-empty-icon">🥇</div>
                             <div class="trophy-empty-title">Пока пусто</div>
@@ -6246,11 +6246,12 @@
         }
 
         /**
-         * Загружает трофеи из public.inventory (type='trophy') для текущего
-         * пользователя и рендерит их в сетку #trophy-grid.
+         * Загружает трофеи из public.inventory (type='trophy') и public.user_trophies
+         * для текущего пользователя и рендерит их в сетку #inventory-trophies-container.
+         * Пояса P4P/VIBE отображаются как вращающиеся 3D-модели через <model-viewer>.
          */
         async function loadTrophies() {
-            const grid = document.getElementById('trophy-grid');
+            const grid = document.getElementById('inventory-trophies-container');
             const counterEl = document.getElementById('trophy-count');
             if (!grid) return;
 
@@ -6258,56 +6259,75 @@
                 return;
             }
 
+            const EMPTY_HTML = `
+                <div class="trophy-empty">
+                    <div class="trophy-empty-icon">🥇</div>
+                    <div class="trophy-empty-title">Пока пусто</div>
+                    <div class="trophy-empty-sub">Займи 1-е место в сезоне —<br>и пояс навсегда твой.</div>
+                </div>`;
+
             try {
-                const { data, error } = await db.from('inventory')
-                    .select('id, user_id, title, image_url, type, meta, awarded_at')
-                    .eq('user_id', currentUserData.tg_id)
-                    .eq('type', 'trophy')
-                    .order('awarded_at', { ascending: false });
+                const [inventoryRes, userTrophiesRes] = await Promise.all([
+                    db.from('inventory')
+                        .select('id, user_id, title, image_url, type, meta, awarded_at')
+                        .eq('user_id', currentUserData.tg_id)
+                        .eq('type', 'trophy')
+                        .order('awarded_at', { ascending: false }),
+                    db.from('user_trophies')
+                        .select('id, user_id, trophy_type, award_month')
+                        .eq('user_id', currentUserData.tg_id)
+                        .order('id', { ascending: false })
+                ]);
 
-                if (error) throw error;
+                if (inventoryRes.error) throw inventoryRes.error;
 
-                window._trophiesCache = Array.isArray(data) ? data : [];
+                window._trophiesCache = Array.isArray(inventoryRes.data) ? inventoryRes.data : [];
+                const userTrophies = Array.isArray(userTrophiesRes.data) ? userTrophiesRes.data : [];
 
-                // Генерация публичных ссылок на 3D-модели поясов из Supabase Storage
-                const p4pModelUrl = db.storage.from('assets').getPublicUrl('p4p_belt_3d.glb').data.publicUrl;
-                const vibeModelUrl = db.storage.from('assets').getPublicUrl('vibe_belt_3d.glb').data.publicUrl;
+                // Проверяем пояса через флаги пользователя ИЛИ через таблицу user_trophies
+                const hasP4P  = currentUserData.is_p4p_champion  || userTrophies.some(t => String(t.trophy_type || '').toLowerCase() === 'p4p');
+                const hasVibe = currentUserData.is_vibe_champion || userTrophies.some(t => String(t.trophy_type || '').toLowerCase() === 'vibe');
 
-                // Формируем список чемпионских карточек на основе флагов пользователя
                 const championCards = [];
-                if (currentUserData.is_p4p_champion) {
-                    championCards.push({ modelUrl: p4pModelUrl, label: 'ЧЕМПИОН P4P' });
+                if (hasP4P) {
+                    championCards.push({
+                        modelUrl: `${SB_URL}/storage/v1/object/public/assets/p4p_belt_3d.glb`,
+                        label: 'ЧЕМПИОН P4P',
+                        sub: 'Абсолютный чемпион'
+                    });
                 }
-                if (currentUserData.is_vibe_champion) {
-                    championCards.push({ modelUrl: vibeModelUrl, label: 'ЧЕМПИОН VIBE' });
+                if (hasVibe) {
+                    championCards.push({
+                        modelUrl: `${SB_URL}/storage/v1/object/public/assets/vibe_belt_3d.glb`,
+                        label: 'ЧЕМПИОН VIBE',
+                        sub: 'Чемпион лиги'
+                    });
                 }
 
                 const totalCount = window._trophiesCache.length + championCards.length;
                 if (counterEl) counterEl.innerText = totalCount;
 
                 if (totalCount === 0) {
-                    grid.innerHTML = `
-                        <div class="trophy-empty">
-                            <div class="trophy-empty-icon">🥇</div>
-                            <div class="trophy-empty-title">Пока пусто</div>
-                            <div class="trophy-empty-sub">Займи 1-е место в сезоне —<br>и пояс навсегда твой.</div>
-                        </div>`;
+                    grid.innerHTML = EMPTY_HTML;
                     return;
                 }
 
                 const championHTML = championCards.map(c => `
-                    <div class="bg-[#1A1A1A] rounded-2xl border border-[#FF6B00]/20 overflow-hidden flex flex-col" style="box-shadow: 0 0 18px rgba(255,107,0,0.08);">
+                    <div class="bg-[#1A1A1A] border border-[#FF6B00]/30 rounded-xl p-4 mb-4 flex flex-col items-center">
                         <model-viewer
                             src="${c.modelUrl}"
                             auto-rotate
+                            rotation-per-second="30deg"
                             camera-controls
                             disable-zoom
-                            ar-status="not-present"
-                            shadow-intensity="1"
-                            environment-image="neutral"
-                            style="width: 100%; height: 160px; background-color: transparent; outline: none;">
+                            style="width: 100%; height: 200px; background-color: transparent; outline: none;"
+                            exposure="1.2"
+                            shadow-intensity="1">
                         </model-viewer>
-                        <div class="text-center text-[10px] font-black tracking-widest uppercase text-[#FF6B00] py-2 px-2">${c.label}</div>
+                        <div class="mt-4 text-center">
+                            <div class="text-[#FF6B00] font-black italic uppercase text-xl leading-none">${c.label}</div>
+                            <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mt-1">${c.sub}</div>
+                        </div>
                     </div>`).join('');
 
                 const trophyHTML = window._trophiesCache.map(t => {
@@ -6331,12 +6351,7 @@
                 grid.innerHTML = championHTML + trophyHTML;
             } catch (e) {
                 console.warn('loadTrophies error:', e);
-                grid.innerHTML = `
-                    <div class="trophy-empty">
-                        <div class="trophy-empty-icon">🥇</div>
-                        <div class="trophy-empty-title">Пока пусто</div>
-                        <div class="trophy-empty-sub">Займи 1-е место в сезоне —<br>и пояс навсегда твой.</div>
-                    </div>`;
+                grid.innerHTML = EMPTY_HTML;
                 if (counterEl) counterEl.innerText = 0;
             }
         }
@@ -6382,24 +6397,30 @@
                 }
 
                 const cardsHTML = trophies.map(trophy => {
-                    const isP4P = String(trophy.trophy_type || '').toLowerCase() === 'p4p';
-                    const icon  = isP4P ? '🏆' : '🥇';
-                    const label = isP4P ? 'ЧЕМПИОН P4P' : 'ЧЕМПИОН VIBE';
-                    const sub   = isP4P ? 'Абсолютный чемпион · VIBE SALES' : 'Чемпион лиги · VIBE SALES';
-                    const month = _escapeHtml(trophy.award_month || '');
+                    const isP4P    = String(trophy.trophy_type || '').toLowerCase() === 'p4p';
+                    const label    = isP4P ? 'ЧЕМПИОН P4P' : 'ЧЕМПИОН VIBE';
+                    const sub      = isP4P ? 'Абсолютный чемпион' : 'Чемпион лиги';
+                    const modelUrl = `${SB_URL}/storage/v1/object/public/assets/${isP4P ? 'p4p' : 'vibe'}_belt_3d.glb`;
                     return `
-                    <div class="belt-3d-card">
-                        ${month ? `<span class="belt-3d-badge">${month}</span>` : ''}
-                        <span class="belt-3d-icon">${icon}</span>
-                        <div class="belt-3d-title">${label}</div>
-                        <div class="belt-3d-sub">${sub}</div>
-                        <div class="belt-3d-verified">
-                            <svg viewBox="0 0 24 24" stroke="#FF6B00" stroke-width="2.5" fill="none" style="width:12px;height:12px"><polyline points="20 6 9 17 4 12"/></svg>
+                    <div class="bg-[#1A1A1A] border border-[#FF6B00]/30 rounded-xl p-4 mb-4 flex flex-col items-center">
+                        <model-viewer
+                            src="${modelUrl}"
+                            auto-rotate
+                            rotation-per-second="30deg"
+                            camera-controls
+                            disable-zoom
+                            style="width: 100%; height: 200px; background-color: transparent; outline: none;"
+                            exposure="1.2"
+                            shadow-intensity="1">
+                        </model-viewer>
+                        <div class="mt-4 text-center">
+                            <div class="text-[#FF6B00] font-black italic uppercase text-xl leading-none">${label}</div>
+                            <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mt-1">${sub}</div>
                         </div>
                     </div>`;
                 }).join('');
 
-                container.innerHTML = `<div class="belt-3d-grid">${cardsHTML}</div>`;
+                container.innerHTML = cardsHTML;
 
             } catch(e) {
                 console.warn('loadAndRenderTrophies error:', e);
