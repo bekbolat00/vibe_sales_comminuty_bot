@@ -6342,66 +6342,71 @@
          * @param {string}        containerId     — id div-контейнера для карточек
          * @param {string}        countContainerId — id элемента со счётчиком
          */
-        async function loadAndRenderTrophies(targetUserId, containerId, countContainerId) {
-            const container = document.getElementById(containerId);
-            const countEl   = document.getElementById(countContainerId);
-            if (!container) return;
-
-            const EMPTY_HTML = `
-                <div class="trophy-empty">
-                    <div class="trophy-empty-icon">🥇</div>
-                    <div class="trophy-empty-title">Пока пусто</div>
-                    <div class="trophy-empty-sub">Стань чемпионом —<br>и пояс навсегда твой.</div>
-                </div>`;
-
+        async function loadAndRenderTrophies(targetUserId, listContainerId, countId) {
             try {
-                const { data, error } = await db
+                const container = document.getElementById(listContainerId);
+                const countEl = document.getElementById(countId);
+                if (!container) return;
+
+                // Принудительно переводим ID в строку, чтобы база не ругалась
+                const { data: trophies, error } = await db
                     .from('user_trophies')
-                    .select('id, user_id, trophy_type, award_month')
-                    .eq('user_id', targetUserId)
-                    .order('id', { ascending: false });
+                    .select('*')
+                    .eq('user_id', String(targetUserId))
+                    .order('created_at', { ascending: false });
 
                 if (error) throw error;
 
-                const trophies = Array.isArray(data) ? data : [];
-
-                if (countEl) countEl.innerText = trophies.length;
-
-                if (trophies.length === 0) {
-                    container.innerHTML = EMPTY_HTML;
+                // Если поясов нет — рисуем заглушку
+                if (!trophies || trophies.length === 0) {
+                    if (countEl) countEl.innerText = '0';
+                    container.innerHTML = `
+                        <div class="trophy-empty text-center p-6 border border-white/5 rounded-xl bg-white/[0.02]">
+                            <div class="text-4xl mb-2 opacity-50">🥇</div>
+                            <div class="text-white font-black uppercase tracking-wider text-sm mb-1">Пока пусто</div>
+                            <div class="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Займи 1-е место в сезоне —<br>и пояс навсегда твой.</div>
+                        </div>
+                    `;
                     return;
                 }
 
-                const cardsHTML = trophies.map(trophy => {
-                    const isP4P    = String(trophy.trophy_type || '').toLowerCase() === 'p4p';
-                    const label    = isP4P ? 'ЧЕМПИОН P4P' : 'ЧЕМПИОН VIBE';
-                    const sub      = isP4P ? 'Абсолютный чемпион' : 'Чемпион лиги';
-                    const modelUrl = `${SB_URL}/storage/v1/object/public/assets/${isP4P ? 'p4p' : 'vibe'}_belt_3d.glb`;
-                    return `
-                    <div class="bg-[#1A1A1A] border border-[#FF6B00]/30 rounded-xl p-4 mb-4 flex flex-col items-center">
-                        <model-viewer
-                            src="${modelUrl}"
-                            auto-rotate
-                            rotation-per-second="30deg"
-                            camera-controls
-                            disable-zoom
-                            style="width: 100%; height: 200px; background-color: transparent; outline: none;"
-                            exposure="1.2"
-                            shadow-intensity="1">
-                        </model-viewer>
-                        <div class="mt-4 text-center">
-                            <div class="text-[#FF6B00] font-black italic uppercase text-xl leading-none">${label}</div>
-                            <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mt-1">${sub}</div>
+                // Если пояса есть — обновляем счетчик и рисуем 3D-карточки
+                if (countEl) countEl.innerText = trophies.length;
+
+                let html = '';
+                trophies.forEach(t => {
+                    const isP4P = t.trophy_type === 'p4p';
+                    const title = isP4P ? 'ЧЕМПИОН P4P' : 'ЧЕМПИОН VIBE';
+                    const imgUrl = isP4P
+                        ? 'https://cdn3d.iconscout.com/3d/premium/thumb/champion-belt-4992683-4159654.png'
+                        : 'https://cdn3d.iconscout.com/3d/premium/thumb/champion-belt-4992683-4159654.png';
+
+                    html += `
+                    <div class="relative overflow-hidden bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#FF6B00]/40 rounded-2xl p-5 mb-4 shadow-[0_10px_40px_rgba(255,107,0,0.15)] transform transition-transform hover:scale-[1.02]">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-[#FF6B00] opacity-10 blur-[50px] rounded-full pointer-events-none"></div>
+
+                        <div class="flex justify-center mb-4 drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)]">
+                            <img src="${imgUrl}" alt="Belt" class="h-24 object-contain">
                         </div>
-                    </div>`;
-                }).join('');
 
-                container.innerHTML = cardsHTML;
+                        <div class="text-center relative z-10">
+                            <div class="inline-block bg-[#FF6B00] text-black text-[10px] font-black px-3 py-1 rounded-sm uppercase tracking-widest mb-2 shadow-[0_0_10px_rgba(255,107,0,0.5)]">
+                                ${t.award_month}
+                            </div>
+                            <div class="text-white font-black italic uppercase text-xl leading-none drop-shadow-md">
+                                ${title}
+                            </div>
+                            <div class="text-gray-400 text-[9px] font-bold uppercase tracking-[0.2em] mt-2">
+                                Абсолютный чемпион
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                });
 
-            } catch(e) {
-                console.warn('loadAndRenderTrophies error:', e);
-                container.innerHTML = EMPTY_HTML;
-                if (countEl) countEl.innerText = 0;
+                container.innerHTML = html;
+            } catch (err) {
+                console.error('Ошибка загрузки трофеев:', err);
             }
         }
         window.loadAndRenderTrophies = loadAndRenderTrophies;
