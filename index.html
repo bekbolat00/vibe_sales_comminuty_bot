@@ -46,6 +46,87 @@
         #loading-overlay { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s; }
         .spinner { border: 4px solid rgba(255, 107, 0, 0.1); border-left-color: #FF6B00; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        /* ===== DAILY LOGIN BONUS MODAL ===== */
+        #daily-bonus-modal {
+            position: fixed; inset: 0; z-index: 10000;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+        #daily-bonus-modal.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .daily-bonus-card {
+            background: #1A1A1A;
+            border: 1.5px solid #FF6B00;
+            box-shadow: 0 0 40px rgba(255, 107, 0, 0.35), 0 0 80px rgba(255, 107, 0, 0.1), inset 0 0 30px rgba(255, 107, 0, 0.04);
+            border-radius: 32px;
+            padding: 32px 24px 28px;
+            width: 100%;
+            max-width: 340px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .daily-bonus-card::before {
+            content: '';
+            position: absolute;
+            top: -60px; left: 50%;
+            transform: translateX(-50%);
+            width: 220px; height: 180px;
+            background: radial-gradient(ellipse at center, rgba(255, 107, 0, 0.25), transparent 70%);
+            pointer-events: none;
+        }
+        .daily-bonus-emoji { font-size: 64px; line-height: 1; display: block; filter: drop-shadow(0 0 18px rgba(255,150,0,0.6)); animation: flamePulse 1.8s ease-in-out infinite; }
+        @keyframes flamePulse { 0%, 100% { transform: scale(1) rotate(-3deg); } 50% { transform: scale(1.1) rotate(3deg); } }
+        .daily-bonus-title { font-size: 18px; font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; margin-top: 14px; line-height: 1.2; }
+        .daily-bonus-subtitle { font-size: 11px; color: #aaa; font-weight: 700; margin-top: 8px; line-height: 1.6; }
+        .daily-bonus-pts { font-size: 28px; font-weight: 900; font-style: italic; color: #FFD700; text-shadow: 0 0 20px rgba(255, 215, 0, 0.5); margin: 10px 0 4px; letter-spacing: -0.5px; }
+        .streak-dots { display: flex; gap: 8px; justify-content: center; margin: 20px 0; }
+        .streak-dot {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 900; font-style: italic;
+            border: 1.5px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: #444;
+            transition: all 0.3s ease;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .streak-dot.done {
+            background: rgba(255,107,0,0.12);
+            border-color: rgba(255,107,0,0.4);
+            color: #FF6B00;
+        }
+        .streak-dot.current {
+            background: linear-gradient(135deg, #FF6B00, #cc4400);
+            border-color: #FF6B00;
+            color: #fff;
+            box-shadow: 0 0 16px rgba(255,107,0,0.6), 0 0 4px rgba(255,107,0,0.8);
+            animation: dotPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes dotPulse { 0%, 100% { box-shadow: 0 0 16px rgba(255,107,0,0.6), 0 0 4px rgba(255,107,0,0.8); } 50% { box-shadow: 0 0 28px rgba(255,107,0,0.9), 0 0 8px rgba(255,107,0,1); } }
+        .streak-label { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: #555; margin-bottom: 16px; }
+        .daily-bonus-btn {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, #FF6B00, #cc4400);
+            color: #fff;
+            font-size: 14px; font-weight: 900; font-style: italic;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            border: none; border-radius: 18px; cursor: pointer;
+            box-shadow: 0 0 24px rgba(255,107,0,0.5);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            margin-top: 8px;
+        }
+        .daily-bonus-btn:active { transform: scale(0.96); box-shadow: 0 0 12px rgba(255,107,0,0.3); }
+
         /* ===== PREMIUM LEADERBOARD ===== */
         .league-tab { padding: 9px 18px; border-radius: 14px; font-size: 11px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); color: #777; flex-shrink: 0; transition: all 0.25s cubic-bezier(.4,0,.2,1); cursor: pointer; white-space: nowrap; font-family: 'Montserrat', sans-serif; }
         .league-tab:active { transform: scale(0.96); }
@@ -2495,12 +2576,95 @@
                     updateUI(fighter);
                     checkUnreadNotifications(fighter.tg_id);
                     refreshEvolution(fighter.tg_id);
+                    checkDailyLogin(fighter.tg_id, fighter);
                 }
             } catch (e) { 
                 document.getElementById('loading-overlay').style.display = 'none'; 
                 document.getElementById('paywall-screen').classList.remove('hidden-screen');
             }
         }
+
+        // ─── Daily Login Bonus ───────────────────────────────────────────────────
+        async function checkDailyLogin(userId, userData) {
+            try {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayStr = today.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+                const lastLoginStr = userData.last_login_date; // "YYYY-MM-DD" or null
+
+                // Already claimed today — skip silently
+                if (lastLoginStr === todayStr) return;
+
+                let newStreak = 1;
+                if (lastLoginStr) {
+                    const lastLogin = new Date(lastLoginStr);
+                    lastLogin.setHours(0, 0, 0, 0);
+                    const diffDays = Math.round((today - lastLogin) / (1000 * 60 * 60 * 24));
+                    if (diffDays === 1) {
+                        newStreak = (userData.login_streak || 0) + 1;
+                    }
+                    // diffDays > 1 → streak resets to 1 (already set above)
+                }
+
+                // Persist to Supabase
+                const newXpBalance = (userData.xp_balance || 0) + 10;
+                const { error } = await db.from('users').update({
+                    last_login_date: todayStr,
+                    login_streak: newStreak,
+                    xp_balance: newXpBalance,
+                }).eq('tg_id', userId);
+
+                if (error) { console.error('[dailyLogin]', error); return; }
+
+                // Update local cache
+                currentUserData.last_login_date = todayStr;
+                currentUserData.login_streak = newStreak;
+                currentUserData.xp_balance = newXpBalance;
+
+                // Render streak dots (7-dot cycle)
+                const dotSlot = ((newStreak - 1) % 7) + 1; // position 1–7
+                const dotsContainer = document.getElementById('daily-bonus-dots');
+                dotsContainer.innerHTML = '';
+                for (let i = 1; i <= 7; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'streak-dot';
+                    if (i < dotSlot) {
+                        dot.classList.add('done');
+                        dot.textContent = '✓';
+                    } else if (i === dotSlot) {
+                        dot.classList.add('current');
+                        dot.textContent = '🔥';
+                    } else {
+                        dot.textContent = i;
+                    }
+                    dotsContainer.appendChild(dot);
+                }
+
+                // Update labels
+                document.getElementById('daily-bonus-streak-label').textContent =
+                    `Стрик: ${newStreak} ${pluralDays(newStreak)}`;
+                document.getElementById('daily-bonus-pts-label').textContent = '+10 PTS';
+
+                // Show modal
+                const modal = document.getElementById('daily-bonus-modal');
+                modal.classList.add('visible');
+            } catch (e) { console.error('[checkDailyLogin]', e); }
+        }
+
+        function claimDailyBonus() {
+            document.getElementById('daily-bonus-modal').classList.remove('visible');
+            // Refresh PTS display across all elements
+            if (currentUserData) updateUI(currentUserData);
+        }
+
+        function pluralDays(n) {
+            const mod10 = n % 10, mod100 = n % 100;
+            if (mod10 === 1 && mod100 !== 11) return 'день';
+            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return 'дня';
+            return 'дней';
+        }
+        // ─────────────────────────────────────────────────────────────────────────
 
         async function registerUser(role) {
             try {
@@ -5958,7 +6122,6 @@
             if (!grid) return;
 
             if (!currentUserData || !currentUserData.tg_id) {
-                // Не авторизован / ещё загружается — оставляем placeholder.
                 return;
             }
 
@@ -5972,9 +6135,24 @@
                 if (error) throw error;
 
                 window._trophiesCache = Array.isArray(data) ? data : [];
-                if (counterEl) counterEl.innerText = window._trophiesCache.length;
 
-                if (window._trophiesCache.length === 0) {
+                // Генерация публичных ссылок на 3D-модели поясов из Supabase Storage
+                const p4pModelUrl = db.storage.from('assets').getPublicUrl('p4p_belt_3d.glb').data.publicUrl;
+                const vibeModelUrl = db.storage.from('assets').getPublicUrl('vibe_belt_3d.glb').data.publicUrl;
+
+                // Формируем список чемпионских карточек на основе флагов пользователя
+                const championCards = [];
+                if (currentUserData.is_p4p_champion) {
+                    championCards.push({ modelUrl: p4pModelUrl, label: 'ЧЕМПИОН P4P' });
+                }
+                if (currentUserData.is_vibe_champion) {
+                    championCards.push({ modelUrl: vibeModelUrl, label: 'ЧЕМПИОН VIBE' });
+                }
+
+                const totalCount = window._trophiesCache.length + championCards.length;
+                if (counterEl) counterEl.innerText = totalCount;
+
+                if (totalCount === 0) {
                     grid.innerHTML = `
                         <div class="trophy-empty">
                             <div class="trophy-empty-icon">🥇</div>
@@ -5984,7 +6162,22 @@
                     return;
                 }
 
-                grid.innerHTML = window._trophiesCache.map(t => {
+                const championHTML = championCards.map(c => `
+                    <div class="bg-[#1A1A1A] rounded-2xl border border-[#FF6B00]/20 overflow-hidden flex flex-col" style="box-shadow: 0 0 18px rgba(255,107,0,0.08);">
+                        <model-viewer
+                            src="${c.modelUrl}"
+                            auto-rotate
+                            camera-controls
+                            disable-zoom
+                            ar-status="not-present"
+                            shadow-intensity="1"
+                            environment-image="neutral"
+                            style="width: 100%; height: 160px; background-color: transparent; outline: none;">
+                        </model-viewer>
+                        <div class="text-center text-[10px] font-black tracking-widest uppercase text-[#FF6B00] py-2 px-2">${c.label}</div>
+                    </div>`).join('');
+
+                const trophyHTML = window._trophiesCache.map(t => {
                     const meta = t.meta || {};
                     const rarity = _trophyRarityLabel(meta);
                     const season = _trophySeasonLabel(meta, t.awarded_at);
@@ -6001,9 +6194,10 @@
                             <div class="trophy-card-date">${_escapeHtml(season)}</div>
                         </div>`;
                 }).join('');
+
+                grid.innerHTML = championHTML + trophyHTML;
             } catch (e) {
                 console.warn('loadTrophies error:', e);
-                // Если таблицы ещё нет — показываем дружелюбный empty state.
                 grid.innerHTML = `
                     <div class="trophy-empty">
                         <div class="trophy-empty-icon">🥇</div>
@@ -7092,6 +7286,26 @@
         </div>
     </div>
 </div>
+
+    <!-- ===== DAILY LOGIN BONUS MODAL ===== -->
+    <div id="daily-bonus-modal">
+        <div class="daily-bonus-card">
+            <span class="daily-bonus-emoji">🔥</span>
+
+            <div class="daily-bonus-title">С возвращением,<br>легенда!</div>
+
+            <div class="daily-bonus-pts" id="daily-bonus-pts-label">+10 PTS</div>
+            <div class="daily-bonus-subtitle">Заходи каждый день,<br>чтобы не потерять стрик!</div>
+
+            <div class="streak-label" id="daily-bonus-streak-label">Стрик: 1 день</div>
+
+            <div class="streak-dots" id="daily-bonus-dots">
+                <!-- Кружки рендерятся через JS -->
+            </div>
+
+            <button class="daily-bonus-btn" onclick="claimDailyBonus()">ЗАБРАТЬ</button>
+        </div>
+    </div>
 
 </body>
 </html>
