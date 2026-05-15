@@ -2910,7 +2910,6 @@
                 if(headerInitial) headerInitial.innerText = initial;
             }
             fetchFollowerCounts();
-            loadAndRenderTrophies(fighter.tg_id, 'my-trophies-list-container', 'my-trophies-count');
 
             // Обновление Кассы
             if (document.getElementById('sales-current-val')) {
@@ -2941,6 +2940,7 @@
             if (xpEl) xpEl.innerText = fighter.xp || 0;
 
             updateSalesUI();
+            setTimeout(() => { loadAndRenderTrophies(fighter.tg_id, 'my-trophies-list-container', 'my-trophies-count'); }, 100);
         }
 
         let booksDB = {}; 
