@@ -1614,7 +1614,31 @@
             <div class="h-32 w-full shrink-0"></div>
         </div>
 
-        <!-- ── ПОЛНОЭКРАННАЯ КАРТОЧКА ТРОФЕЯ (3D) ── -->
+            <!-- ── ЧЕМПИОНСКИЕ ПОЯСА (user_trophies) ── -->
+            <div class="bento-card !p-0 border-[#FF6B00]/30 overflow-hidden relative bg-[#050505] shadow-[0_0_24px_rgba(255,107,0,0.08)]">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,rgba(255,107,0,0.10),transparent_60%)] pointer-events-none"></div>
+                <div class="px-5 pt-5 pb-3 flex justify-between items-center relative z-10 border-b border-white/5">
+                    <div>
+                        <h3 class="text-[12px] text-white font-black uppercase tracking-[0.22em] leading-none">🥇 Чемпионские пояса</h3>
+                        <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-1">Вечные победы · VIBE Sales</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[9px] text-gray-500 font-bold uppercase tracking-widest leading-none">Поясов</div>
+                        <div id="my-trophies-count" class="text-[18px] text-[#FF6B00] font-black italic leading-none mt-1 drop-shadow-[0_0_10px_rgba(255,107,0,0.4)]">0</div>
+                    </div>
+                </div>
+                <div class="px-5 py-5 space-y-3 relative z-10">
+                    <div id="my-trophies-list">
+                        <div class="trophy-empty">
+                            <div class="trophy-empty-icon">🥇</div>
+                            <div class="trophy-empty-title">Пока пусто</div>
+                            <div class="trophy-empty-sub">Стань чемпионом —<br>и пояс навсегда твой.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── ПОЛНОЭКРАННАЯ КАРТОЧКА ТРОФЕЯ (3D) ── -->
         <div id="trophy-detail-modal" class="hidden-screen">
             <div class="trophy-detail-close" onclick="closeTrophyDetail()" aria-label="Закрыть">×</div>
             <div class="trophy-3d-wrap">
@@ -2808,6 +2832,7 @@
                 if(headerInitial) headerInitial.innerText = initial;
             }
             fetchFollowerCounts();
+            loadAndRenderTrophies(fighter.tg_id, 'my-trophies-list', 'my-trophies-count');
 
             // Обновление Кассы
             if (document.getElementById('sales-current-val')) {
@@ -5828,6 +5853,10 @@
             scoreBarEl.style.width = '0%';
             avatarEl.src = '';
             avatarEl.style.display = 'none';
+            const pubTrophyEl = document.getElementById('public-trophies-list');
+            const pubCountEl  = document.getElementById('public-trophies-count');
+            if (pubTrophyEl) pubTrophyEl.innerHTML = '<div class="trophy-empty"><div class="trophy-empty-icon">🥇</div><div class="trophy-empty-title">Загрузка...</div></div>';
+            if (pubCountEl)  pubCountEl.innerText = '0';
 
             try {
                 const { data: u } = await db.from('users').select('*').eq('tg_id', targetId).single();
@@ -5880,6 +5909,8 @@
                     subscribeBtn.innerText = 'Подписаться';
                     subscribeBtn.className = 'w-full bg-[#111] border border-[#FF6B00]/40 text-[#FF6B00] py-3.5 rounded-xl text-[11px] font-black uppercase tracking-widest active:scale-95 transition-transform shadow-[0_0_15px_rgba(255,107,0,0.1)]';
                 }
+
+                loadAndRenderTrophies(targetId, 'public-trophies-list', 'public-trophies-count');
 
             } catch(e) { console.error('openGuestProfile error:', e); }
         }
@@ -6208,6 +6239,74 @@
             }
         }
         window.loadTrophies = loadTrophies;
+
+        // ================= ЕДИНАЯ ФУНКЦИЯ: ПОЯСА (user_trophies) =================
+        /**
+         * Загружает чемпионские пояса из public.user_trophies для любого пользователя
+         * и рендерит их в указанный контейнер.
+         *
+         * @param {string|number} targetUserId  — tg_id целевого пользователя
+         * @param {string}        containerId   — id div-контейнера для карточек
+         * @param {string}        countContainerId — id элемента со счётчиком
+         */
+        async function loadAndRenderTrophies(targetUserId, containerId, countContainerId) {
+            const container = document.getElementById(containerId);
+            const countEl   = document.getElementById(countContainerId);
+            if (!container) return;
+
+            const EMPTY_HTML = `
+                <div class="trophy-empty">
+                    <div class="trophy-empty-icon">🥇</div>
+                    <div class="trophy-empty-title">Пока пусто</div>
+                    <div class="trophy-empty-sub">Стань чемпионом —<br>и пояс навсегда твой.</div>
+                </div>`;
+
+            try {
+                const { data, error } = await db
+                    .from('user_trophies')
+                    .select('id, user_id, trophy_type, award_month')
+                    .eq('user_id', targetUserId)
+                    .order('id', { ascending: false });
+
+                if (error) throw error;
+
+                const trophies = Array.isArray(data) ? data : [];
+
+                if (countEl) countEl.innerText = trophies.length;
+
+                if (trophies.length === 0) {
+                    container.innerHTML = EMPTY_HTML;
+                    return;
+                }
+
+                container.innerHTML = trophies.map(trophy => {
+                    const isP4P   = String(trophy.trophy_type || '').toLowerCase() === 'p4p';
+                    const icon    = isP4P ? '🏆' : '🥇';
+                    const label   = isP4P ? 'ЧЕМПИОН P4P' : 'ЧЕМПИОН VIBE';
+                    const month   = _escapeHtml(trophy.award_month || '');
+                    return `
+                    <div class="flex items-center gap-4 bg-[#1A1A1A] border border-[#FF6B00]/30 rounded-2xl px-4 py-4 shadow-[0_0_18px_rgba(255,107,0,0.08)] active:scale-[0.98] transition-transform">
+                        <div class="text-4xl leading-none shrink-0" style="filter:drop-shadow(0 0 10px rgba(255,107,0,0.5))">${icon}</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-[13px] font-black uppercase tracking-widest text-white">${label}</span>
+                                ${month ? `<span class="bg-[#FF6B00] text-black text-[10px] font-black px-2 py-0.5 rounded uppercase leading-none">${month}</span>` : ''}
+                            </div>
+                            <div class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-1">Чемпионский пояс · VIBE SALES</div>
+                        </div>
+                        <div class="shrink-0 w-7 h-7 rounded-full border border-[#FF6B00]/40 flex items-center justify-center">
+                            <svg viewBox="0 0 24 24" stroke="#FF6B00" stroke-width="2.5" fill="none" class="w-3.5 h-3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                    </div>`;
+                }).join('');
+
+            } catch(e) {
+                console.warn('loadAndRenderTrophies error:', e);
+                container.innerHTML = EMPTY_HTML;
+                if (countEl) countEl.innerText = 0;
+            }
+        }
+        window.loadAndRenderTrophies = loadAndRenderTrophies;
 
         /**
          * Открывает полноэкранную карточку трофея с 3D-эффектом.
@@ -7127,6 +7226,31 @@
                     <div class="bg-[#050505] border border-[#FF6B00]/20 rounded-2xl p-4 flex items-center gap-3 shadow-[0_0_12px_rgba(255,107,0,0.1)]">💼<div><div id="guest-sales" class="text-sm font-black text-[#FF6B00]">0 ₸</div><div class="text-[8px] text-gray-500 uppercase font-bold">Касса</div></div></div>
                 </div>
             </div>
+
+            <!-- ── ТРОФЕИ БОЙЦА (user_trophies) ── -->
+            <div class="bento-card !p-0 border-[#FF6B00]/30 overflow-hidden relative bg-[#050505] shadow-[0_0_24px_rgba(255,107,0,0.08)] mb-10">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,rgba(255,107,0,0.10),transparent_60%)] pointer-events-none"></div>
+                <div class="px-5 pt-5 pb-3 flex justify-between items-center relative z-10 border-b border-white/5">
+                    <div>
+                        <h3 class="text-[12px] text-white font-black uppercase tracking-[0.22em] leading-none">🥇 Трофеи бойца</h3>
+                        <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-1">Чемпионские пояса</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[9px] text-gray-500 font-bold uppercase tracking-widest leading-none">Поясов</div>
+                        <div id="public-trophies-count" class="text-[18px] text-[#FF6B00] font-black italic leading-none mt-1 drop-shadow-[0_0_10px_rgba(255,107,0,0.4)]">0</div>
+                    </div>
+                </div>
+                <div class="px-5 py-5 space-y-3 relative z-10">
+                    <div id="public-trophies-list">
+                        <div class="trophy-empty">
+                            <div class="trophy-empty-icon">🥇</div>
+                            <div class="trophy-empty-title">Пока пусто</div>
+                            <div class="trophy-empty-sub">Боец ещё не завоевал поясов.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
