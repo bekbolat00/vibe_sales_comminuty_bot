@@ -6348,25 +6348,29 @@
                 const countEl = document.getElementById(countId);
                 if (!container) return;
 
-                // Принудительно переводим ID в строку, чтобы база не ругалась
+                // 1. Показываем, что скрипт вообще начал работу
+                container.innerHTML = '<div class="text-white text-[10px] text-center p-4">Связь с базой... Ищем пояса...</div>';
+
                 const { data: trophies, error } = await db
                     .from('user_trophies')
                     .select('*')
                     .eq('user_id', String(targetUserId))
                     .order('created_at', { ascending: false });
 
-                if (error) throw error;
+                // 2. Если база выдала ошибку (например, блокировка RLS)
+                if (error) {
+                    container.innerHTML = `<div class="text-red-500 text-[10px] font-mono p-4 border border-red-500/30 bg-red-500/10 rounded-xl">ОШИБКА БД: ${error.message}</div>`;
+                    return;
+                }
 
-                // Если поясов нет — рисуем заглушку
+                // 3. Если база ответила успешно, но поясов для этого ID нет
                 if (!trophies || trophies.length === 0) {
-                    if (countEl) countEl.innerText = '0';
                     container.innerHTML = `
-                        <div class="trophy-empty text-center p-6 border border-white/5 rounded-xl bg-white/[0.02]">
-                            <div class="text-4xl mb-2 opacity-50">🥇</div>
-                            <div class="text-white font-black uppercase tracking-wider text-sm mb-1">Пока пусто</div>
-                            <div class="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Займи 1-е место в сезоне —<br>и пояс навсегда твой.</div>
+                        <div class="text-[#FF6B00] text-[10px] font-mono p-4 text-center border border-[#FF6B00]/30 rounded-xl bg-[#FF6B00]/10">
+                            Поиск прошел успешно. <br>Но в таблице 'user_trophies' для ID <b>${targetUserId}</b> ровно 0 поясов.<br><br>Добавь строку в Supabase!
                         </div>
                     `;
+                    if (countEl) countEl.innerText = '0';
                     return;
                 }
 
