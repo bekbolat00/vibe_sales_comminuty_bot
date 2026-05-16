@@ -6293,30 +6293,32 @@
 
                 let html = '';
                 trophies.forEach(t => {
-                    const isP4P = t.trophy_type === 'p4p';
+                    const isP4P = String(t.trophy_type || '').toLowerCase() === 'p4p';
                     const title = isP4P ? 'ЧЕМПИОН P4P' : 'ЧЕМПИОН VIBE';
-                    const imgUrl = isP4P
-                        ? 'https://cdn3d.iconscout.com/3d/premium/thumb/champion-belt-4992683-4159654.png'
-                        : 'https://cdn3d.iconscout.com/3d/premium/thumb/champion-belt-4992683-4159654.png';
+                    const sub   = isP4P ? 'Абсолютный чемпион' : 'Чемпион лиги';
+                    const modelUrl = isP4P
+                        ? `${SB_URL}/storage/v1/object/public/assets/p4p_belt_3d.glb`
+                        : `${SB_URL}/storage/v1/object/public/assets/vibe_belt_3d.glb`;
 
                     html += `
-                    <div class="relative overflow-hidden bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#FF6B00]/40 rounded-2xl p-5 mb-4 shadow-[0_10px_40px_rgba(255,107,0,0.15)] transform transition-transform hover:scale-[1.02]">
+                    <div class="relative overflow-hidden bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#FF6B00]/40 rounded-2xl p-5 mb-4 shadow-[0_10px_40px_rgba(255,107,0,0.15)]">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-[#FF6B00] opacity-10 blur-[50px] rounded-full pointer-events-none"></div>
-
-                        <div class="flex justify-center mb-4 drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)]">
-                            <img src="${imgUrl}" alt="Belt" class="h-24 object-contain">
-                        </div>
-
-                        <div class="text-center relative z-10">
-                            <div class="inline-block bg-[#FF6B00] text-black text-[10px] font-black px-3 py-1 rounded-sm uppercase tracking-widest mb-2 shadow-[0_0_10px_rgba(255,107,0,0.5)]">
-                                ${t.award_month}
+                        <model-viewer
+                            src="${modelUrl}"
+                            auto-rotate
+                            rotation-per-second="30deg"
+                            camera-controls
+                            disable-zoom
+                            style="width: 100%; height: 220px; background-color: transparent; outline: none;"
+                            exposure="1.2"
+                            shadow-intensity="1">
+                        </model-viewer>
+                        <div class="text-center relative z-10 mt-2">
+                            <div class="inline-block bg-[#FF6B00] text-black text-[10px] font-black px-3 py-1 rounded-sm uppercase tracking-widest mb-2">
+                                ${t.award_month || '—'}
                             </div>
-                            <div class="text-white font-black italic uppercase text-xl leading-none drop-shadow-md">
-                                ${title}
-                            </div>
-                            <div class="text-gray-400 text-[9px] font-bold uppercase tracking-[0.2em] mt-2">
-                                Абсолютный чемпион
-                            </div>
+                            <div class="text-white font-black italic uppercase text-xl leading-none drop-shadow-md">${title}</div>
+                            <div class="text-gray-400 text-[9px] font-bold uppercase tracking-[0.2em] mt-2">${sub}</div>
                         </div>
                     </div>
                     `;
