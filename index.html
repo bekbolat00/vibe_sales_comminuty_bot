@@ -7569,8 +7569,10 @@
 
             try {
                 const { error } = await db.from('lessons').insert({
-                    task_type:    _hwCurrentType,
-                    task_payload: payload
+                    title:         `Домашка — ${new Date().toLocaleDateString('ru-RU')}`,
+                    task_type:     _hwCurrentType,
+                    task_payload:  payload,
+                    homework_text: payload.content || null
                 });
                 if (error) throw error;
 
