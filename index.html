@@ -6301,7 +6301,7 @@
                         : `${SB_URL}/storage/v1/object/public/assets/vibe_belt_3d.glb`;
 
                     html += `
-                    <div class="relative overflow-hidden bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#FF6B00]/40 rounded-2xl p-5 mb-4 shadow-[0_10px_40px_rgba(255,107,0,0.15)]">
+                    <div style="grid-column: 1 / -1;" class="relative overflow-hidden bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] border border-[#FF6B00]/40 rounded-2xl p-5 mb-4 shadow-[0_10px_40px_rgba(255,107,0,0.15)]">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-[#FF6B00] opacity-10 blur-[50px] rounded-full pointer-events-none"></div>
                         <model-viewer
                             src="${modelUrl}"
@@ -6309,9 +6309,7 @@
                             rotation-per-second="20deg"
                             camera-controls
                             disable-zoom
-                            camera-orbit="0deg 80deg 2.2m"
-                            field-of-view="30deg"
-                            style="width: 100%; height: 260px; background-color: transparent; outline: none; display: block;"
+                            style="width: 100%; height: 280px; background-color: transparent; outline: none; display: block;"
                             exposure="1.4"
                             shadow-intensity="0.8">
                         </model-viewer>
