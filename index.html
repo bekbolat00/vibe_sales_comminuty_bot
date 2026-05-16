@@ -6306,12 +6306,14 @@
                         <model-viewer
                             src="${modelUrl}"
                             auto-rotate
-                            rotation-per-second="30deg"
+                            rotation-per-second="20deg"
                             camera-controls
                             disable-zoom
-                            style="width: 100%; height: 220px; background-color: transparent; outline: none;"
-                            exposure="1.2"
-                            shadow-intensity="1">
+                            camera-orbit="0deg 80deg 2.2m"
+                            field-of-view="30deg"
+                            style="width: 100%; height: 260px; background-color: transparent; outline: none; display: block;"
+                            exposure="1.4"
+                            shadow-intensity="0.8">
                         </model-viewer>
                         <div class="text-center relative z-10 mt-2">
                             <div class="inline-block bg-[#FF6B00] text-black text-[10px] font-black px-3 py-1 rounded-sm uppercase tracking-widest mb-2">
