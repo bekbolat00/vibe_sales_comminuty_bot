@@ -7568,7 +7568,7 @@
             if (saveBtn) { saveBtn.innerText = 'СОХРАНЯЕМ...'; saveBtn.style.opacity = '.6'; saveBtn.style.pointerEvents = 'none'; }
 
             try {
-                const { error } = await db.from('homework').insert({
+                const { error } = await db.from('lessons').insert({
                     task_type:    _hwCurrentType,
                     task_payload: payload
                 });
