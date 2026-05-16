@@ -2232,6 +2232,14 @@
                 </div>
             </div>
 
+            <!-- ── FOUNDER ONLY: Конструктор домашки ── -->
+            <div id="founder-hw-btn-wrap" class="hidden">
+                <button id="open-hw-constructor" onclick="openHWConstructor()"
+                    class="w-full bg-[#111] border border-[#FF6B00]/40 text-[#FF6B00] py-4 rounded-2xl font-black uppercase italic text-[11px] active:scale-95 transition-all tracking-widest shadow-[0_0_20px_rgba(255,107,0,0.1)] flex items-center justify-center gap-2">
+                    📋 КОНСТРУКТОР ДОМАШКИ
+                </button>
+            </div>
+
             <div class="h-28 w-full shrink-0"></div>
         </div>
 
@@ -2938,6 +2946,9 @@
             if (lvlEl) lvlEl.innerText = fighter.current_level || 1;
             const xpEl = document.getElementById('profile-xp-value');
             if (xpEl) xpEl.innerText = fighter.xp || 0;
+
+            const founderHwWrap = document.getElementById('founder-hw-btn-wrap');
+            if (founderHwWrap) founderHwWrap.classList.toggle('hidden', fighter.is_founder !== true);
 
             updateSalesUI();
             const _trophyContainer = document.getElementById('my-trophies-list-container');
@@ -7433,6 +7444,151 @@
         </div>
     </div>
 </div>
+
+    <!-- ===== HW CONSTRUCTOR MODAL ===== -->
+    <div id="hw-constructor-modal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:16px;">
+        <div style="background:#111;border:1.5px solid rgba(255,107,0,0.4);border-radius:28px;width:100%;max-width:360px;overflow:hidden;box-shadow:0 0 40px rgba(255,107,0,0.2);">
+
+            <!-- Header -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;">
+                <div style="font-size:11px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.15em;color:#FF6B00;">КОНСТРУКТОР ДОМАШКИ</div>
+                <button onclick="closeHWConstructor()" style="background:rgba(255,255,255,0.06);border:none;color:#aaa;font-size:18px;line-height:1;border-radius:10px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+            </div>
+
+            <!-- Step 1: type picker -->
+            <div id="hw-step1" style="padding:0 16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button class="hw-type-btn" onclick="hwSelectType('text')"   style="background:#0d0d0d;border:1.5px solid rgba(255,107,0,0.25);border-radius:18px;padding:18px 8px;color:#fff;font-size:11px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;transition:.15s;active:scale(.95)"><span style="font-size:28px;">📝</span>Текст</button>
+                <button class="hw-type-btn" onclick="hwSelectType('quiz')"   style="background:#0d0d0d;border:1.5px solid rgba(255,107,0,0.25);border-radius:18px;padding:18px 8px;color:#fff;font-size:11px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;transition:.15s;"><span style="font-size:28px;">🧠</span>Квиз</button>
+                <button class="hw-type-btn" onclick="hwSelectType('swipe')"  style="background:#0d0d0d;border:1.5px solid rgba(255,107,0,0.25);border-radius:18px;padding:18px 8px;color:#fff;font-size:11px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;transition:.15s;"><span style="font-size:28px;">👆</span>Свайп</button>
+                <button class="hw-type-btn" onclick="hwSelectType('audio')"  style="background:#0d0d0d;border:1.5px solid rgba(255,107,0,0.25);border-radius:18px;padding:18px 8px;color:#fff;font-size:11px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;transition:.15s;"><span style="font-size:28px;">🎙</span>Аудио</button>
+            </div>
+
+            <!-- Step 2: form -->
+            <div id="hw-step2" style="display:none;padding:0 16px 20px;">
+                <button onclick="hwBackToStep1()" style="background:none;border:none;color:#FF6B00;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;cursor:pointer;padding:0 0 14px;display:flex;align-items:center;gap:6px;">← НАЗАД</button>
+                <div id="hw-type-label" style="font-size:10px;color:#FF6B00;font-weight:900;text-transform:uppercase;letter-spacing:.18em;margin-bottom:14px;"></div>
+
+                <!-- text -->
+                <div id="hw-form-text" style="display:none;">
+                    <textarea id="hw-text-body" rows="4" placeholder="Текст задания..." style="width:100%;box-sizing:border-box;background:#000;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 14px;color:#fff;font-size:13px;font-family:inherit;resize:none;outline:none;transition:.2s;" onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+                </div>
+
+                <!-- quiz -->
+                <div id="hw-form-quiz" style="display:none;display:none;">
+                    <input id="hw-quiz-question" type="text" placeholder="Вопрос..." style="width:100%;box-sizing:border-box;background:#000;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:11px 14px;color:#fff;font-size:13px;font-family:inherit;outline:none;margin-bottom:10px;transition:.2s;" onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="radio" name="hw-quiz-correct" value="0" style="accent-color:#FF6B00;"><input id="hw-quiz-opt0" type="text" placeholder="Вариант 1" style="flex:1;background:#000;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:9px 12px;color:#fff;font-size:12px;font-family:inherit;outline:none;transition:.2s;" onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></label>
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="radio" name="hw-quiz-correct" value="1" style="accent-color:#FF6B00;"><input id="hw-quiz-opt1" type="text" placeholder="Вариант 2" style="flex:1;background:#000;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:9px 12px;color:#fff;font-size:12px;font-family:inherit;outline:none;transition:.2s;" onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></label>
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="radio" name="hw-quiz-correct" value="2" style="accent-color:#FF6B00;"><input id="hw-quiz-opt2" type="text" placeholder="Вариант 3" style="flex:1;background:#000;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:9px 12px;color:#fff;font-size:12px;font-family:inherit;outline:none;transition:.2s;" onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></label>
+                    </div>
+                    <div style="font-size:9px;color:#555;font-weight:700;text-transform:uppercase;margin-top:8px;">Отметь радио-кнопку у правильного варианта</div>
+                </div>
+
+                <!-- swipe -->
+                <div id="hw-form-swipe" style="display:none;">
+                    <textarea id="hw-swipe-cards" rows="4" placeholder="Каждая карточка с новой строки..." style="width:100%;box-sizing:border-box;background:#000;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 14px;color:#fff;font-size:13px;font-family:inherit;resize:none;outline:none;margin-bottom:12px;transition:.2s;" onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+                    <div style="font-size:9px;color:#FF6B00;font-weight:900;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;">Правильное направление</div>
+                    <div style="display:flex;gap:12px;">
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:#fff;font-size:11px;font-weight:800;text-transform:uppercase;"><input type="radio" name="hw-swipe-dir" value="right" checked style="accent-color:#FF6B00;"> Вправо</label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:#fff;font-size:11px;font-weight:800;text-transform:uppercase;"><input type="radio" name="hw-swipe-dir" value="left" style="accent-color:#FF6B00;"> Влево</label>
+                    </div>
+                </div>
+
+                <!-- audio -->
+                <div id="hw-form-audio" style="display:none;">
+                    <textarea id="hw-audio-prompt" rows="4" placeholder="Промпт для ученика..." style="width:100%;box-sizing:border-box;background:#000;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 14px;color:#fff;font-size:13px;font-family:inherit;resize:none;outline:none;transition:.2s;" onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+                </div>
+
+                <button onclick="saveHomework()" style="margin-top:18px;width:100%;background:#FF6B00;border:none;border-radius:16px;padding:15px;color:#fff;font-size:11px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.18em;cursor:pointer;box-shadow:0 0 20px rgba(255,107,0,0.4);transition:.15s;">СОХРАНИТЬ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let _hwCurrentType = null;
+
+        function openHWConstructor() {
+            const m = document.getElementById('hw-constructor-modal');
+            m.style.display = 'flex';
+            hwBackToStep1();
+        }
+
+        function closeHWConstructor() {
+            document.getElementById('hw-constructor-modal').style.display = 'none';
+        }
+
+        function hwBackToStep1() {
+            document.getElementById('hw-step1').style.display = 'grid';
+            document.getElementById('hw-step2').style.display = 'none';
+            _hwCurrentType = null;
+        }
+
+        function hwSelectType(type) {
+            _hwCurrentType = type;
+            document.getElementById('hw-step1').style.display = 'none';
+            document.getElementById('hw-step2').style.display = 'block';
+
+            const labels = { text: '📝 Текст', quiz: '🧠 Квиз', swipe: '👆 Свайп', audio: '🎙 Аудио' };
+            document.getElementById('hw-type-label').innerText = labels[type] || type;
+
+            ['text','quiz','swipe','audio'].forEach(t => {
+                document.getElementById('hw-form-' + t).style.display = t === type ? 'block' : 'none';
+            });
+        }
+
+        async function saveHomework() {
+            if (!_hwCurrentType) return;
+            let payload = {};
+
+            if (_hwCurrentType === 'text') {
+                payload.body = document.getElementById('hw-text-body').value.trim();
+                if (!payload.body) { alert('Введи текст задания'); return; }
+            } else if (_hwCurrentType === 'quiz') {
+                const q  = document.getElementById('hw-quiz-question').value.trim();
+                const o0 = document.getElementById('hw-quiz-opt0').value.trim();
+                const o1 = document.getElementById('hw-quiz-opt1').value.trim();
+                const o2 = document.getElementById('hw-quiz-opt2').value.trim();
+                const correctRadio = document.querySelector('input[name="hw-quiz-correct"]:checked');
+                if (!q || !o0 || !o1 || !o2) { alert('Заполни вопрос и все варианты'); return; }
+                payload.question = q;
+                payload.options  = [o0, o1, o2];
+                payload.correct  = correctRadio ? parseInt(correctRadio.value) : 0;
+            } else if (_hwCurrentType === 'swipe') {
+                const raw = document.getElementById('hw-swipe-cards').value.trim();
+                if (!raw) { alert('Добавь карточки'); return; }
+                const dir = document.querySelector('input[name="hw-swipe-dir"]:checked');
+                payload.cards     = raw.split('\n').map(s => s.trim()).filter(Boolean);
+                payload.direction = dir ? dir.value : 'right';
+            } else if (_hwCurrentType === 'audio') {
+                payload.prompt = document.getElementById('hw-audio-prompt').value.trim();
+                if (!payload.prompt) { alert('Введи промпт'); return; }
+            }
+
+            const saveBtn = document.querySelector('#hw-step2 button[onclick="saveHomework()"]');
+            if (saveBtn) { saveBtn.innerText = 'СОХРАНЯЕМ...'; saveBtn.style.opacity = '.6'; saveBtn.style.pointerEvents = 'none'; }
+
+            try {
+                const { error } = await db.from('homework').insert({
+                    task_type:    _hwCurrentType,
+                    task_payload: payload
+                });
+                if (error) throw error;
+
+                closeHWConstructor();
+
+                const toast = document.createElement('div');
+                toast.style.cssText = 'position:fixed;top:22px;left:50%;transform:translateX(-50%);z-index:10999;background:#FF6B00;color:#fff;font-size:11px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.15em;padding:12px 22px;border-radius:20px;box-shadow:0 0 24px rgba(255,107,0,0.5);white-space:nowrap;';
+                toast.innerText = '✅ ДОМАШКА СОЗДАНА!';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            } catch (e) {
+                console.error('[saveHomework]', e);
+                alert('Ошибка сохранения: ' + (e.message || e));
+            } finally {
+                if (saveBtn) { saveBtn.innerText = 'СОХРАНИТЬ'; saveBtn.style.opacity = '1'; saveBtn.style.pointerEvents = ''; }
+            }
+        }
+    </script>
 
     <!-- ===== DAILY LOGIN BONUS MODAL ===== -->
     <div id="daily-bonus-modal">
