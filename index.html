@@ -2940,7 +2940,12 @@
             if (xpEl) xpEl.innerText = fighter.xp || 0;
 
             updateSalesUI();
-            setTimeout(() => { loadAndRenderTrophies(fighter.tg_id, 'my-trophies-list-container', 'my-trophies-count'); }, 100);
+            const _trophyContainer = document.getElementById('my-trophies-list-container');
+            if (_trophyContainer) {
+                loadAndRenderTrophies(fighter.tg_id, 'my-trophies-list-container', 'my-trophies-count');
+            } else {
+                console.warn('Trophy container not found during updateUI!');
+            }
         }
 
         let booksDB = {}; 
@@ -5367,7 +5372,14 @@
                 if (cwUid) void loadContinueWatchingWidget(cwUid, 'continue-watching-club');
             }
             if (id === 'rating-screen') { loadLeaderboard(window._lbCat || 'P4P'); startSeasonTimer(); }
-            if (id === 'lootbox-screen') { loadTrophies(); }
+            if (id === 'lootbox-screen') {
+                const _trophyContainer = document.getElementById('my-trophies-list-container');
+                if (_trophyContainer && currentUserData && currentUserData.tg_id) {
+                    loadAndRenderTrophies(currentUserData.tg_id, 'my-trophies-list-container', 'my-trophies-count');
+                } else {
+                    console.warn('Trophy container or user not found when switching to lootbox-screen!');
+                }
+            }
             if (id === 'profile-screen') {
                 const today = new Date().getDate();
                 if (today > 1) setTimeout(() => {
@@ -6221,118 +6233,6 @@
             return '—';
         }
 
-        /**
-         * Загружает трофеи из public.inventory (type='trophy') и public.user_trophies
-         * для текущего пользователя и рендерит их в сетку #my-trophies-list-container.
-         * Пояса P4P/VIBE отображаются как вращающиеся 3D-модели через <model-viewer>.
-         */
-        async function loadTrophies() {
-            const grid = document.getElementById('my-trophies-list-container');
-            const counterEl = document.getElementById('my-trophies-count');
-            if (!grid) return;
-
-            if (!currentUserData || !currentUserData.tg_id) {
-                return;
-            }
-
-            const EMPTY_HTML = `
-                <div class="trophy-empty">
-                    <div class="trophy-empty-icon">🥇</div>
-                    <div class="trophy-empty-title">Пока пусто</div>
-                    <div class="trophy-empty-sub">Займи 1-е место в сезоне —<br>и пояс навсегда твой.</div>
-                </div>`;
-
-            try {
-                const [inventoryRes, userTrophiesRes] = await Promise.all([
-                    db.from('inventory')
-                        .select('id, user_id, title, image_url, type, meta, awarded_at')
-                        .eq('user_id', currentUserData.tg_id)
-                        .eq('type', 'trophy')
-                        .order('awarded_at', { ascending: false }),
-                    db.from('user_trophies')
-                        .select('id, user_id, trophy_type, award_month')
-                        .eq('user_id', currentUserData.tg_id)
-                        .order('id', { ascending: false })
-                ]);
-
-                if (inventoryRes.error) throw inventoryRes.error;
-
-                window._trophiesCache = Array.isArray(inventoryRes.data) ? inventoryRes.data : [];
-                const userTrophies = Array.isArray(userTrophiesRes.data) ? userTrophiesRes.data : [];
-
-                // Проверяем пояса через флаги пользователя ИЛИ через таблицу user_trophies
-                const hasP4P  = currentUserData.is_p4p_champion  || userTrophies.some(t => String(t.trophy_type || '').toLowerCase() === 'p4p');
-                const hasVibe = currentUserData.is_vibe_champion || userTrophies.some(t => String(t.trophy_type || '').toLowerCase() === 'vibe');
-
-                const championCards = [];
-                if (hasP4P) {
-                    championCards.push({
-                        modelUrl: `${SB_URL}/storage/v1/object/public/assets/p4p_belt_3d.glb`,
-                        label: 'ЧЕМПИОН P4P',
-                        sub: 'Абсолютный чемпион'
-                    });
-                }
-                if (hasVibe) {
-                    championCards.push({
-                        modelUrl: `${SB_URL}/storage/v1/object/public/assets/vibe_belt_3d.glb`,
-                        label: 'ЧЕМПИОН VIBE',
-                        sub: 'Чемпион лиги'
-                    });
-                }
-
-                const totalCount = window._trophiesCache.length + championCards.length;
-                if (counterEl) counterEl.innerText = totalCount;
-
-                if (totalCount === 0) {
-                    grid.innerHTML = EMPTY_HTML;
-                    return;
-                }
-
-                const championHTML = championCards.map(c => `
-                    <div class="bg-[#1A1A1A] border border-[#FF6B00]/30 rounded-xl p-4 mb-4 flex flex-col items-center">
-                        <model-viewer
-                            src="${c.modelUrl}"
-                            auto-rotate
-                            rotation-per-second="30deg"
-                            camera-controls
-                            disable-zoom
-                            style="width: 100%; height: 200px; background-color: transparent; outline: none;"
-                            exposure="1.2"
-                            shadow-intensity="1">
-                        </model-viewer>
-                        <div class="mt-4 text-center">
-                            <div class="text-[#FF6B00] font-black italic uppercase text-xl leading-none">${c.label}</div>
-                            <div class="text-gray-400 text-xs font-bold uppercase tracking-wider mt-1">${c.sub}</div>
-                        </div>
-                    </div>`).join('');
-
-                const trophyHTML = window._trophiesCache.map(t => {
-                    const meta = t.meta || {};
-                    const rarity = _trophyRarityLabel(meta);
-                    const season = _trophySeasonLabel(meta, t.awarded_at);
-                    const img = t.image_url ? `
-                        <img src="${_escapeHtml(t.image_url)}" alt="${_escapeHtml(t.title)}"
-                             class="trophy-card-img"
-                             onerror="this.onerror=null;this.outerHTML='<span class=\\'trophy-card-img-fallback\\'>🏆</span>';">`
-                        : `<span class="trophy-card-img-fallback">🏆</span>`;
-                    return `
-                        <div class="trophy-card" onclick="openTrophyDetail(${Number(t.id)})">
-                            <span class="trophy-card-chip ${rarity.cls}">${_escapeHtml(rarity.text)}</span>
-                            <div class="trophy-card-img-wrap">${img}</div>
-                            <div class="trophy-card-title">${_escapeHtml(t.title || 'Трофей')}</div>
-                            <div class="trophy-card-date">${_escapeHtml(season)}</div>
-                        </div>`;
-                }).join('');
-
-                grid.innerHTML = championHTML + trophyHTML;
-            } catch (e) {
-                console.warn('loadTrophies error:', e);
-                grid.innerHTML = EMPTY_HTML;
-                if (counterEl) counterEl.innerText = 0;
-            }
-        }
-        window.loadTrophies = loadTrophies;
-
         // ================= ЕДИНАЯ ФУНКЦИЯ: 3D ПОЯСА (user_trophies) =================
         /**
          * Загружает чемпионские пояса из public.user_trophies для любого пользователя
@@ -6351,11 +6251,25 @@
                 // 1. Показываем, что скрипт вообще начал работу
                 container.innerHTML = '<div class="text-white text-[10px] text-center p-4">Связь с базой... Ищем пояса...</div>';
 
-                const { data: trophies, error } = await db
+                // Пробуем user_id; если колонка отсутствует — делаем fallback на tg_id
+                let trophies = null, error = null;
+                ({ data: trophies, error } = await db
                     .from('user_trophies')
                     .select('*')
                     .eq('user_id', String(targetUserId))
-                    .order('created_at', { ascending: false });
+                    .order('created_at', { ascending: false }));
+
+                if (error || !trophies || trophies.length === 0) {
+                    const fbRes = await db
+                        .from('user_trophies')
+                        .select('*')
+                        .eq('tg_id', String(targetUserId))
+                        .order('created_at', { ascending: false });
+                    if (!fbRes.error && fbRes.data && fbRes.data.length > 0) {
+                        trophies = fbRes.data;
+                        error = null;
+                    }
+                }
 
                 // 2. Если база выдала ошибку (например, блокировка RLS)
                 if (error) {
