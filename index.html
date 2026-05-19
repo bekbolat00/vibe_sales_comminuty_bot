@@ -2105,6 +2105,7 @@
                         </div>
                         <div class="min-w-0">
                             <h2 class="text-[15px] font-black italic uppercase leading-none user-name-profile truncate">...</h2>
+                            <div id="user-level" class="text-[10px] text-[#FF6B00] font-bold tracking-[0.2em] mb-1">1 УРОВЕНЬ</div>
                         </div>
                     </div>
 
@@ -2959,9 +2960,19 @@
 
             // Прелоад XP / LVL из fighter — до полного запроса в eras_config
             const lvlEl = document.getElementById('profile-level-value');
-            if (lvlEl) lvlEl.innerText = fighter.current_level || 1;
             const xpEl = document.getElementById('profile-xp-value');
             if (xpEl) xpEl.innerText = fighter.xp || 0;
+
+            // Авто-расчет уровня: 1000 PTS = 1 уровень. Учитываем ручной ввод из БД.
+            const xp = fighter.xp_balance || fighter.xp || 0;
+            const calculatedLevel = Math.floor(xp / 1000) + 1;
+            const dbLevel = fighter.level || fighter.current_level || 1;
+            const finalLevel = Math.max(calculatedLevel, dbLevel);
+
+            if (lvlEl) lvlEl.innerText = finalLevel;
+            if (document.getElementById('user-level')) {
+                document.getElementById('user-level').innerText = finalLevel + ' УРОВЕНЬ';
+            }
 
             const founderHwWrap = document.getElementById('founder-hw-btn-wrap');
             if (founderHwWrap) founderHwWrap.classList.toggle('hidden', fighter.is_founder !== true);
