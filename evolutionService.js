@@ -248,7 +248,7 @@
         if (!evo) return;
         const xpEl = document.getElementById('profile-xp-value');
         if (xpEl) xpEl.innerText = evo.xp;
-        const lvlEl = document.getElementById('profile-level-value');
+        const lvlEl = document.getElementById('character-level-badge');
         if (lvlEl) lvlEl.innerText = evo.current_level;
         const eraEl = document.getElementById('profile-era-name');
         if (eraEl) {

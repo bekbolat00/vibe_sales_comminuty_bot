@@ -2964,31 +2964,66 @@
             const xp = fighter.xp_balance || fighter.xp || 0;
             if (xpEl) xpEl.innerText = xp;
 
-            // Запрашиваем таблицу уровней из БД и находим правильный уровень по XP
+            // Запрашиваем eras_config (содержит required_xp и level_name)
             let finalLevel = 1;
+            let finalLevelName = null;
             try {
-                const { data: levelsData, error: lvlErr } = await db
-                    .from('levels')
-                    .select('level, required_xp')
+                // Сначала пробуем eras_config, где есть и required_xp, и level_name
+                const { data: eraLevels, error: eraErr } = await db
+                    .from('eras_config')
+                    .select('level, required_xp, level_name')
                     .order('required_xp', { ascending: false });
 
-                if (!lvlErr && levelsData) {
-                    for (const row of levelsData) {
-                        if (xp >= row.required_xp) {
+                if (!eraErr && eraLevels && eraLevels.length > 0 && eraLevels[0].required_xp != null) {
+                    for (const row of eraLevels) {
+                        if (xp >= (row.required_xp || 0)) {
                             finalLevel = row.level;
+                            finalLevelName = row.level_name || null;
                             break;
                         }
                     }
                 } else {
-                    // Fallback: простая формула если таблица недоступна
-                    finalLevel = Math.floor(xp / 1000) + 1;
+                    // Fallback: отдельная таблица levels
+                    const { data: levelsData, error: lvlErr } = await db
+                        .from('levels')
+                        .select('level, required_xp')
+                        .order('required_xp', { ascending: false });
+                    if (!lvlErr && levelsData && levelsData.length > 0) {
+                        for (const row of levelsData) {
+                            if (xp >= (row.required_xp || 0)) {
+                                finalLevel = row.level;
+                                break;
+                            }
+                        }
+                    } else {
+                        finalLevel = Math.max(1, Math.floor(xp / 1000) + 1);
+                    }
                 }
             } catch(e) {
-                finalLevel = Math.floor(xp / 1000) + 1;
+                finalLevel = Math.max(1, Math.floor(xp / 1000) + 1);
             }
 
-            // Записываем только цифру — без текста "УРОВЕНЬ"
+            // Обновляем цифру уровня
             if (lvlEl) lvlEl.innerText = finalLevel;
+
+            // Обновляем название ранга (Базовый Рекрут → Легионер и т.д.)
+            const eraNameEl = document.getElementById('profile-era-name');
+            if (eraNameEl && finalLevelName) eraNameEl.innerText = finalLevelName.toUpperCase();
+
+            // Синхронизируем current_level в БД если XP пересёк порог нового уровня
+            if (fighter.tg_id && (fighter.current_level || 1) !== finalLevel) {
+                try {
+                    await db.from('users')
+                        .update({ current_level: finalLevel })
+                        .eq('tg_id', fighter.tg_id);
+                    fighter.current_level = finalLevel;
+                    if (currentUserData) currentUserData.current_level = finalLevel;
+                    // Обновляем визуальный облик персонажа под новый уровень
+                    refreshEvolution(fighter.tg_id);
+                } catch(e) {
+                    console.warn('[updateUI] current_level sync failed', e);
+                }
+            }
 
             const founderHwWrap = document.getElementById('founder-hw-btn-wrap');
             if (founderHwWrap) founderHwWrap.classList.toggle('hidden', fighter.is_founder !== true);
