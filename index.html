@@ -2685,6 +2685,7 @@
                     document.getElementById('main-app-container').classList.remove('hidden-screen');
                     currentUserData = fighter; 
                     updateUI(fighter);
+                    checkDailyLogin(fighter.tg_id, fighter);
                     checkUnreadNotifications(fighter.tg_id);
                     refreshEvolution(fighter.tg_id);
                 }
@@ -2717,8 +2718,19 @@
                     // diffDays > 1 → streak resets to 1 (already set above)
                 }
 
+                // Bonus math (Duolingo-style)
+                let rewardPoints = 10;
+                let bonusTitle = null;
+                if (newStreak % 7 === 0) {
+                    rewardPoints = 80;
+                    bonusTitle = '🏆 ЛЕГЕНДАРНЫЙ БОНУС НЕДЕЛИ!';
+                } else if (newStreak % 7 === 3) {
+                    rewardPoints = 30;
+                    bonusTitle = '⚡ МЕГА-БОНУС 3-ГО ДНЯ!';
+                }
+
                 // Persist to Supabase
-                const newXpBalance = (userData.xp_balance || 0) + 10;
+                const newXpBalance = (userData.xp_balance || 0) + rewardPoints;
                 const { error } = await db.from('users').update({
                     last_login_date: todayStr,
                     login_streak: newStreak,
@@ -2754,7 +2766,11 @@
                 // Update labels
                 document.getElementById('daily-bonus-streak-label').textContent =
                     `Стрик: ${newStreak} ${pluralDays(newStreak)}`;
-                document.getElementById('daily-bonus-pts-label').textContent = '+10 PTS';
+                document.getElementById('daily-bonus-pts-label').textContent = `+${rewardPoints} PTS`;
+                if (bonusTitle) {
+                    const titleEl = document.getElementById('daily-bonus-title');
+                    if (titleEl) titleEl.textContent = bonusTitle;
+                }
 
                 // Show modal
                 const modal = document.getElementById('daily-bonus-modal');
@@ -7597,7 +7613,7 @@
         <div class="daily-bonus-card">
             <span class="daily-bonus-emoji">🔥</span>
 
-            <div class="daily-bonus-title">С возвращением,<br>легенда!</div>
+            <div class="daily-bonus-title" id="daily-bonus-title">С возвращением,<br>легенда!</div>
 
             <div class="daily-bonus-pts" id="daily-bonus-pts-label">+10 PTS</div>
             <div class="daily-bonus-subtitle">Заходи каждый день,<br>чтобы не потерять стрик!</div>
