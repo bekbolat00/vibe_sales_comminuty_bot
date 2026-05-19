@@ -2965,19 +2965,26 @@
             if (xpEl) xpEl.innerText = xp;
 
             // Запрашиваем таблицу уровней из БД и находим правильный уровень по XP
-            const { data: levelsData } = await db
-                .from('levels')
-                .select('level, required_xp')
-                .order('required_xp', { ascending: false });
-
             let finalLevel = 1;
-            if (levelsData) {
-                for (const row of levelsData) {
-                    if (xp >= row.required_xp) {
-                        finalLevel = row.level;
-                        break;
+            try {
+                const { data: levelsData, error: lvlErr } = await db
+                    .from('levels')
+                    .select('level, required_xp')
+                    .order('required_xp', { ascending: false });
+
+                if (!lvlErr && levelsData) {
+                    for (const row of levelsData) {
+                        if (xp >= row.required_xp) {
+                            finalLevel = row.level;
+                            break;
+                        }
                     }
+                } else {
+                    // Fallback: простая формула если таблица недоступна
+                    finalLevel = Math.floor(xp / 1000) + 1;
                 }
+            } catch(e) {
+                finalLevel = Math.floor(xp / 1000) + 1;
             }
 
             // Записываем только цифру — без текста "УРОВЕНЬ"
