@@ -2730,12 +2730,16 @@
                 }
 
                 // Persist to Supabase
-                const newXpBalance = (userData.xp_balance || 0) + rewardPoints;
-                const { error } = await db.from('users').update({
-                    last_login_date: todayStr,
-                    login_streak: newStreak,
-                    xp_balance: newXpBalance,
-                }).eq('tg_id', userId);
+                const currentXp = parseInt(userData.xp_balance) || 0;
+                const newXpBalance = currentXp + rewardPoints;
+                const { error } = await db
+                    .from('users')
+                    .update({
+                        xp_balance: newXpBalance,
+                        login_streak: newStreak,
+                        last_login_date: new Date().toISOString()
+                    })
+                    .eq('tg_id', String(userId));
 
                 if (error) { console.error('[dailyLogin]', error); return; }
 
