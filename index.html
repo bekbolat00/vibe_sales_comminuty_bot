@@ -2895,7 +2895,7 @@
             reader.readAsDataURL(file);
         }
 
-        function updateUI(fighter) {
+        async function updateUI(fighter) {
             if(!fighter) return;
             // Железобетонное обновление имени и статуса FOUNDER с галочкой (Verified Badge)
             const profileNameEls = document.querySelectorAll('.user-name-profile');
