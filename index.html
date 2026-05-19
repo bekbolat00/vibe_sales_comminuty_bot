@@ -2083,7 +2083,7 @@
                         <div class="flex items-end justify-between gap-2">
                             <div class="flex flex-col leading-none">
                                 <span class="text-[7px] text-gray-400 font-bold uppercase tracking-widest">LVL</span>
-                                <span id="profile-level-value" class="text-[15px] font-black text-white">1</span>
+                                <span id="character-level-badge" class="text-[15px] font-black text-white">1</span>
                             </div>
                             <div class="flex flex-col leading-none text-right">
                                 <span class="text-[7px] text-[#FF6B00] font-bold uppercase tracking-widest">XP</span>
@@ -2959,7 +2959,7 @@
             }
 
             // Прелоад XP / LVL из fighter — до полного запроса в eras_config
-            const lvlEl = document.getElementById('profile-level-value');
+            const lvlEl = document.getElementById('character-level-badge');
             const xpEl = document.getElementById('profile-xp-value');
             if (xpEl) xpEl.innerText = fighter.xp || 0;
 
@@ -2972,6 +2972,10 @@
             if (lvlEl) lvlEl.innerText = finalLevel;
             if (document.getElementById('user-level')) {
                 document.getElementById('user-level').innerText = finalLevel + ' УРОВЕНЬ';
+            }
+            if (document.getElementById('character-level-badge')) {
+                // Обновляем бейдж на самом персонаже
+                document.getElementById('character-level-badge').innerText = finalLevel + ' УРОВЕНЬ';
             }
 
             const founderHwWrap = document.getElementById('founder-hw-btn-wrap');
