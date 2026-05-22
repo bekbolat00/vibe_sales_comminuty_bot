@@ -2549,8 +2549,21 @@
 
         async function loadClubPosts() {
             try {
-                const { data, error } = await db.from('club_posts').select('*').order('created_at', { ascending: false }).limit(30);
-                if (error) throw error;
+                const [postsResult, commentsCountResult] = await Promise.all([
+                    db.from('club_posts').select('*').order('created_at', { ascending: false }).limit(30),
+                    db.from('post_comments').select('post_id')
+                ]);
+                if (postsResult.error) throw postsResult.error;
+                const data = postsResult.data;
+
+                // Build comment count map
+                const commentCounts = {};
+                if (commentsCountResult.data) {
+                    commentsCountResult.data.forEach(row => {
+                        commentCounts[row.post_id] = (commentCounts[row.post_id] || 0) + 1;
+                    });
+                }
+
                 const container = document.getElementById('club-feed-container'); container.innerHTML = '';
                 if (!data || data.length === 0) { container.innerHTML = '<div class="text-center py-10 text-gray-500 font-bold uppercase tracking-widest text-[10px]">Лента пуста. Будь первым! 🐺</div>'; return; }
 
@@ -2564,6 +2577,7 @@
                     let isLiked = likedPosts.includes(post.id);
                     let fireColor = isLiked ? 'text-[#FF6B00]' : 'text-gray-500';
                     let fireGlow = isLiked ? 'drop-shadow-[0_0_10px_rgba(255,107,0,0.8)]' : 'drop-shadow-md';
+                    let cmtCount = commentCounts[post.id] || 0;
 
                     let imageHtml = post.image_base64 ? `<img src="${post.image_base64}" class="w-full h-48 object-cover rounded-xl mb-4 border border-white/5">` : '';
                     let deleteBtn = (currentUserData && post.tg_id == currentUserData.tg_id) ? `<button onclick="deleteClubPost('${post.id}')" class="text-gray-600 hover:text-red-500 text-lg ml-auto active:scale-90 transition-transform">🗑️</button>` : '';
@@ -2588,10 +2602,14 @@
                         </div>
                         <p class="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap mb-4 font-medium">${post.content}</p>
                         ${imageHtml}
-                        <div class="flex justify-between items-center pt-3 border-t border-white/5">
+                        <div class="flex items-center gap-4 pt-3 border-t border-white/5">
                             <button onclick="likePost('${post.id}')" class="flex gap-2 items-center ${fireColor} transition-colors active:scale-95">
                                 <span class="text-[18px] ${fireGlow}">🔥</span>
                                 <span class="text-[12px] font-black">${post.likes || 0}</span>
+                            </button>
+                            <button onclick="openPostComments('${post.id}')" class="flex gap-2 items-center text-gray-500 transition-colors active:scale-95">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                <span class="text-[12px] font-black">${cmtCount}</span>
                             </button>
                         </div>
                     </div>`;
@@ -2657,6 +2675,122 @@
                 loadClubPosts();
             } catch(e) { console.error(e); }
         }
+
+        // ===== COMMENTS =====
+        let _activeCommentPostId = null;
+
+        window.openPostComments = function(postId) {
+            _activeCommentPostId = postId;
+            const modal = document.getElementById('comments-modal');
+            modal.classList.remove('hidden-screen');
+            document.body.style.overflow = 'hidden';
+
+            // Set avatar for input bar
+            const avatarEl = document.getElementById('comment-author-avatar');
+            if (currentUserData) {
+                if (currentUserData.avatar_base64) {
+                    avatarEl.innerHTML = `<img src="${currentUserData.avatar_base64}" class="w-full h-full object-cover rounded-full">`;
+                } else {
+                    avatarEl.textContent = (currentUserData.first_name || 'Б').charAt(0).toUpperCase();
+                }
+            }
+            document.getElementById('comment-input').value = '';
+            loadPostComments(postId);
+        };
+
+        window.closePostComments = function() {
+            document.getElementById('comments-modal').classList.add('hidden-screen');
+            document.body.style.overflow = '';
+            _activeCommentPostId = null;
+        };
+
+        async function loadPostComments(postId) {
+            const list = document.getElementById('comments-list');
+            list.innerHTML = '<div class="text-center py-8 text-gray-600 text-[11px] font-bold uppercase tracking-widest">Загрузка...</div>';
+            try {
+                const { data, error } = await db
+                    .from('post_comments')
+                    .select('*')
+                    .eq('post_id', postId)
+                    .order('created_at', { ascending: true });
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    list.innerHTML = '<div class="text-center py-10 text-gray-600 text-[11px] font-bold uppercase tracking-widest">Пока тихо. Будь первым! 💬</div>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                data.forEach(cmt => {
+                    let initial = cmt.author_name ? cmt.author_name.charAt(0).toUpperCase() : 'Б';
+                    let avatarHtml = cmt.author_avatar
+                        ? `<img src="${cmt.author_avatar}" class="w-full h-full object-cover rounded-full">`
+                        : initial;
+                    let dateObj = new Date(cmt.created_at);
+                    let timeStr = dateObj.toLocaleDateString('ru-RU', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    let authorNameHTML = cmt.author_name || 'Боец';
+                    if (cmt.author_is_founder === true) authorNameHTML += window.FOUNDER_BADGE || '';
+                    let deleteBtn = (currentUserData && cmt.tg_id == currentUserData.tg_id)
+                        ? `<button onclick="deleteComment('${cmt.id}')" class="text-gray-600 active:text-red-500 active:scale-90 transition-all ml-auto text-sm">🗑️</button>`
+                        : '';
+
+                    list.innerHTML += `
+                    <div class="flex gap-3 items-start" id="cmt-${cmt.id}">
+                        <div class="w-8 h-8 rounded-full bg-[#111] border border-white/10 flex items-center justify-center font-black text-[#FF6B00] text-xs shrink-0 overflow-hidden cursor-pointer active:opacity-70 transition-opacity" onclick="showUserProfile('${cmt.tg_id}')">${avatarHtml}</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-baseline gap-2 mb-1">
+                                <span class="text-[12px] font-black text-white italic cursor-pointer active:opacity-70 transition-opacity" onclick="showUserProfile('${cmt.tg_id}')">${authorNameHTML}</span>
+                                <span class="text-[9px] text-gray-600 uppercase tracking-widest">${timeStr}</span>
+                                ${deleteBtn}
+                            </div>
+                            <p class="text-[12px] text-gray-300 leading-relaxed whitespace-pre-wrap font-medium">${cmt.content}</p>
+                        </div>
+                    </div>`;
+                });
+            } catch(e) {
+                list.innerHTML = '<div class="text-center py-8 text-red-500/70 text-[11px] font-bold">Ошибка загрузки 😔</div>';
+                console.error('Ошибка комментариев:', e);
+            }
+        }
+
+        window.createComment = async function() {
+            if (!_activeCommentPostId) return;
+            const input = document.getElementById('comment-input');
+            const text = input.value.trim();
+            if (!text) return;
+            if (!currentUserData) { tg.showAlert('Нужна авторизация 🐺'); return; }
+
+            try {
+                const { error } = await db.from('post_comments').insert([{
+                    post_id: _activeCommentPostId,
+                    tg_id: currentUserData.tg_id,
+                    author_name: currentUserData.first_name,
+                    author_avatar: currentUserData.avatar_base64 || null,
+                    author_is_founder: currentUserData.is_founder === true,
+                    content: text
+                }]);
+                if (error) throw error;
+                input.value = '';
+                input.style.height = 'auto';
+                await loadPostComments(_activeCommentPostId);
+                // Scroll to bottom of comments list
+                const list = document.getElementById('comments-list');
+                list.scrollTop = list.scrollHeight;
+                // Refresh post feed to update comment count
+                loadClubPosts();
+            } catch(e) { tg.showAlert('Ошибка: ' + e.message); }
+        };
+
+        window.deleteComment = async function(commentId) {
+            if (!confirm('Удалить комментарий?')) return;
+            try {
+                const { error } = await db.from('post_comments').delete().eq('id', commentId);
+                if (error) throw error;
+                document.getElementById('cmt-' + commentId)?.remove();
+                loadClubPosts();
+            } catch(e) { console.error(e); }
+        };
+        // ===== END COMMENTS =====
 
         async function checkAuth() {
             try {
@@ -7203,6 +7337,37 @@
             </div>
         </div>
     </div>
+
+    <!-- ===== COMMENTS BOTTOM SHEET ===== -->
+    <div id="comments-modal" class="hidden-screen fixed inset-0 z-[9500] flex flex-col justify-end">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closePostComments()"></div>
+        <div class="relative bg-[#0d0d0d] border-t border-white/10 rounded-t-[32px] flex flex-col" style="max-height: 82vh;">
+            <!-- handle -->
+            <div class="flex justify-center pt-3 pb-1 shrink-0">
+                <div class="w-10 h-1 rounded-full bg-white/20"></div>
+            </div>
+            <!-- header -->
+            <div class="flex items-center justify-between px-5 pb-4 pt-2 border-b border-white/5 shrink-0">
+                <h3 class="text-[15px] font-black italic uppercase tracking-tight">Комментарии</h3>
+                <button onclick="closePostComments()" class="text-gray-500 text-xl active:scale-90 transition-transform">✕</button>
+            </div>
+            <!-- comments list -->
+            <div id="comments-list" class="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                <div class="text-center py-8 text-gray-600 text-[11px] font-bold uppercase tracking-widest">Загрузка...</div>
+            </div>
+            <!-- input bar -->
+            <div class="shrink-0 border-t border-white/5 px-4 py-3 flex gap-3 items-end bg-[#0d0d0d]" style="padding-bottom: max(12px, env(safe-area-inset-bottom));">
+                <div id="comment-author-avatar" class="w-8 h-8 rounded-full bg-[#111] border border-white/10 flex items-center justify-center text-[#FF6B00] font-black text-xs shrink-0 overflow-hidden"></div>
+                <div class="flex-1 bg-[#1a1a1a] border border-white/8 rounded-2xl px-4 py-2.5 flex items-end gap-2">
+                    <textarea id="comment-input" rows="1" placeholder="Напиши комментарий..." class="flex-1 bg-transparent text-white text-[13px] focus:outline-none resize-none placeholder-gray-600 leading-relaxed" style="max-height: 80px;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+                    <button onclick="createComment()" class="shrink-0 w-8 h-8 bg-[#FF6B00] rounded-full flex items-center justify-center active:scale-90 transition-transform shadow-[0_0_10px_rgba(255,107,0,0.4)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" class="w-4 h-4" style="transform: rotate(90deg)"><path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ===== END COMMENTS MODAL ===== -->
 
     <div id="edit-profile-modal" class="hidden-screen fixed inset-0 bg-[#050505] z-[9000] overflow-y-auto pb-40">
         <div class="px-5 pt-6 pb-4 flex items-center justify-between sticky top-0 bg-[#050505]/95 backdrop-blur-md z-40 border-b border-white/5">
