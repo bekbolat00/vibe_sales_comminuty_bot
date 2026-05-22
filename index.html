@@ -2668,6 +2668,7 @@
 
                 const user = tg.initDataUnsafe?.user;
                 if (!user) {
+                    console.warn('[checkAuth] tg.initDataUnsafe.user is null — открыто вне Telegram или initData не передан');
                     document.getElementById('loading-overlay').style.display = 'none';
                     document.getElementById('paywall-screen').classList.remove('hidden-screen');
                     return;
@@ -2685,14 +2686,18 @@
                         .insert([{ tg_id: user.id, first_name: user.first_name, username: user.username, is_paid: false }])
                         .select()
                         .single();
-                    if (insertError) throw insertError;
+                    if (insertError) {
+                        console.error('[checkAuth] insert error:', insertError.message, insertError.details, insertError.hint);
+                        tg.showAlert('⚠️ Ошибка регистрации: ' + insertError.message);
+                        throw insertError;
+                    }
                     fighter = newFighter;
                 }
 
                 // ШАГ 3: БД подтвердила запись — теперь скрываем загрузку и показываем нужный экран
                 document.getElementById('loading-overlay').style.display = 'none';
 
-                if (!fighter || fighter.is_paid === false || fighter.is_paid === null) {
+                if (!fighter || fighter.is_paid === false || fighter.is_paid === null || fighter.is_paid === undefined) {
                     document.getElementById('paywall-screen').classList.remove('hidden-screen');
                 } else if (!fighter.role) {
                     document.getElementById('onboarding-screen').classList.remove('hidden-screen');
@@ -2705,7 +2710,7 @@
                     refreshEvolution(fighter.tg_id);
                 }
             } catch (e) {
-                console.error('[checkAuth]', e);
+                console.error('[checkAuth] fatal error:', e);
                 document.getElementById('loading-overlay').style.display = 'none';
                 document.getElementById('paywall-screen').classList.remove('hidden-screen');
             }
