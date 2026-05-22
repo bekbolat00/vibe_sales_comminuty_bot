@@ -2660,37 +2660,53 @@
 
         async function checkAuth() {
             try {
+                // Fire-and-forget: не блокируют цепочку авторизации
                 loadBooks();
                 loadResumes();
                 loadClubPosts();
                 loadVacancies();
+
                 const user = tg.initDataUnsafe?.user;
                 if (!user) {
                     document.getElementById('loading-overlay').style.display = 'none';
                     document.getElementById('paywall-screen').classList.remove('hidden-screen');
                     return;
                 }
-                
-                let { data: fighter } = await db.from('users').select('*').eq('tg_id', user.id).single();
+
+                // ШАГ 1: Ищем юзера через maybeSingle() — не бросает ошибку при отсутствии строки
+                let { data: fighter, error: selectError } = await db
+                    .from('users').select('*').eq('tg_id', user.id).maybeSingle();
+                if (selectError) throw selectError;
+
+                // ШАГ 2: Если юзера нет — СНАЧАЛА пишем в БД, и только потом идём дальше
+                if (!fighter) {
+                    const { data: newFighter, error: insertError } = await db
+                        .from('users')
+                        .insert([{ tg_id: user.id, first_name: user.first_name, username: user.username, is_paid: false }])
+                        .select()
+                        .single();
+                    if (insertError) throw insertError;
+                    fighter = newFighter;
+                }
+
+                // ШАГ 3: БД подтвердила запись — теперь скрываем загрузку и показываем нужный экран
                 document.getElementById('loading-overlay').style.display = 'none';
 
-                if (!fighter) {
-                    await db.from('users').insert([{ tg_id: user.id, first_name: user.first_name, username: user.username, is_paid: false }]);
-                    document.getElementById('paywall-screen').classList.remove('hidden-screen');
-                } else if (fighter.is_paid === false || fighter.is_paid === null) {
+                if (!fighter || fighter.is_paid === false || fighter.is_paid === null) {
                     document.getElementById('paywall-screen').classList.remove('hidden-screen');
                 } else if (!fighter.role) {
                     document.getElementById('onboarding-screen').classList.remove('hidden-screen');
                 } else {
                     document.getElementById('main-app-container').classList.remove('hidden-screen');
-                    currentUserData = fighter; 
+                    currentUserData = fighter;
                     updateUI(fighter);
                     checkDailyLogin(fighter.tg_id, fighter);
                     checkUnreadNotifications(fighter.tg_id);
                     refreshEvolution(fighter.tg_id);
                 }
-            } catch (e) { 
-                document.getElementById('loading-overlay').style.display = 'none'; 
+            } catch (e) {
+                console.error('[checkAuth]', e);
+                document.getElementById('loading-overlay').style.display = 'none';
                 document.getElementById('paywall-screen').classList.remove('hidden-screen');
             }
         }
