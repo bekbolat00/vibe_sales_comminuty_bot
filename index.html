@@ -2429,6 +2429,13 @@
                 tg.showAlert('Вакансия успешно размещена! 🚀');
                 closeVacancyModal();
                 loadVacancies();
+
+                // XP за вакансию (макс 1 в день)
+                const vacKey = `vibe_vac_xp_${todayKey()}_${currentUserData.tg_id}`;
+                if (!localStorage.getItem(vacKey)) {
+                    localStorage.setItem(vacKey, '1');
+                    await awardXP(20, 'Вакансия опубликована');
+                }
             } catch(e) { tg.showAlert('Ошибка: ' + e.message); } 
             finally { document.getElementById('loading-overlay').style.display = 'none'; }
         }
@@ -2641,6 +2648,14 @@
                 closeNewPostModal();
                 tg.showAlert('Опубликовано! 🚀');
                 await loadClubPosts();
+
+                // XP за пост (макс 2 в день)
+                const postKey = `vibe_posts_xp_${todayKey()}_${currentUserData.tg_id}`;
+                const postsToday = parseInt(localStorage.getItem(postKey) || '0');
+                if (postsToday < 2) {
+                    localStorage.setItem(postKey, String(postsToday + 1));
+                    await awardXP(15, 'Пост опубликован');
+                }
             } catch (e) { tg.showAlert('Ошибка: ' + e.message); }
             finally { document.getElementById('loading-overlay').style.display = 'none'; }
         }
@@ -2649,7 +2664,7 @@
             let likedPosts = JSON.parse(localStorage.getItem('vibe_liked_posts')) || [];
 
             try {
-                const { data: post } = await db.from('club_posts').select('likes').eq('id', postId).single();
+                const { data: post } = await db.from('club_posts').select('likes, tg_id').eq('id', postId).single();
                 if(!post) return;
 
                 if (likedPosts.includes(postId)) {
@@ -2659,9 +2674,23 @@
                         localStorage.setItem('vibe_liked_posts', JSON.stringify(likedPosts));
                     }
                 } else {
-                    await db.from('club_posts').update({ likes: (post.likes || 0) + 1 }).eq('id', postId);
+                    const newLikes = (post.likes || 0) + 1;
+                    await db.from('club_posts').update({ likes: newLikes }).eq('id', postId);
                     likedPosts.push(postId);
                     localStorage.setItem('vibe_liked_posts', JSON.stringify(likedPosts));
+
+                    // XP автору за 50 лайков (один раз)
+                    if (newLikes === 50 && post.tg_id) {
+                        const likesMilestoneKey = `vibe_xp_likes50_${postId}`;
+                        if (!localStorage.getItem(likesMilestoneKey)) {
+                            localStorage.setItem(likesMilestoneKey, '1');
+                            if (currentUserData && String(post.tg_id) === String(currentUserData.tg_id)) {
+                                await awardXP(25, '50 огней на посте!');
+                            } else {
+                                await awardXPToUser(post.tg_id, 25);
+                            }
+                        }
+                    }
                 }
                 loadClubPosts();
             } catch(e) { console.error(e); }
@@ -2773,11 +2802,28 @@
                 input.value = '';
                 input.style.height = 'auto';
                 await loadPostComments(_activeCommentPostId);
-                // Scroll to bottom of comments list
                 const list = document.getElementById('comments-list');
                 list.scrollTop = list.scrollHeight;
-                // Refresh post feed to update comment count
                 loadClubPosts();
+
+                // XP автору за 50 комментариев (один раз)
+                const cmtMilestoneKey = `vibe_xp_cmts50_${_activeCommentPostId}`;
+                if (!localStorage.getItem(cmtMilestoneKey)) {
+                    const { count } = await db.from('post_comments')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('post_id', _activeCommentPostId);
+                    if (count >= 50) {
+                        localStorage.setItem(cmtMilestoneKey, '1');
+                        const { data: postRow } = await db.from('club_posts').select('tg_id').eq('id', _activeCommentPostId).single();
+                        if (postRow && postRow.tg_id) {
+                            if (currentUserData && String(postRow.tg_id) === String(currentUserData.tg_id)) {
+                                await awardXP(35, '50 комментов на посте!');
+                            } else {
+                                await awardXPToUser(postRow.tg_id, 35);
+                            }
+                        }
+                    }
+                }
             } catch(e) { tg.showAlert('Ошибка: ' + e.message); }
         };
 
@@ -2952,6 +2998,58 @@
             if (currentUserData) updateUI(currentUserData);
         }
 
+        // ─── XP Award Helpers ────────────────────────────────────────────────────
+
+        function showXpToast(amount, reason) {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-12px);z-index:10001;background:#FF6B00;color:#fff;font-size:11px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:0.08em;padding:10px 20px;border-radius:20px;white-space:nowrap;opacity:0;transition:all 0.3s ease;pointer-events:none;';
+            toast.textContent = `+${amount} XP · ${reason}`;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+            });
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(-12px)';
+                setTimeout(() => toast.remove(), 350);
+            }, 2800);
+        }
+
+        async function awardXP(amount, reason) {
+            if (!currentUserData || !currentUserData.tg_id) return;
+            try {
+                const tgId = String(currentUserData.tg_id);
+                const newXpBalance = (currentUserData.xp_balance || 0) + amount;
+                const newXp = (currentUserData.xp || 0) + amount;
+                const { error } = await db.from('users')
+                    .update({ xp_balance: newXpBalance, xp: newXp })
+                    .eq('tg_id', tgId);
+                if (error) { console.error('[awardXP]', error); return; }
+                currentUserData.xp_balance = newXpBalance;
+                currentUserData.xp = newXp;
+                showXpToast(amount, reason);
+                await refreshEvolution(tgId);
+            } catch (e) { console.error('[awardXP]', e); }
+        }
+
+        async function awardXPToUser(tgId, amount) {
+            if (!tgId) return;
+            try {
+                const { data: u } = await db.from('users').select('xp, xp_balance').eq('tg_id', String(tgId)).single();
+                if (!u) return;
+                await db.from('users')
+                    .update({ xp_balance: (u.xp_balance || 0) + amount, xp: (u.xp || 0) + amount })
+                    .eq('tg_id', String(tgId));
+            } catch (e) { console.error('[awardXPToUser]', e); }
+        }
+
+        function todayKey() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────
+
         function pluralDays(n) {
             const mod10 = n % 10, mod100 = n % 100;
             if (mod10 === 1 && mod100 !== 11) return 'день';
@@ -2969,7 +3067,7 @@
                 document.getElementById('loading-overlay').style.display = 'flex';
                 
                 const { data: updatedUser, error: updateError } = await db.from('users')
-                    .update({ role: role, score: 100, league: 'Новичок', streak: 1 })
+                    .update({ role: role, score: 0, league: 'Новичок', streak: 1 })
                     .eq('tg_id', String(currentUserData.tg_id)).select().single();
                 
                 document.getElementById('loading-overlay').style.display = 'none';
@@ -2980,7 +3078,7 @@
                     return;
                 }
 
-                const finalUser = updatedUser || { ...currentUserData, role, score: 100, league: 'Новичок' };
+                const finalUser = updatedUser || { ...currentUserData, role, score: 0, league: 'Новичок' };
                 currentUserData = finalUser;
 
                 document.getElementById('onboarding-screen').classList.add('hidden-screen');
@@ -4189,12 +4287,33 @@
                     if(epubBook.locations.length > 0) {
                         let pct = Math.round(epubBook.locations.percentageFromCfi(location.start.cfi) * 100);
                         localStorage.setItem(`vibe_pct_${currentUserData?.tg_id || 'guest'}_${currentBookId}`, pct);
+                        // XP за конец книги (≥98%)
+                        if (pct >= 98 && currentUserData && currentBookId) {
+                            const k = `vibe_xp_bookfinish_${currentUserData.tg_id}_${currentBookId}`;
+                            if (!localStorage.getItem(k)) {
+                                localStorage.setItem(k, '1');
+                                awardXP(100, 'Книга прочитана!');
+                            }
+                        }
                     }
                 }
             });
         }
 
-        function nextReaderPage() { if(epubRendition) { epubRendition.next(); pagesReadSession++; } }
+        async function nextReaderPage() {
+            if (!epubRendition) return;
+            epubRendition.next();
+            pagesReadSession++;
+            if (!currentUserData || !currentBookId) return;
+            const uid = currentUserData.tg_id;
+            if (pagesReadSession === 15) {
+                const k = `vibe_xp_read15_${uid}_${currentBookId}`;
+                if (!localStorage.getItem(k)) { localStorage.setItem(k, '1'); await awardXP(10, '15 страниц прочитано'); }
+            } else if (pagesReadSession === 100) {
+                const k = `vibe_xp_read100_${uid}_${currentBookId}`;
+                if (!localStorage.getItem(k)) { localStorage.setItem(k, '1'); await awardXP(40, '100 страниц прочитано'); }
+            }
+        }
         function prevReaderPage() { if(epubRendition) epubRendition.prev(); }
         
         function closeReader() {
@@ -4586,7 +4705,8 @@
                 );
                 if (error) throw error;
 
-                if (!userProgress.includes(currentLesson.id)) userProgress.push(currentLesson.id);
+                const wasNew = !userProgress.includes(currentLesson.id);
+                if (wasNew) userProgress.push(currentLesson.id);
 
                 // Toast-уведомление
                 const toast = document.createElement('div');
@@ -4594,6 +4714,42 @@
                 toast.innerHTML = '✅ Урок пройден! Следующий разблокирован 🚀';
                 document.body.appendChild(toast);
                 setTimeout(() => toast.remove(), 3000);
+
+                // XP за новый урок
+                if (wasNew) {
+                    await awardXP(20, 'Урок завершён');
+
+                    // XP за завершение модуля
+                    if (currentModuleLessons && currentModuleLessons.length > 0) {
+                        const allModuleDone = currentModuleLessons.every(l => userProgress.includes(l.id));
+                        if (allModuleDone) {
+                            const modKey = `vibe_xp_module_${uid}_${currentModuleName}`;
+                            if (!localStorage.getItem(modKey)) {
+                                localStorage.setItem(modKey, '1');
+                                setTimeout(() => awardXP(75, 'Модуль пройден!'), 1500);
+
+                                // XP за завершение всего курса — проверяем все уроки
+                                try {
+                                    const { data: allProgress } = await db
+                                        .from('user_lesson_progress')
+                                        .select('lesson_id')
+                                        .eq('user_id', uid)
+                                        .eq('is_completed', true);
+                                    const { data: allLessons } = await db
+                                        .from('lessons')
+                                        .select('id');
+                                    if (allLessons && allProgress && allProgress.length >= allLessons.length) {
+                                        const courseKey = `vibe_xp_course_${uid}`;
+                                        if (!localStorage.getItem(courseKey)) {
+                                            localStorage.setItem(courseKey, '1');
+                                            setTimeout(() => awardXP(200, 'Курс полностью пройден!'), 3000);
+                                        }
+                                    }
+                                } catch(e) { console.error('[courseXP]', e); }
+                            }
+                        }
+                    }
+                }
 
                 // Вернуться к списку уроков модуля (с обновлённым прогрессом)
                 openModuleCurriculum(currentModuleName, currentModuleLessons, userProgress);
