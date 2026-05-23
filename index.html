@@ -1392,7 +1392,7 @@
                 <div class="bg-white/20 w-16 h-16 rounded-full flex items-center justify-center font-black text-xl shadow-lg pl-1"><svg viewBox="0 0 24 24" fill="white" class="w-8 h-8"><path d="M8 5v14l11-7z"/></svg></div>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <div class="bento-card h-36 flex flex-col justify-end cursor-pointer active:scale-95" onclick="switchTab('streams-screen', 0)">🎙️<h3 class="text-base font-black uppercase italic mt-2">Эфиры</h3></div>
+                <div class="bento-card h-36 flex flex-col justify-end cursor-pointer active:scale-95" onclick="openScriptsHub()">📜<h3 class="text-base font-black uppercase italic mt-2">Мои скрипты</h3></div>
                 <div class="bento-card h-36 flex flex-col justify-end border-[#FF6B00]/20 cursor-pointer active:scale-95" onclick="switchTab('fighters-screen', 0)">⭐<h3 class="text-base font-black uppercase italic mt-2 text-[#FF6B00]">Бойцы</h3></div>
                 <div class="bento-card h-36 flex flex-col justify-end cursor-pointer active:scale-95" onclick="openLibrary()">📚<h3 class="text-base font-black uppercase italic mt-2">Книги</h3></div>
                 <div class="bento-card h-36 flex flex-col justify-end cursor-pointer active:scale-95" onclick="switchTab('projects-screen', 0)">
@@ -2381,7 +2381,8 @@
         tg.ready(); tg.expand();
         tg.setHeaderColor('#000000'); tg.setBackgroundColor('#000000');
 
-        let currentUserData = null; 
+        let currentUserData = null;
+        let currentScriptId = null; 
 
         window.FOUNDER_BADGE = `<svg class="inline-block ml-1 align-middle animate-vibe-founder" style="width: 14px; height: 14px; vertical-align: middle;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM10.5 17L6.5 13L7.91 11.59L10.5 14.17L16.09 8.59L17.5 10L10.5 17Z" fill="#0095f6"/>
@@ -8042,6 +8043,163 @@
             } finally {
                 if (saveBtn) { saveBtn.innerText = 'СОХРАНИТЬ'; saveBtn.style.opacity = '1'; saveBtn.style.pointerEvents = ''; }
             }
+        }
+    </script>
+
+    <!-- ===== SCRIPTS HUB MODAL ===== -->
+    <div id="scripts-hub-modal" class="hidden-screen fixed inset-0 z-[2000] bg-black flex flex-col overflow-y-auto pb-24">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-4 pt-10 pb-6 border-b border-white/5">
+            <h1 class="text-3xl font-black italic uppercase tracking-tighter">МОИ СКРИПТЫ</h1>
+            <button onclick="closeScriptsHub()" class="bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase px-4 py-2 rounded-xl active:scale-95 transition-transform">← НАЗАД</button>
+        </div>
+
+        <!-- Hub content (список + кнопка создания) -->
+        <div id="scripts-hub-content" class="flex-1 flex flex-col items-center justify-center px-4 py-12">
+            <button onclick="startNewScript()" class="w-full bg-gradient-to-r from-[#FF6B00] to-[#CC4400] text-white py-6 rounded-3xl font-black italic uppercase text-xl shadow-[0_0_30px_rgba(255,107,0,0.4)] active:scale-[0.98] transition-transform tracking-tight">
+                + НАПИСАТЬ НОВЫЙ СКРИПТ
+            </button>
+            <p class="text-white/20 text-[10px] font-bold uppercase tracking-widest mt-6">Твои скрипты появятся здесь</p>
+        </div>
+
+        <!-- Шаг 1: Ввод названия -->
+        <div id="script-name-step" class="hidden flex-1 flex flex-col px-4 py-10 gap-6">
+            <h2 class="text-2xl font-black italic uppercase tracking-tight text-center">КАК НАЗОВЕМ СКРИПТ?</h2>
+            <input id="new-script-name" type="text" placeholder="НАПРИМЕР: B2B ХОЛОДНЫЙ"
+                class="w-full bg-[#111] border border-white/10 focus:border-[#FF6B00] outline-none rounded-2xl px-5 py-4 text-white font-black italic uppercase text-base placeholder-white/20 tracking-tight transition-colors" />
+            <button onclick="chooseScriptType()" class="w-full bg-white text-black py-5 rounded-2xl font-black italic uppercase text-base tracking-tight active:scale-[0.98] transition-transform shadow-lg">
+                ДАЛЕЕ →
+            </button>
+        </div>
+
+        <!-- Экран конструктора (заглушка) -->
+        <div id="manual-builder-screen" class="hidden flex-1 flex-col px-4 py-10 gap-6">
+            <div class="flex items-center justify-between pb-4 border-b border-white/5">
+                <button onclick="_showScriptHubStep('hub')" class="bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase px-4 py-2 rounded-xl active:scale-95 transition-transform">← НАЗАД</button>
+                <h2 id="builder-script-title" class="text-lg font-black italic uppercase tracking-tight text-[#FF6B00] truncate max-w-[60%] text-right"></h2>
+            </div>
+            <div class="bento-card border-[#FF6B00]/20 bg-[#0a0a0a] text-center py-10 space-y-3">
+                <div class="text-4xl">✅</div>
+                <p class="text-sm font-black italic uppercase text-white/80">Конструктор скрипта успешно инициализирован в БД!</p>
+                <p class="text-[11px] text-white/30 font-bold uppercase tracking-widest">ID: <span id="builder-script-id" class="text-[#FF6B00]"></span></p>
+                <p class="text-[10px] text-white/20 font-bold uppercase tracking-widest mt-4">Рабочая область — в следующем шаге</p>
+            </div>
+        </div>
+
+        <!-- Шаг 2: Выбор формата -->
+        <div id="script-type-step" class="hidden flex-1 flex flex-col px-4 py-10 gap-6">
+            <h2 class="text-2xl font-black italic uppercase tracking-tight text-center">КАК БУДЕМ СОЗДАВАТЬ?</h2>
+            <div class="flex flex-col gap-4">
+                <!-- Ручная сборка -->
+                <button onclick="openManualBuilder()"
+                    class="w-full bento-card flex flex-col items-start gap-2 py-6 px-5 border border-white/10 active:scale-[0.98] transition-transform cursor-pointer">
+                    <span class="text-3xl">✍️</span>
+                    <span class="text-lg font-black italic uppercase tracking-tight">СОБРАТЬ ВРУЧНУЮ</span>
+                    <span class="text-[11px] text-white/40 font-bold uppercase tracking-widest">Блоки, реплики, ветки</span>
+                </button>
+                <!-- Импорт (скоро) -->
+                <div class="w-full bento-card flex flex-col items-start gap-2 py-6 px-5 border border-white/5 opacity-40 cursor-not-allowed select-none">
+                    <span class="text-3xl">✨</span>
+                    <span class="text-lg font-black italic uppercase tracking-tight">ИМПОРТИРОВАТЬ</span>
+                    <span class="text-[11px] text-[#FF6B00] font-bold uppercase tracking-widest">Скоро</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== SCRIPTS HUB =====
+        function openScriptsHub() {
+            const modal = document.getElementById('scripts-hub-modal');
+            modal.classList.remove('hidden-screen');
+            // сбрасываем к начальному состоянию каждый раз
+            _showScriptHubStep('hub');
+        }
+
+        function closeScriptsHub() {
+            document.getElementById('scripts-hub-modal').classList.add('hidden-screen');
+        }
+
+        function startNewScript() {
+            _showScriptHubStep('name');
+        }
+
+        function chooseScriptType() {
+            const name = document.getElementById('new-script-name').value.trim();
+            if (!name) {
+                if (typeof tg !== 'undefined' && tg.showAlert) {
+                    tg.showAlert('Введи название скрипта');
+                } else {
+                    alert('Введи название скрипта');
+                }
+                return;
+            }
+            _showScriptHubStep('type');
+        }
+
+        async function openManualBuilder() {
+            const userId = currentUserData?.tg_id || window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+            if (!userId) {
+                tg.showAlert('Ошибка авторизации');
+                return;
+            }
+
+            const scriptTitle = document.getElementById('new-script-name')?.value?.trim();
+            if (!scriptTitle) {
+                tg.showAlert('ВВЕДИ НАЗВАНИЕ СКРИПТА!');
+                return;
+            }
+
+            document.getElementById('loading-overlay').style.display = 'flex';
+
+            try {
+                const initialNodes = {
+                    "start": {
+                        "text": "Добрый день! Это [Твое Имя] из компании [Название]. Удобно говорить?",
+                        "answers": []
+                    }
+                };
+
+                const { data, error } = await db.from('sales_scripts').insert([{
+                    user_id: userId,
+                    title: scriptTitle,
+                    nodes: initialNodes,
+                    is_template: false
+                }]).select().single();
+
+                document.getElementById('loading-overlay').style.display = 'none';
+
+                if (error) {
+                    console.error('[openManualBuilder]', error);
+                    tg.showAlert('Ошибка базы данных: ' + error.message);
+                    return;
+                }
+
+                currentScriptId = data.id;
+                document.getElementById('builder-script-title').textContent = data.title;
+                document.getElementById('builder-script-id').textContent = data.id;
+                _showScriptHubStep('builder');
+            } catch (e) {
+                document.getElementById('loading-overlay').style.display = 'none';
+                console.error('[openManualBuilder]', e);
+                tg.showAlert('Ошибка: ' + (e.message || e));
+            }
+        }
+
+        function _showScriptHubStep(step) {
+            const steps = ['hub', 'name', 'type', 'builder'];
+            const ids = {
+                hub:     'scripts-hub-content',
+                name:    'script-name-step',
+                type:    'script-type-step',
+                builder: 'manual-builder-screen'
+            };
+            steps.forEach(s => {
+                const el = document.getElementById(ids[s]);
+                if (!el) return;
+                el.classList.toggle('hidden', s !== step);
+                el.classList.toggle('flex', s === step);
+            });
         }
     </script>
 
