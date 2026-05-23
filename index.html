@@ -2834,6 +2834,7 @@
                 if (!fighter || fighter.is_paid === false || fighter.is_paid === null || fighter.is_paid === undefined) {
                     document.getElementById('paywall-screen').classList.remove('hidden-screen');
                 } else if (!fighter.role) {
+                    currentUserData = fighter;
                     document.getElementById('onboarding-screen').classList.remove('hidden-screen');
                 } else {
                     document.getElementById('main-app-container').classList.remove('hidden-screen');
@@ -2903,32 +2904,40 @@
                 currentUserData.login_streak = newStreak;
                 currentUserData.xp_balance = newXpBalance;
 
-                // Render streak dots (7-dot cycle)
-                const dotSlot = ((newStreak - 1) % 7) + 1; // position 1–7
-                const dotsContainer = document.getElementById('daily-bonus-dots');
-                dotsContainer.innerHTML = '';
-                for (let i = 1; i <= 7; i++) {
-                    const dot = document.createElement('div');
-                    dot.className = 'streak-dot';
-                    if (i < dotSlot) {
-                        dot.classList.add('done');
-                        dot.textContent = '✓';
-                    } else if (i === dotSlot) {
-                        dot.classList.add('current');
-                        dot.textContent = '🔥';
-                    } else {
-                        dot.textContent = i;
-                    }
-                    dotsContainer.appendChild(dot);
-                }
-
                 // Update labels
-                document.getElementById('daily-bonus-streak-label').textContent =
-                    `Стрик: ${newStreak} ${pluralDays(newStreak)}`;
                 document.getElementById('daily-bonus-pts-label').textContent = `+${rewardPoints} PTS`;
                 if (bonusTitle) {
                     const titleEl = document.getElementById('daily-bonus-title');
                     if (titleEl) titleEl.textContent = bonusTitle;
+                }
+
+                // Обновляем текст стрика
+                const streakLabel = document.getElementById('daily-bonus-streak-label');
+                if (streakLabel) {
+                    streakLabel.innerText = `СТРИК: ${newStreak} ДН.`;
+                }
+
+                // Динамический рендер кружков (цикл 7 дней)
+                const dotsContainer = document.getElementById('daily-bonus-dots');
+                if (dotsContainer) {
+                    dotsContainer.innerHTML = '';
+                    // Вычисляем текущий день в рамках недели (от 1 до 7)
+                    let weekDay = newStreak % 7;
+                    if (weekDay === 0) weekDay = 7;
+
+                    for (let i = 1; i <= 7; i++) {
+                        const dot = document.createElement('div');
+                        dot.className = 'streak-dot';
+                        dot.innerText = i;
+
+                        if (i < weekDay) {
+                            dot.classList.add('done'); // Пройденные дни текущей недели
+                        } else if (i === weekDay) {
+                            dot.classList.add('current'); // Текущий день (горит)
+                        }
+
+                        dotsContainer.appendChild(dot);
+                    }
                 }
 
                 // Show modal
@@ -2953,23 +2962,39 @@
 
         async function registerUser(role) {
             try {
-                const user = tg.initDataUnsafe?.user;
-                if (!user) return;
+                if (!currentUserData || !currentUserData.tg_id) {
+                    tg.showAlert('Ошибка: не удалось определить пользователя. Перезапустите приложение.');
+                    return;
+                }
                 document.getElementById('loading-overlay').style.display = 'flex';
                 
-                // Дефолт приватности кассы: МОПы/РОПы — показывают, бизнес/фрилансеры — нет.
                 const defaultShowRevenue = (role === 'МОП' || role === 'РОП');
-                const { data: updatedUser } = await db.from('users')
+                const { data: updatedUser, error: updateError } = await db.from('users')
                     .update({ role: role, score: 100, league: 'Новичок', streak: 1, show_revenue: defaultShowRevenue })
-                    .eq('tg_id', user.id).select().single();
-                    
+                    .eq('tg_id', String(currentUserData.tg_id)).select().single();
+                
                 document.getElementById('loading-overlay').style.display = 'none';
+
+                if (updateError) {
+                    console.error('[registerUser] update error:', updateError);
+                    tg.showAlert('Ошибка сохранения роли: ' + updateError.message);
+                    return;
+                }
+
+                const finalUser = updatedUser || { ...currentUserData, role, score: 100, league: 'Новичок' };
+                currentUserData = finalUser;
+
                 document.getElementById('onboarding-screen').classList.add('hidden-screen');
                 document.getElementById('main-app-container').classList.remove('hidden-screen');
-                currentUserData = updatedUser; 
-                updateUI(updatedUser);
-                refreshEvolution(updatedUser.tg_id);
-            } catch(e) { console.error(e); }
+                updateUI(finalUser);
+                checkDailyLogin(finalUser.tg_id, finalUser);
+                checkUnreadNotifications(finalUser.tg_id);
+                refreshEvolution(finalUser.tg_id);
+            } catch(e) {
+                console.error('[registerUser]', e);
+                document.getElementById('loading-overlay').style.display = 'none';
+                tg.showAlert('Ошибка: ' + (e.message || 'неизвестная'));
+            }
         }
 
         /**
@@ -3027,6 +3052,10 @@
         function uploadGlobalAvatar(event) {
             const file = event.target.files[0];
             if (!file) return;
+            if (!currentUserData || !currentUserData.tg_id) {
+                tg.showAlert('Ошибка: пользователь не авторизован. Перезапустите приложение.');
+                return;
+            }
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
@@ -3065,12 +3094,13 @@
                 }
                 el.innerHTML = nameHTML;
             });
-            document.querySelectorAll('.user-score-val').forEach(el => el.innerText = `${fighter.score} PTS`);
-            document.querySelectorAll('.user-league-name').forEach(el => el.innerText = fighter.league.toUpperCase());
+            document.querySelectorAll('.user-score-val').forEach(el => el.innerText = `${fighter.score || 0} PTS`);
+            document.querySelectorAll('.user-streak-val').forEach(el => el.innerText = (fighter.login_streak || 0) + ' дн');
+            document.querySelectorAll('.user-league-name').forEach(el => el.innerText = (fighter.league || 'Новичок').toUpperCase());
             document.querySelectorAll('.user-role-display').forEach(el => el.innerText = fighter.role || 'Боец');
             const roleEls = document.querySelectorAll('.user-role-global');
             roleEls.forEach(el => {
-                el.innerText = fighter.role || 'ПРЕДПРИНИМАТЕЛЬ';
+                el.innerText = fighter.role || 'БОЕЦ';
             });
             if (fighter.avatar_base64) {
                 document.getElementById('profile-main-avatar').src = fighter.avatar_base64;
@@ -3120,7 +3150,7 @@
             const lvlEl = document.getElementById('character-level-badge');
             const xpEl = document.getElementById('profile-xp-value');
 
-            const xp = fighter.xp_balance || fighter.xp || 0;
+            const xp = fighter.xp_balance || 0;
             if (xpEl) xpEl.innerText = xp;
 
             // Запрашиваем eras_config (содержит required_xp и level_name)
