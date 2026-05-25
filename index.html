@@ -8442,11 +8442,28 @@
         // Header (drag handle)
         const header = document.createElement('div');
         header.className = 'flow-node-header';
-        header.innerHTML =
-            `<span class="flow-node-tag">УЗЕЛ ${nodeIndex}</span>
-             <button class="flow-node-edit-btn" onclick="event.stopPropagation();_selectNode('${node.id}')">✏️</button>`;
-        // Touch drag on header
-        header.addEventListener('touchstart', e => _onNodeDragStart(e, node.id), { passive: false });
+
+        const nodeTag = document.createElement('span');
+        nodeTag.className = 'flow-node-tag';
+        nodeTag.textContent = 'УЗЕЛ ' + nodeIndex;
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'flow-node-edit-btn';
+        editBtn.textContent = '✏️';
+        // Both click AND touchend ensure it fires on mobile regardless of drag state
+        const _doSelect = (e) => { e.stopPropagation(); _selectNode(node.id); };
+        editBtn.addEventListener('click', _doSelect);
+        editBtn.addEventListener('touchend', _doSelect, { passive: false });
+
+        header.appendChild(nodeTag);
+        header.appendChild(editBtn);
+
+        // Drag only starts when touch is NOT on the edit button
+        header.addEventListener('touchstart', e => {
+            if (e.target === editBtn || editBtn.contains(e.target)) return;
+            _onNodeDragStart(e, node.id);
+        }, { passive: false });
+
         el.appendChild(header);
 
         // Manager text
