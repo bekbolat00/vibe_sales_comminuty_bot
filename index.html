@@ -1239,6 +1239,44 @@
             100% { transform: scale(1); }
         }
         .gs-fav-btn.pop { animation: gs-fav-pop 0.4s ease; }
+
+        /* ===== FLOW EDITOR (Node-based script builder) ===== */
+        #flow-editor-screen { position: absolute; inset: 0; flex-direction: column; background: #000; }
+        .flow-canvas-wrap { flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; position: relative; background: #050505; background-image: radial-gradient(circle, rgba(255,107,0,0.04) 1px, transparent 1px); background-size: 28px 28px; }
+        #flow-canvas { position: relative; width: 1800px; min-height: 2800px; }
+        #flow-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+        .flow-node { position: absolute; width: 260px; border-radius: 20px; background: #111; border: 1.5px solid rgba(255,255,255,0.08); transition: border-color 0.2s, box-shadow 0.2s; }
+        .flow-node.selected { border-color: #FF6B00; box-shadow: 0 0 24px rgba(255,107,0,0.35); }
+        .flow-node.link-target { border-color: #22c55e; box-shadow: 0 0 20px rgba(34,197,94,0.3); cursor: pointer; }
+        .flow-node-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); cursor: grab; user-select: none; -webkit-user-select: none; }
+        .flow-node-header:active { cursor: grabbing; }
+        .flow-node-tag { font-size: 9px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #FF6B00; background: rgba(255,107,0,0.12); padding: 3px 8px; border-radius: 8px; }
+        .flow-node-edit-btn { width: 26px; height: 26px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; flex-shrink: 0; transition: background 0.15s; }
+        .flow-node-edit-btn:active { background: rgba(255,107,0,0.2); }
+        .flow-node-text { padding: 10px 12px; font-size: 11px; color: rgba(255,255,255,0.75); font-weight: 600; line-height: 1.5; min-height: 44px; }
+        .flow-node-text.empty { color: rgba(255,255,255,0.2); font-style: italic; }
+        .flow-answers-section { padding: 0 12px 10px; }
+        .flow-answer-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+        .flow-answer-text { flex: 1; font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 10px; padding: 6px 10px; min-height: 30px; display: flex; align-items: center; white-space: pre-wrap; word-break: break-word; line-height: 1.4; }
+        .flow-answer-text.connected { border-color: rgba(255,107,0,0.3); color: rgba(255,255,255,0.8); }
+        .flow-answer-link-btn { width: 26px; height: 26px; flex-shrink: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; transition: all 0.15s; border: 1.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); }
+        .flow-answer-link-btn.linked { background: rgba(255,107,0,0.15); border-color: rgba(255,107,0,0.5); }
+        .flow-answer-link-btn:active { transform: scale(0.9); }
+        .flow-add-answer-btn { width: 100%; padding: 7px 0; border-radius: 10px; border: 1px dashed rgba(255,107,0,0.3); color: rgba(255,107,0,0.6); font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; background: transparent; cursor: pointer; margin-top: 2px; transition: all 0.15s; display: block; }
+        .flow-add-answer-btn:active { background: rgba(255,107,0,0.08); }
+
+        /* Edit Sheet */
+        #flow-edit-sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 3100; background: #161616; border: 1px solid rgba(255,255,255,0.08); border-bottom: none; border-radius: 28px 28px 0 0; padding: 20px 20px 36px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(.4,0,.2,1); max-height: 80vh; overflow-y: auto; }
+        #flow-edit-sheet.open { transform: translateY(0); }
+        .flow-edit-sheet-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.12); border-radius: 2px; margin: 0 auto 16px; }
+
+        /* Link mode overlay */
+        #flow-link-hint { position: fixed; top: 0; left: 0; right: 0; z-index: 3000; background: linear-gradient(to bottom, rgba(255,107,0,0.15), transparent); padding: 14px 20px; display: none; }
+        #flow-link-hint.show { display: flex; align-items: center; gap: 10px; }
+
+        /* Connection animation */
+        .flow-conn-path { stroke: #FF6B00; stroke-width: 2; fill: none; opacity: 0.7; marker-end: url(#arrowhead); }
+        .flow-conn-path.green { stroke: #22c55e; opacity: 0.85; }
     </style>
 </head>
 <body class="max-w-md mx-auto relative">
@@ -2940,7 +2978,7 @@
                     .update({
                         xp_balance: newXpBalance,
                         login_streak: newStreak,
-                        last_login_date: new Date().toISOString()
+                        last_login_date: todayStr
                     })
                     .eq('tg_id', String(userId));
 
@@ -8104,49 +8142,7 @@
                 </div>
             </div>
 
-            <!-- Конструктор скрипта (builder) -->
-            <div id="manual-builder-screen" class="hidden flex-col px-4 pt-6 pb-36 gap-0">
-                <!-- Шапка -->
-                <div class="flex items-center justify-between pb-4 border-b border-white/5 mb-4">
-                    <button onclick="_builderGoBack()" class="bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase px-4 py-2 rounded-xl active:scale-95 transition-transform">← НАЗАД</button>
-                    <h2 id="builder-script-title" class="text-sm font-black italic uppercase tracking-tight text-[#FF6B00] truncate max-w-[55%] text-right"></h2>
-                </div>
-
-                <!-- Индикатор шага -->
-                <div class="flex items-center gap-2 mb-5">
-                    <span id="builder-step-indicator" class="text-xs font-black uppercase tracking-widest text-[#FF6B00]">ШАГ 1</span>
-                    <div class="flex-1 h-px bg-white/8"></div>
-                    <span id="builder-step-total" class="text-xs font-black uppercase tracking-widest text-white/25">из 1</span>
-                </div>
-
-                <!-- Что говорит менеджер -->
-                <p class="font-black italic text-gray-400 text-xs mb-2 uppercase tracking-widest">ЧТО ГОВОРИМ КЛИЕНТУ?</p>
-                <textarea id="node-text-input"
-                    class="w-full h-32 bg-[#1A1A1A] text-white border border-[#333] focus:border-[#FF6B00] rounded-2xl p-4 outline-none resize-none text-sm font-medium leading-relaxed transition-colors"
-                    placeholder="Введите текст реплики..."></textarea>
-
-                <!-- Варианты ответов -->
-                <p class="font-black italic text-gray-400 text-xs mt-5 mb-3 uppercase tracking-widest">ВАРИАНТЫ ОТВЕТОВ КЛИЕНТА:</p>
-                <div id="node-answers-list" class="flex flex-col gap-3"></div>
-
-                <!-- Кнопка добавить вариант -->
-                <button onclick="addNewAnswerBtn()"
-                    class="mt-3 w-full py-4 rounded-2xl border border-[#FF6B00] text-[#FF6B00] font-black italic uppercase text-sm tracking-tight active:scale-[0.98] transition-all bg-transparent">
-                    + ДОБАВИТЬ ВАРИАНТ ОТВЕТА
-                </button>
-
-                <!-- Нижние кнопки -->
-                <div class="mt-6 grid grid-cols-2 gap-3">
-                    <button onclick="saveStepAndAddNext()"
-                        class="py-4 rounded-2xl bg-white/8 border border-white/12 text-white font-black italic uppercase text-[11px] tracking-tight active:scale-[0.98] transition-transform leading-tight">
-                        + ДОБАВИТЬ<br>ЕЩЁ ШАГ
-                    </button>
-                    <button onclick="finishAndSaveScript()"
-                        class="py-4 rounded-2xl bg-[#FF6B00] text-white font-black italic uppercase text-[11px] tracking-tight shadow-[0_0_20px_rgba(255,107,0,0.35)] active:scale-[0.98] transition-transform leading-tight">
-                        СОХРАНИТЬ<br>СКРИПТ ✓
-                    </button>
-                </div>
-            </div>
+            <!-- placeholder: flow editor is a direct child of the modal -->
 
             <!-- Экран чтения скрипта -->
             <div id="script-view-screen" class="hidden flex-col px-4 pt-6 pb-32 gap-0">
@@ -8162,6 +8158,63 @@
 
         </div><!-- /scroll area -->
 
+        <!-- ===== FLOW EDITOR (overlays entire modal) ===== -->
+        <div id="manual-builder-screen" class="hidden" style="position:absolute;inset:0;flex-direction:column;background:#000;z-index:10;">
+            <!-- Toolbar -->
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:52px 16px 12px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;background:#000;">
+                <button onclick="_flowGoBack()" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;padding:8px 14px;border-radius:12px;cursor:pointer;">← НАЗАД</button>
+                <h2 id="flow-script-title" style="font-size:12px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:0.06em;color:#FF6B00;max-width:45%;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></h2>
+                <button onclick="_saveFlowAndExit()" style="background:linear-gradient(135deg,#FF6B00,#CC4400);border:none;color:#fff;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;padding:8px 14px;border-radius:12px;cursor:pointer;box-shadow:0 0 16px rgba(255,107,0,0.4);">СОХРАНИТЬ ✓</button>
+            </div>
+
+            <!-- Link mode hint bar -->
+            <div id="flow-link-hint" style="background:rgba(255,107,0,0.12);border-bottom:1px solid rgba(255,107,0,0.25);padding:10px 16px;display:none;align-items:center;justify-content:space-between;flex-shrink:0;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:14px;">🔗</span>
+                    <span style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:#FF6B00;">Нажми на узел, чтобы подключить ответ</span>
+                </div>
+                <button onclick="_cancelLinkMode()" style="font-size:10px;font-weight:900;color:rgba(255,255,255,0.4);background:none;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:0.06em;">ОТМЕНА</button>
+            </div>
+
+            <!-- Canvas -->
+            <div class="flow-canvas-wrap" id="flow-canvas-wrap" style="flex:1;overflow:auto;-webkit-overflow-scrolling:touch;position:relative;background:#050505;background-image:radial-gradient(circle,rgba(255,107,0,0.04) 1px,transparent 1px);background-size:28px 28px;">
+                <div id="flow-canvas" style="position:relative;width:1800px;min-height:2800px;">
+                    <svg id="flow-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;">
+                        <defs>
+                            <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                                <polygon points="0 0, 8 3, 0 6" fill="#FF6B00" opacity="0.8"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                    <div id="flow-nodes-container"></div>
+                </div>
+            </div>
+
+            <!-- Floating Add Node button -->
+            <button onclick="_addFlowNode()" id="flow-add-node-btn"
+                style="position:fixed;bottom:24px;right:20px;z-index:2500;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#FF6B00,#CC4400);border:none;color:#fff;font-size:24px;font-weight:900;display:none;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(255,107,0,0.5);cursor:pointer;"
+                ontouchstart="this.style.transform='scale(0.9)'" ontouchend="this.style.transform='scale(1)'">+</button>
+        </div>
+
+        <!-- Node edit bottom sheet (inside modal, above canvas) -->
+        <div id="flow-edit-sheet" style="position:fixed;bottom:0;left:0;right:0;z-index:3100;background:#161616;border:1px solid rgba(255,255,255,0.08);border-bottom:none;border-radius:28px 28px 0 0;padding:20px 20px 40px;transform:translateY(100%);transition:transform 0.3s cubic-bezier(.4,0,.2,1);max-height:80vh;overflow-y:auto;">
+            <div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;margin:0 auto 16px;"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <span style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#FF6B00;" id="flow-sheet-tag">ШАГ 1</span>
+                <div style="display:flex;gap:8px;">
+                    <button onclick="_deleteSelectedNode()" style="padding:6px 12px;border-radius:10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;">🗑 УДАЛИТЬ УЗЕЛ</button>
+                    <button onclick="_closeFlowEditSheet()" style="padding:6px 12px;border-radius:10px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:10px;font-weight:900;text-transform:uppercase;cursor:pointer;">✕</button>
+                </div>
+            </div>
+
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin-bottom:8px;">ЧТО ГОВОРИМ КЛИЕНТУ:</p>
+            <textarea id="flow-sheet-text" style="width:100%;height:100px;background:#1A1A1A;color:#fff;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:14px;font-size:13px;font-weight:600;font-family:'Montserrat',sans-serif;outline:none;resize:none;line-height:1.5;box-sizing:border-box;" placeholder="Введите реплику менеджера..." oninput="_onSheetTextInput()"></textarea>
+
+            <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin:14px 0 8px;">ОТВЕТЫ КЛИЕНТА:</p>
+            <div id="flow-sheet-answers" style="display:flex;flex-direction:column;gap:8px;"></div>
+            <button onclick="_addSheetAnswer()" style="margin-top:10px;width:100%;padding:12px;border-radius:14px;border:1.5px dashed rgba(255,107,0,0.4);background:transparent;color:rgba(255,107,0,0.7);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;">+ ДОБАВИТЬ ОТВЕТ</button>
+        </div>
+
         <!-- Плавающая кнопка + (только на экране списка) -->
         <button id="scripts-float-add-btn" onclick="startNewScript()"
             class="fixed bottom-8 right-5 w-16 h-16 rounded-full bg-gradient-to-br from-[#FF6B00] to-[#CC4400] text-white text-4xl font-black shadow-[0_0_30px_rgba(255,107,0,0.55)] active:scale-95 transition-transform flex items-center justify-center z-[2100]"
@@ -8172,313 +8225,663 @@
     </div>
 
     <script>
-        // ===== SCRIPTS HUB =====
+    // ===================================================================
+    // SCRIPTS HUB — full flow-node editor + list + viewer
+    // ===================================================================
 
-        let _scriptBuilderData  = null; // { id, title, steps: [{managerText, answers:[string]}] }
-        let _builderStepIdx     = 0;
-        let _scriptsCache       = {};   // id -> script row from DB
+    let _scriptsCache    = {};   // id -> row from DB
+    let _flowScript      = null; // { id, title, nodes: [{id,x,y,managerText,answers:[{id,text,nextNodeId}]}] }
+    let _selectedNodeId  = null;
+    let _linkMode        = null; // { sourceNodeId, answerId } — waiting for user to tap target
+    let _dragState       = null; // touch drag state
 
-        // ---- открыть / закрыть хаб ----
-        function openScriptsHub() {
-            document.getElementById('scripts-hub-modal').classList.remove('hidden-screen');
-            _showScriptHubStep('hub');
-            loadUserScripts();
+    // ---- open / close hub ----
+    function openScriptsHub() {
+        document.getElementById('scripts-hub-modal').classList.remove('hidden-screen');
+        _showScriptHubStep('hub');
+        loadUserScripts();
+    }
+    function closeScriptsHub() {
+        _closeFlowEditSheet();
+        document.getElementById('scripts-hub-modal').classList.add('hidden-screen');
+    }
+
+    // ---- screen navigation ----
+    function _showScriptHubStep(step) {
+        // The builder screen overlays the entire modal — handle separately
+        const builderEl = document.getElementById('manual-builder-screen');
+        if (step === 'builder') {
+            if (builderEl) { builderEl.classList.remove('hidden'); builderEl.style.display = 'flex'; }
+            document.getElementById('scripts-float-add-btn').style.display = 'none';
+            document.getElementById('flow-add-node-btn').style.display = 'flex';
+            return;
         }
-        function closeScriptsHub() {
-            document.getElementById('scripts-hub-modal').classList.add('hidden-screen');
-        }
+        // Hide builder when navigating away
+        if (builderEl) { builderEl.classList.add('hidden'); builderEl.style.display = 'none'; }
+        document.getElementById('flow-add-node-btn').style.display = 'none';
+        _closeFlowEditSheet();
 
-        // ---- навигация по шагам ----
-        function _showScriptHubStep(step) {
-            const map = {
-                hub:     'scripts-hub-content',
-                name:    'script-name-step',
-                type:    'script-type-step',
-                builder: 'manual-builder-screen',
-                view:    'script-view-screen'
-            };
-            Object.keys(map).forEach(s => {
-                const el = document.getElementById(map[s]);
-                if (!el) return;
-                el.classList.toggle('hidden', s !== step);
-                if (s !== step) el.classList.remove('flex');
-                else            el.classList.add('flex');
-            });
-            // Плавающая кнопка видна только на экране списка
-            const fab = document.getElementById('scripts-float-add-btn');
-            if (fab) fab.style.display = (step === 'hub') ? 'flex' : 'none';
-        }
+        const map = {
+            hub:  'scripts-hub-content',
+            name: 'script-name-step',
+            type: 'script-type-step',
+            view: 'script-view-screen'
+        };
+        Object.keys(map).forEach(s => {
+            const el = document.getElementById(map[s]);
+            if (!el) return;
+            if (s === step) { el.classList.remove('hidden'); el.style.display = 'flex'; }
+            else            { el.classList.add('hidden'); el.style.display = 'none'; }
+        });
+        const fab = document.getElementById('scripts-float-add-btn');
+        if (fab) fab.style.display = (step === 'hub') ? 'flex' : 'none';
+    }
 
-        // ---- создание нового скрипта ----
-        function startNewScript() {
-            document.getElementById('new-script-name').value = '';
-            _showScriptHubStep('name');
-        }
+    // ---- new script ----
+    function startNewScript() {
+        document.getElementById('new-script-name').value = '';
+        _showScriptHubStep('name');
+    }
+    function chooseScriptType() {
+        const name = document.getElementById('new-script-name').value.trim();
+        if (!name) { _vibAlert('Введи название скрипта'); return; }
+        _showScriptHubStep('type');
+    }
 
-        function chooseScriptType() {
-            const name = document.getElementById('new-script-name').value.trim();
-            if (!name) { _vibAlert('Введи название скрипта'); return; }
-            _showScriptHubStep('type');
-        }
+    // ---- open flow editor (new or edit) ----
+    async function openManualBuilder() {
+        const userId = currentUserData?.tg_id || window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        if (!userId) { _vibAlert('Ошибка авторизации'); return; }
+        const title = document.getElementById('new-script-name')?.value?.trim();
+        if (!title) { _vibAlert('Введи название скрипта!'); return; }
 
-        async function openManualBuilder() {
-            const userId = currentUserData?.tg_id || window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-            if (!userId) { _vibAlert('Ошибка авторизации'); return; }
-            const title = document.getElementById('new-script-name')?.value?.trim();
-            if (!title) { _vibAlert('Введи название скрипта!'); return; }
+        document.getElementById('loading-overlay').style.display = 'flex';
+        try {
+            const firstNode = _mkNode(80, 80, 'Добрый день! Это [Твоё Имя] из [Компания]. Удобно говорить?');
+            const nodesData = { nodes: [firstNode] };
+            const { data, error } = await db.from('sales_scripts').insert([{
+                user_id: String(userId), title, nodes: nodesData, is_template: false
+            }]).select().single();
 
-            document.getElementById('loading-overlay').style.display = 'flex';
-            try {
-                const nodes = { steps: [{ managerText: 'Добрый день! Это [Твое Имя] из компании [Название]. Удобно говорить?', answers: [] }] };
-                const { data, error } = await db.from('sales_scripts').insert([{
-                    user_id: userId, title, nodes, is_template: false
-                }]).select().single();
-
-                document.getElementById('loading-overlay').style.display = 'none';
-                if (error) { _vibAlert('Ошибка БД: ' + error.message); return; }
-
-                currentScriptId = data.id;
-                _scriptBuilderData = { id: data.id, title: data.title, steps: [...nodes.steps] };
-                _builderStepIdx = 0;
-                _renderBuilderStep();
-                _showScriptHubStep('builder');
-            } catch(e) {
-                document.getElementById('loading-overlay').style.display = 'none';
-                _vibAlert('Ошибка: ' + (e.message || e));
-            }
-        }
-
-        // ---- конструктор: рендер текущего шага ----
-        function _renderBuilderStep() {
-            const step = _scriptBuilderData.steps[_builderStepIdx];
-            document.getElementById('builder-script-title').textContent = _scriptBuilderData.title;
-            document.getElementById('builder-step-indicator').textContent = 'ШАГ ' + (_builderStepIdx + 1);
-            document.getElementById('builder-step-total').textContent = 'из ' + _scriptBuilderData.steps.length;
-            document.getElementById('node-text-input').value = step.managerText || '';
-
-            const list = document.getElementById('node-answers-list');
-            list.innerHTML = '';
-            (step.answers || []).forEach((ans, i) => list.appendChild(_mkAnswerRow(ans, i)));
-        }
-
-        function _mkAnswerRow(text, idx) {
-            const wrap = document.createElement('div');
-            wrap.className = 'flex items-center gap-2';
-            wrap.dataset.answerIdx = idx;
-            wrap.innerHTML =
-                `<div class="flex-1 flex items-center bg-[#1A1A1A] border border-[#333] focus-within:border-[#FF6B00] rounded-xl px-4 py-3 gap-3 transition-colors">
-                    <span class="text-[#FF6B00] font-black text-sm flex-shrink-0">${idx + 1}.</span>
-                    <input type="text" value="${_esc(text)}"
-                        class="flex-1 bg-transparent text-white text-sm font-medium outline-none placeholder-white/30"
-                        placeholder="Ответ клиента..."
-                        oninput="_syncAnswer(${idx}, this.value)" />
-                </div>
-                <button onclick="_removeAnswer(${idx})"
-                    class="w-9 h-9 flex-shrink-0 rounded-xl bg-white/5 border border-white/10 text-white/40 text-xs font-black flex items-center justify-center active:scale-95 transition-transform">✕</button>`;
-            return wrap;
-        }
-
-        function _esc(s) {
-            return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-        }
-
-        function _syncAnswer(idx, val) {
-            if (!_scriptBuilderData) return;
-            const step = _scriptBuilderData.steps[_builderStepIdx];
-            if (step?.answers) step.answers[idx] = val;
-        }
-
-        function _removeAnswer(idx) {
-            if (!_scriptBuilderData) return;
-            const step = _scriptBuilderData.steps[_builderStepIdx];
-            if (step?.answers) { step.answers.splice(idx, 1); _renderBuilderStep(); }
-        }
-
-        // ---- добавить вариант ответа ----
-        function addNewAnswerBtn() {
-            if (!_scriptBuilderData) return;
-            const step = _scriptBuilderData.steps[_builderStepIdx];
-            if (!step.answers) step.answers = [];
-            step.answers.push('');
-            const list = document.getElementById('node-answers-list');
-            const row  = _mkAnswerRow('', step.answers.length - 1);
-            list.appendChild(row);
-            row.querySelector('input')?.focus();
-        }
-
-        // ---- собрать данные текущего шага ----
-        function _collectStep() {
-            if (!_scriptBuilderData) return;
-            const step = _scriptBuilderData.steps[_builderStepIdx];
-            step.managerText = document.getElementById('node-text-input').value.trim();
-        }
-
-        // ---- сохранить и добавить следующий шаг ----
-        async function saveStepAndAddNext() {
-            _collectStep();
-            const step = _scriptBuilderData.steps[_builderStepIdx];
-            if (!step.managerText) { _vibAlert('Введи текст реплики!'); return; }
-
-            _scriptBuilderData.steps.push({ managerText: '', answers: [] });
-            _builderStepIdx = _scriptBuilderData.steps.length - 1;
-            await _persistScript();
-            _renderBuilderStep();
-            // Scroll to top of builder
-            document.querySelector('.flex-1.overflow-y-auto')?.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // ---- сохранить весь скрипт и перейти к чтению ----
-        async function finishAndSaveScript() {
-            _collectStep();
-            const step = _scriptBuilderData.steps[_builderStepIdx];
-            if (!step.managerText) { _vibAlert('Введи текст последней реплики!'); return; }
-
-            document.getElementById('loading-overlay').style.display = 'flex';
-            await _persistScript();
             document.getElementById('loading-overlay').style.display = 'none';
+            if (error) { _vibAlert('Ошибка БД: ' + error.message); return; }
 
-            _openScriptView(_scriptBuilderData.id, _scriptBuilderData.title, { steps: _scriptBuilderData.steps });
+            _openFlowEditor(data.id, title, nodesData);
+        } catch(e) {
+            document.getElementById('loading-overlay').style.display = 'none';
+            _vibAlert('Ошибка: ' + (e.message || e));
+        }
+    }
+
+    // ---- flow editor init ----
+    function _openFlowEditor(id, title, nodesData) {
+        currentScriptId = id;
+        // Migrate old steps-based format
+        let nodes = nodesData?.nodes;
+        if (!nodes && nodesData?.steps) {
+            nodes = nodesData.steps.map((s, i) => _mkNode(80, 80 + i * 220, s.managerText || '', (s.answers||[]).map(a => ({id:_uid(), text: typeof a==='string'?a:(a.text||''), nextNodeId: typeof a==='object'?a.nextNodeId||null:null}))));
+            // Wire linear connections
+            for (let i = 0; i < nodes.length - 1; i++) {
+                if (nodes[i].answers.length === 0) nodes[i].answers.push({id:_uid(), text:'', nextNodeId: nodes[i+1].id});
+                else nodes[i].answers.forEach(a => { if (!a.nextNodeId) a.nextNodeId = nodes[i+1].id; });
+            }
+        }
+        if (!nodes || nodes.length === 0) nodes = [_mkNode(80, 80, '')];
+
+        _flowScript = { id, title, nodes };
+        _selectedNodeId = null;
+        _linkMode = null;
+
+        document.getElementById('flow-script-title').textContent = title;
+        document.getElementById('flow-link-hint').style.display = 'none';
+        _renderFlowCanvas();
+        _showScriptHubStep('builder');
+
+        // Scroll canvas to top-left
+        setTimeout(() => {
+            const wrap = document.getElementById('flow-canvas-wrap');
+            if (wrap) { wrap.scrollLeft = 0; wrap.scrollTop = 0; }
+        }, 50);
+    }
+
+    // ---- node helpers ----
+    function _mkNode(x, y, text, answers) {
+        return { id: _uid(), x, y, managerText: text || '', answers: answers || [] };
+    }
+    function _uid() {
+        return 'n' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+    }
+
+    // ---- render canvas ----
+    function _renderFlowCanvas() {
+        if (!_flowScript) return;
+        const container = document.getElementById('flow-nodes-container');
+        const svg = document.getElementById('flow-svg');
+        container.innerHTML = '';
+        // Clear SVG but keep defs
+        Array.from(svg.children).forEach(c => { if (c.tagName !== 'defs') c.remove(); });
+
+        _flowScript.nodes.forEach(node => {
+            container.appendChild(_createNodeEl(node));
+        });
+        _drawConnections();
+    }
+
+    const NODE_W = 260;
+
+    function _createNodeEl(node) {
+        const isSelected = node.id === _selectedNodeId;
+        const isLinkTarget = _linkMode && node.id !== _linkMode.sourceNodeId;
+        const nodeIndex = _flowScript.nodes.indexOf(node) + 1;
+
+        const el = document.createElement('div');
+        el.className = 'flow-node' + (isSelected ? ' selected' : '') + (isLinkTarget ? ' link-target' : '');
+        el.id = 'fn-' + node.id;
+        el.style.left = node.x + 'px';
+        el.style.top  = node.y + 'px';
+
+        if (isLinkTarget) {
+            el.onclick = (e) => { e.stopPropagation(); _completeLinkMode(node.id); };
         }
 
-        async function _persistScript() {
-            try {
-                const { error } = await db.from('sales_scripts')
-                    .update({ nodes: { steps: _scriptBuilderData.steps } })
-                    .eq('id', _scriptBuilderData.id);
-                if (error) console.error('[_persistScript]', error);
-            } catch(e) { console.error('[_persistScript]', e); }
+        // Header (drag handle)
+        const header = document.createElement('div');
+        header.className = 'flow-node-header';
+        header.innerHTML =
+            `<span class="flow-node-tag">УЗЕЛ ${nodeIndex}</span>
+             <button class="flow-node-edit-btn" onclick="event.stopPropagation();_selectNode('${node.id}')">✏️</button>`;
+        // Touch drag on header
+        header.addEventListener('touchstart', e => _onNodeDragStart(e, node.id), { passive: false });
+        el.appendChild(header);
+
+        // Manager text
+        const textEl = document.createElement('div');
+        textEl.className = 'flow-node-text' + (!node.managerText ? ' empty' : '');
+        textEl.textContent = node.managerText || 'Нажми ✏️ чтобы добавить текст';
+        el.appendChild(textEl);
+
+        // Answers section
+        if (node.answers && node.answers.length > 0) {
+            const sec = document.createElement('div');
+            sec.className = 'flow-answers-section';
+
+            const label = document.createElement('div');
+            label.style.cssText = 'font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.2);margin-bottom:6px;';
+            label.textContent = 'ОТВЕТЫ КЛИЕНТА:';
+            sec.appendChild(label);
+
+            node.answers.forEach((ans, ai) => {
+                const row = document.createElement('div');
+                row.className = 'flow-answer-row';
+                row.id = 'far-' + node.id + '-' + ans.id;
+
+                const isLinked = !!ans.nextNodeId;
+                const ansText = document.createElement('div');
+                ansText.className = 'flow-answer-text' + (isLinked ? ' connected' : '');
+                ansText.innerHTML = `<span style="color:#FF6B00;font-weight:900;margin-right:6px;font-size:10px;">${ai+1}.</span>${_esc(ans.text || '—')}`;
+
+                const linkBtn = document.createElement('button');
+                linkBtn.className = 'flow-answer-link-btn' + (isLinked ? ' linked' : '');
+                linkBtn.title = isLinked ? 'Отключить / переподключить' : 'Подключить к узлу';
+                linkBtn.innerHTML = isLinked ? '🔗' : '⊕';
+                linkBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (_linkMode && _linkMode.sourceNodeId === node.id && _linkMode.answerId === ans.id) {
+                        _cancelLinkMode();
+                    } else {
+                        _startLinkMode(node.id, ans.id);
+                    }
+                };
+
+                row.appendChild(ansText);
+                row.appendChild(linkBtn);
+                sec.appendChild(row);
+            });
+
+            el.appendChild(sec);
         }
 
-        function _builderGoBack() {
-            _collectStep();
-            _persistScript(); // сохраняем прогресс фоново
-            _showScriptHubStep('hub');
-            loadUserScripts();
+        return el;
+    }
+
+    // ---- draw SVG connections ----
+    function _drawConnections() {
+        if (!_flowScript) return;
+        const svg = document.getElementById('flow-svg');
+        Array.from(svg.children).forEach(c => { if (c.tagName !== 'defs') c.remove(); });
+
+        _flowScript.nodes.forEach(node => {
+            node.answers.forEach((ans, ai) => {
+                if (!ans.nextNodeId) return;
+                const target = _flowScript.nodes.find(n => n.id === ans.nextNodeId);
+                if (!target) return;
+
+                // Source point: right edge of answer row
+                const answerRowY = node.y + 48 + 30 + (ai * 36) + 15; // header + label + row
+                const srcX = node.x + NODE_W + 2;
+                const srcY = answerRowY;
+
+                // Target point: top center of target node
+                const tgtX = target.x + NODE_W / 2;
+                const tgtY = target.y;
+
+                const cpX1 = srcX + Math.max(60, Math.abs(tgtX - srcX) * 0.5);
+                const cpY1 = srcY;
+                const cpX2 = tgtX;
+                const cpY2 = tgtY - Math.max(40, Math.abs(tgtY - srcY) * 0.3);
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', `M ${srcX} ${srcY} C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${tgtX} ${tgtY}`);
+                path.setAttribute('class', 'flow-conn-path');
+                path.setAttribute('marker-end', 'url(#arrowhead)');
+                svg.appendChild(path);
+            });
+        });
+    }
+
+    // ---- touch drag ----
+    function _onNodeDragStart(e, nodeId) {
+        if (_linkMode) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const node = _flowScript.nodes.find(n => n.id === nodeId);
+        _dragState = { nodeId, startX: touch.clientX, startY: touch.clientY, nodeStartX: node.x, nodeStartY: node.y };
+
+        const wrap = document.getElementById('flow-canvas-wrap');
+        if (wrap) {
+            wrap._savedScrollBehavior = wrap.style.overflow;
+            wrap.style.overflow = 'hidden';
         }
 
-        // ---- список скриптов ----
-        async function loadUserScripts() {
-            const userId = currentUserData?.tg_id || window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-            const loading   = document.getElementById('scripts-list-loading');
-            const empty     = document.getElementById('scripts-list-empty');
-            const container = document.getElementById('scripts-list-container');
+        document.addEventListener('touchmove', _onCanvasTouchMove, { passive: false });
+        document.addEventListener('touchend', _onCanvasTouchEnd, { passive: true });
+    }
 
-            loading.classList.remove('hidden');
-            empty.classList.add('hidden');
-            container.innerHTML = '';
+    function _onCanvasTouchMove(e) {
+        if (!_dragState) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const dx = touch.clientX - _dragState.startX;
+        const dy = touch.clientY - _dragState.startY;
+        const node = _flowScript.nodes.find(n => n.id === _dragState.nodeId);
+        node.x = Math.max(10, _dragState.nodeStartX + dx);
+        node.y = Math.max(10, _dragState.nodeStartY + dy);
+        const el = document.getElementById('fn-' + node.id);
+        if (el) { el.style.left = node.x + 'px'; el.style.top = node.y + 'px'; }
+        _drawConnections();
+    }
 
-            if (!userId) { loading.classList.add('hidden'); empty.classList.remove('hidden'); return; }
+    function _onCanvasTouchEnd() {
+        if (!_dragState) return;
+        document.removeEventListener('touchmove', _onCanvasTouchMove);
+        document.removeEventListener('touchend', _onCanvasTouchEnd);
+        const wrap = document.getElementById('flow-canvas-wrap');
+        if (wrap && wrap._savedScrollBehavior !== undefined) wrap.style.overflow = '';
+        _flowPersist();
+        _dragState = null;
+    }
 
-            try {
-                const { data, error } = await db.from('sales_scripts')
-                    .select('id, title, created_at, nodes')
-                    .eq('user_id', userId)
-                    .order('created_at', { ascending: false });
+    // ---- node selection + edit sheet ----
+    function _selectNode(nodeId) {
+        if (_linkMode) { _completeLinkMode(nodeId); return; }
+        _selectedNodeId = nodeId;
+        _renderFlowCanvas();
+        _openFlowEditSheet(nodeId);
+    }
 
-                loading.classList.add('hidden');
+    function _openFlowEditSheet(nodeId) {
+        const node = _flowScript.nodes.find(n => n.id === nodeId);
+        if (!node) return;
+        const nodeIndex = _flowScript.nodes.indexOf(node) + 1;
 
-                if (error || !data || data.length === 0) {
-                    empty.classList.remove('hidden'); return;
-                }
+        document.getElementById('flow-sheet-tag').textContent = 'УЗЕЛ ' + nodeIndex;
+        document.getElementById('flow-sheet-text').value = node.managerText || '';
+        _renderSheetAnswers(node);
 
-                _scriptsCache = {};
-                data.forEach(s => {
-                    _scriptsCache[s.id] = s;
-                    const stepsN = s.nodes?.steps?.length || 0;
-                    const item = document.createElement('div');
-                    item.className = 'flex items-center bg-[#111] border border-white/8 rounded-2xl px-4 py-4 gap-3 transition-all active:scale-[0.98] cursor-pointer';
-                    item.innerHTML =
-                        `<div class="flex-1 min-w-0" onclick="_openScriptById('${s.id}')">
-                            <div class="font-black italic uppercase text-sm tracking-tight text-white truncate">${_esc(s.title)}</div>
-                            <div class="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">${stepsN} ${_plSteps(stepsN)}</div>
-                        </div>
+        const sheet = document.getElementById('flow-edit-sheet');
+        sheet.style.transform = 'translateY(0)';
+        sheet._editingNodeId = nodeId;
+    }
+
+    function _closeFlowEditSheet() {
+        const sheet = document.getElementById('flow-edit-sheet');
+        if (!sheet) return;
+        // Save current text before closing
+        if (sheet._editingNodeId && _flowScript) {
+            const node = _flowScript.nodes.find(n => n.id === sheet._editingNodeId);
+            const ta = document.getElementById('flow-sheet-text');
+            if (node && ta) { node.managerText = ta.value.trim(); }
+        }
+        sheet.style.transform = 'translateY(100%)';
+        sheet._editingNodeId = null;
+        _selectedNodeId = null;
+        _renderFlowCanvas();
+        _flowPersist();
+    }
+
+    function _onSheetTextInput() {
+        const sheet = document.getElementById('flow-edit-sheet');
+        if (!sheet._editingNodeId || !_flowScript) return;
+        const node = _flowScript.nodes.find(n => n.id === sheet._editingNodeId);
+        if (node) {
+            node.managerText = document.getElementById('flow-sheet-text').value;
+            const el = document.getElementById('fn-' + node.id);
+            if (el) {
+                const t = el.querySelector('.flow-node-text');
+                if (t) { t.textContent = node.managerText || 'Нажми ✏️ чтобы добавить текст'; t.className = 'flow-node-text' + (!node.managerText ? ' empty' : ''); }
+            }
+        }
+    }
+
+    function _renderSheetAnswers(node) {
+        const container = document.getElementById('flow-sheet-answers');
+        container.innerHTML = '';
+        (node.answers || []).forEach((ans, i) => {
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;align-items:center;gap:8px;';
+            const targetNode = ans.nextNodeId ? _flowScript.nodes.find(n=>n.id===ans.nextNodeId) : null;
+            const targetIdx  = targetNode ? _flowScript.nodes.indexOf(targetNode)+1 : null;
+
+            row.innerHTML =
+                `<span style="color:#FF6B00;font-weight:900;font-size:12px;flex-shrink:0;">${i+1}.</span>
+                 <input type="text" value="${_esc(ans.text)}" placeholder="Ответ клиента..."
+                     style="flex:1;background:#1A1A1A;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 12px;color:#fff;font-size:12px;font-weight:600;font-family:'Montserrat',sans-serif;outline:none;transition:border-color 0.15s;"
+                     oninput="_sheetSyncAnswer('${node.id}','${ans.id}',this.value)"
+                     onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
+                 <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;">
+                    <button onclick="_startLinkMode('${node.id}','${ans.id}')"
+                        style="width:30px;height:30px;border-radius:9px;${targetIdx?'background:rgba(255,107,0,0.15);border:1px solid rgba(255,107,0,0.5);':'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);'}display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;"
+                        title="${targetIdx?'→ Узел '+targetIdx:'Подключить'}">${targetIdx?'🔗':'⊕'}</button>
+                    ${targetIdx?`<span style="font-size:8px;color:#FF6B00;font-weight:900;">→${targetIdx}</span>`:''}
+                 </div>
+                 <button onclick="_sheetRemoveAnswer('${node.id}','${ans.id}')"
+                     style="width:30px;height:30px;flex-shrink:0;border-radius:9px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.3);font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;">✕</button>`;
+            container.appendChild(row);
+        });
+    }
+
+    function _sheetSyncAnswer(nodeId, ansId, val) {
+        if (!_flowScript) return;
+        const node = _flowScript.nodes.find(n => n.id === nodeId);
+        const ans = node?.answers.find(a => a.id === ansId);
+        if (ans) ans.text = val;
+    }
+
+    function _sheetRemoveAnswer(nodeId, ansId) {
+        if (!_flowScript) return;
+        const node = _flowScript.nodes.find(n => n.id === nodeId);
+        if (!node) return;
+        node.answers = node.answers.filter(a => a.id !== ansId);
+        _renderSheetAnswers(node);
+        _renderFlowCanvas();
+    }
+
+    function _addSheetAnswer() {
+        const sheet = document.getElementById('flow-edit-sheet');
+        if (!sheet._editingNodeId || !_flowScript) return;
+        const node = _flowScript.nodes.find(n => n.id === sheet._editingNodeId);
+        if (!node) return;
+        node.answers.push({ id: _uid(), text: '', nextNodeId: null });
+        _renderSheetAnswers(node);
+        _renderFlowCanvas();
+    }
+
+    function _deleteSelectedNode() {
+        const sheet = document.getElementById('flow-edit-sheet');
+        const nodeId = sheet._editingNodeId;
+        if (!nodeId || !_flowScript) return;
+        if (_flowScript.nodes.length <= 1) { _vibAlert('Нельзя удалить последний узел'); return; }
+        // Remove node and all references to it
+        _flowScript.nodes = _flowScript.nodes.filter(n => n.id !== nodeId);
+        _flowScript.nodes.forEach(n => n.answers.forEach(a => { if (a.nextNodeId === nodeId) a.nextNodeId = null; }));
+        _closeFlowEditSheet();
+        _renderFlowCanvas();
+        _flowPersist();
+    }
+
+    // ---- link mode ----
+    function _startLinkMode(sourceNodeId, answerId) {
+        _closeFlowEditSheet();
+        _linkMode = { sourceNodeId, answerId };
+        document.getElementById('flow-link-hint').style.display = 'flex';
+        _renderFlowCanvas();
+    }
+
+    function _cancelLinkMode() {
+        _linkMode = null;
+        document.getElementById('flow-link-hint').style.display = 'none';
+        _renderFlowCanvas();
+    }
+
+    function _completeLinkMode(targetNodeId) {
+        if (!_linkMode || !_flowScript) return;
+        const { sourceNodeId, answerId } = _linkMode;
+        const sourceNode = _flowScript.nodes.find(n => n.id === sourceNodeId);
+        const ans = sourceNode?.answers.find(a => a.id === answerId);
+        if (ans) {
+            ans.nextNodeId = (ans.nextNodeId === targetNodeId) ? null : targetNodeId;
+        }
+        _linkMode = null;
+        document.getElementById('flow-link-hint').style.display = 'none';
+        _renderFlowCanvas();
+        _flowPersist();
+        // Reopen edit sheet for the source node
+        setTimeout(() => _openFlowEditSheet(sourceNodeId), 100);
+    }
+
+    // ---- add new node ----
+    function _addFlowNode() {
+        if (!_flowScript) return;
+        const nodes = _flowScript.nodes;
+        let maxY = 0;
+        nodes.forEach(n => { if (n.y > maxY) maxY = n.y; });
+        const xPos = 80 + (nodes.length % 3) * 300;
+        const newNode = _mkNode(xPos, maxY + 240, '');
+        nodes.push(newNode);
+        _renderFlowCanvas();
+        _selectNode(newNode.id);
+        _flowPersist();
+        setTimeout(() => {
+            const el = document.getElementById('fn-' + newNode.id);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+    }
+
+    // ---- persist ----
+    async function _flowPersist() {
+        if (!_flowScript) return;
+        try {
+            await db.from('sales_scripts').update({ nodes: { nodes: _flowScript.nodes } }).eq('id', _flowScript.id);
+        } catch(e) { console.error('[_flowPersist]', e); }
+    }
+
+    async function _saveFlowAndExit() {
+        const sheet = document.getElementById('flow-edit-sheet');
+        if (sheet._editingNodeId) _closeFlowEditSheet();
+        document.getElementById('loading-overlay').style.display = 'flex';
+        await _flowPersist();
+        document.getElementById('loading-overlay').style.display = 'none';
+        _showScriptHubStep('hub');
+        loadUserScripts();
+    }
+
+    function _flowGoBack() {
+        const sheet = document.getElementById('flow-edit-sheet');
+        if (sheet._editingNodeId) _closeFlowEditSheet();
+        _flowPersist();
+        _showScriptHubStep('hub');
+        loadUserScripts();
+    }
+
+    // ---- script list ----
+    async function loadUserScripts() {
+        const userId = currentUserData?.tg_id || window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        const loading   = document.getElementById('scripts-list-loading');
+        const empty     = document.getElementById('scripts-list-empty');
+        const container = document.getElementById('scripts-list-container');
+
+        loading.classList.remove('hidden');
+        empty.classList.add('hidden');
+        container.innerHTML = '';
+
+        if (!userId) { loading.classList.add('hidden'); empty.classList.remove('hidden'); return; }
+
+        try {
+            const { data, error } = await db.from('sales_scripts')
+                .select('id, title, created_at, nodes')
+                .eq('user_id', String(userId))
+                .order('created_at', { ascending: false });
+
+            loading.classList.add('hidden');
+            if (error || !data || data.length === 0) { empty.classList.remove('hidden'); return; }
+
+            _scriptsCache = {};
+            data.forEach(s => {
+                _scriptsCache[s.id] = s;
+                const nodesArr = s.nodes?.nodes || s.nodes?.steps || [];
+                const stepsN = nodesArr.length;
+                const item = document.createElement('div');
+                item.className = 'flex items-center bg-[#111] border border-white/8 rounded-2xl px-4 py-4 gap-3 transition-all active:scale-[0.98] cursor-pointer';
+                item.innerHTML =
+                    `<div class="flex-1 min-w-0" onclick="_openScriptById('${s.id}')">
+                        <div class="font-black italic uppercase text-sm tracking-tight text-white truncate">${_esc(s.title)}</div>
+                        <div class="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">${stepsN} ${_plSteps(stepsN)}</div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
                         <button onclick="event.stopPropagation(); _editScriptById('${s.id}')"
-                            class="w-10 h-10 flex-shrink-0 rounded-xl bg-[#FF6B00]/10 border border-[#FF6B00]/30 flex items-center justify-center text-base active:scale-95 transition-transform"
-                            title="Редактировать">✏️</button>`;
-                    container.appendChild(item);
-                });
-            } catch(e) {
-                loading.classList.add('hidden');
-                empty.classList.remove('hidden');
-                console.error('[loadUserScripts]', e);
-            }
+                            class="w-10 h-10 rounded-xl bg-[#FF6B00]/10 border border-[#FF6B00]/30 flex items-center justify-center text-base active:scale-95 transition-transform"
+                            title="Редактировать">✏️</button>
+                        <button onclick="event.stopPropagation(); _confirmDeleteScript('${s.id}', '${_esc(s.title)}')"
+                            class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-base active:scale-95 transition-transform"
+                            title="Удалить">🗑️</button>
+                    </div>`;
+                container.appendChild(item);
+            });
+        } catch(e) {
+            loading.classList.add('hidden');
+            empty.classList.remove('hidden');
+            console.error('[loadUserScripts]', e);
         }
+    }
 
-        function _plSteps(n) {
-            if (n === 1) return 'шаг';
-            if (n >= 2 && n <= 4) return 'шага';
-            return 'шагов';
+    function _plSteps(n) {
+        if (n === 1) return 'узел';
+        if (n >= 2 && n <= 4) return 'узла';
+        return 'узлов';
+    }
+
+    // ---- view screen ----
+    function _openScriptById(id) {
+        const s = _scriptsCache[id];
+        if (s) _openScriptView(s.id, s.title, s.nodes);
+    }
+
+    function _openScriptView(id, title, nodesData) {
+        currentScriptId = id;
+        document.getElementById('view-script-title').textContent = title;
+
+        const container = document.getElementById('view-script-steps');
+        container.innerHTML = '';
+
+        // Support both formats
+        const nodes = nodesData?.nodes || nodesData?.steps || [];
+        if (nodes.length === 0) {
+            container.innerHTML = '<p class="text-white/20 text-[11px] font-bold uppercase tracking-widest text-center py-12">Скрипт пуст</p>';
+        } else {
+            nodes.forEach((node, i) => {
+                const text = node.managerText || node.text || '';
+                const answers = node.answers || [];
+                const answersHtml = answers.length
+                    ? `<div class="mt-3 flex flex-col gap-2">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-white/25 mb-1">Ответы клиента:</p>
+                        ${answers.map((a, ai) => {
+                            const aText = typeof a === 'string' ? a : (a.text || '—');
+                            const nextIdx = a.nextNodeId ? (nodes.findIndex(n=>n.id===a.nextNodeId)+1) : null;
+                            return `<div class="flex items-center gap-2 bg-black/40 border border-[#FF6B00]/20 rounded-xl px-3 py-2">
+                                <span class="text-[#FF6B00] font-black text-xs flex-shrink-0">${ai+1}.</span>
+                                <span class="text-white/65 text-xs font-medium flex-1">${_esc(aText)}</span>
+                                ${nextIdx ? `<span class="text-[#FF6B00] text-[9px] font-black flex-shrink-0">→ УЗ.${nextIdx}</span>` : ''}
+                            </div>`;
+                        }).join('')}
+                       </div>` : '';
+
+                const el = document.createElement('div');
+                el.className = 'bg-[#111] border border-white/8 rounded-2xl p-4';
+                el.innerHTML =
+                    `<div class="inline-flex items-center mb-3">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-[#FF6B00] bg-[#FF6B00]/10 rounded-lg px-2 py-1">УЗЕЛ ${i+1}</span>
+                     </div>
+                     <p class="text-white text-sm font-medium leading-relaxed">${_esc(text || '—')}</p>
+                     ${answersHtml}`;
+                container.appendChild(el);
+            });
         }
+        _showScriptHubStep('view');
+    }
 
-        // ---- экран чтения ----
-        function _openScriptById(id) {
-            const s = _scriptsCache[id];
-            if (s) _openScriptView(s.id, s.title, s.nodes);
-        }
+    function editCurrentScript() {
+        if (!currentScriptId || !_scriptsCache[currentScriptId]) return;
+        _editScriptById(currentScriptId);
+    }
+    function _editScriptById(id) {
+        const s = _scriptsCache[id];
+        if (s) _openFlowEditor(s.id, s.title, s.nodes);
+    }
 
-        function _openScriptView(id, title, nodes) {
-            currentScriptId = id;
-            _scriptBuilderData = { id, title, steps: nodes?.steps || [] };
+    // ---- alert helper ----
+    function _vibAlert(msg) {
+        if (typeof tg !== 'undefined' && tg.showAlert) tg.showAlert(msg);
+        else alert(msg);
+    }
 
-            document.getElementById('view-script-title').textContent = title;
+    function _esc(s) {
+        return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
-            const container = document.getElementById('view-script-steps');
-            container.innerHTML = '';
-
-            const steps = nodes?.steps || [];
-            if (steps.length === 0) {
-                container.innerHTML = '<p class="text-white/20 text-[11px] font-bold uppercase tracking-widest text-center py-12">Скрипт пуст</p>';
-            } else {
-                steps.forEach((step, i) => {
-                    const answersHtml = (step.answers || []).length
-                        ? `<div class="mt-3 flex flex-col gap-2">
-                            <p class="text-[9px] font-black uppercase tracking-widest text-white/25 mb-1">Ответы клиента:</p>
-                            ${step.answers.map((a, ai) =>
-                                `<div class="flex items-center gap-2 bg-black/40 border border-[#FF6B00]/20 rounded-xl px-3 py-2">
-                                    <span class="text-[#FF6B00] font-black text-xs flex-shrink-0">${ai+1}.</span>
-                                    <span class="text-white/65 text-xs font-medium">${_esc(a || '—')}</span>
-                                 </div>`).join('')}
-                           </div>`
-                        : '';
-
-                    const el = document.createElement('div');
-                    el.className = 'bg-[#111] border border-white/8 rounded-2xl p-4';
-                    el.innerHTML =
-                        `<div class="inline-flex items-center mb-3">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-[#FF6B00] bg-[#FF6B00]/10 rounded-lg px-2 py-1">ШАГ ${i+1}</span>
-                         </div>
-                         <p class="text-white text-sm font-medium leading-relaxed">${_esc(step.managerText || '—')}</p>
-                         ${answersHtml}`;
-                    container.appendChild(el);
-                });
-            }
-            _showScriptHubStep('view');
-        }
-
-        function editCurrentScript() {
-            if (!_scriptBuilderData) return;
-            _editScript(_scriptBuilderData.id, _scriptBuilderData.title, { steps: _scriptBuilderData.steps });
-        }
-
-        function _editScriptById(id) {
-            const s = _scriptsCache[id];
-            if (s) _editScript(s.id, s.title, s.nodes);
-        }
-
-        function _editScript(id, title, nodes) {
-            currentScriptId = id;
-            _scriptBuilderData = { id, title, steps: (nodes?.steps?.length ? nodes.steps : [{ managerText: '', answers: [] }]) };
-            _builderStepIdx = 0;
-            _renderBuilderStep();
-            _showScriptHubStep('builder');
-        }
-
-        // ---- вспомогательная функция алерта ----
-        function _vibAlert(msg) {
-            if (typeof tg !== 'undefined' && tg.showAlert) tg.showAlert(msg);
-            else alert(msg);
-        }
+    // ---- delete script ----
+    function _confirmDeleteScript(id, title) {
+        const modal = document.getElementById('delete-script-confirm-modal');
+        document.getElementById('delete-script-confirm-name').textContent = title;
+        modal._pendingId = id;
+        modal.classList.add('visible');
+    }
+    function _closeDeleteConfirm() {
+        document.getElementById('delete-script-confirm-modal').classList.remove('visible');
+    }
+    async function _executeDeleteScript() {
+        const modal = document.getElementById('delete-script-confirm-modal');
+        const id = modal._pendingId;
+        modal.classList.remove('visible');
+        if (!id) return;
+        document.getElementById('loading-overlay').style.display = 'flex';
+        try {
+            const { error } = await db.from('sales_scripts').delete().eq('id', id);
+            if (error) _vibAlert('Ошибка: ' + error.message);
+            else { delete _scriptsCache[id]; loadUserScripts(); }
+        } catch(e) { _vibAlert('Ошибка: ' + e.message); }
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
     </script>
+
+    <!-- ===== DELETE SCRIPT CONFIRM MODAL ===== -->
+    <div id="delete-script-confirm-modal" style="position:fixed;inset:0;z-index:11000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity 0.25s ease;">
+        <div style="background:#1A1A1A;border:1.5px solid rgba(239,68,68,0.4);border-radius:28px 28px 0 0;padding:28px 24px 40px;width:100%;max-width:500px;transform:translateY(40px);transition:transform 0.25s ease;">
+            <div style="font-size:32px;text-align:center;margin-bottom:12px;">🗑️</div>
+            <div style="font-size:16px;font-weight:900;font-style:italic;text-transform:uppercase;text-align:center;color:#fff;letter-spacing:0.04em;margin-bottom:8px;">УДАЛИТЬ СКРИПТ?</div>
+            <div style="text-align:center;margin-bottom:6px;">
+                <span style="font-size:13px;font-weight:700;color:#FF6B00;font-style:italic;text-transform:uppercase;" id="delete-script-confirm-name"></span>
+            </div>
+            <div style="font-size:11px;color:#888;font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;line-height:1.6;">Восстановить скрипт будет<br>невозможно</div>
+            <div style="display:flex;gap:12px;">
+                <button onclick="_closeDeleteConfirm()" style="flex:1;padding:16px;border-radius:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:12px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;transition:opacity 0.15s;" ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity='1'">НЕТ, ОСТАВИТЬ</button>
+                <button onclick="_executeDeleteScript()" style="flex:1;padding:16px;border-radius:16px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.5);color:#ef4444;font-size:12px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;transition:opacity 0.15s;" ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity='1'">ДА, УДАЛИТЬ</button>
+            </div>
+        </div>
+    </div>
+    <style>
+        #delete-script-confirm-modal.visible { opacity:1; pointer-events:all; }
+        #delete-script-confirm-modal.visible > div { transform: translateY(0); }
+    </style>
 
     <!-- ===== DAILY LOGIN BONUS MODAL ===== -->
     <div id="daily-bonus-modal">
