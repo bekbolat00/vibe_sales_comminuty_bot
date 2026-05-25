@@ -8854,48 +8854,31 @@
 
     // ---- delete script ----
     function _confirmDeleteScript(id, title) {
-        const modal = document.getElementById('delete-script-confirm-modal');
-        document.getElementById('delete-script-confirm-name').textContent = title;
-        modal._pendingId = id;
-        modal.classList.add('visible');
-    }
-    function _closeDeleteConfirm() {
-        document.getElementById('delete-script-confirm-modal').classList.remove('visible');
-    }
-    async function _executeDeleteScript() {
-        const modal = document.getElementById('delete-script-confirm-modal');
-        const id = modal._pendingId;
-        modal.classList.remove('visible');
-        if (!id) return;
-        document.getElementById('loading-overlay').style.display = 'flex';
-        try {
-            const { error } = await db.from('sales_scripts').delete().eq('id', id);
-            if (error) _vibAlert('Ошибка: ' + error.message);
-            else { delete _scriptsCache[id]; loadUserScripts(); }
-        } catch(e) { _vibAlert('Ошибка: ' + e.message); }
-        document.getElementById('loading-overlay').style.display = 'none';
+        const doDelete = async () => {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            try {
+                const { error } = await db.from('sales_scripts').delete().eq('id', id);
+                if (error) _vibAlert('Ошибка: ' + error.message);
+                else { delete _scriptsCache[id]; loadUserScripts(); }
+            } catch(e) { _vibAlert('Ошибка: ' + e.message); }
+            document.getElementById('loading-overlay').style.display = 'none';
+        };
+
+        // Use Telegram native popup — most reliable in Telegram WebApp
+        if (typeof tg !== 'undefined' && tg.showPopup) {
+            tg.showPopup({
+                title: 'Удалить скрипт?',
+                message: '"' + title + '" будет удалён навсегда. Восстановить невозможно.',
+                buttons: [
+                    { id: 'del', type: 'destructive', text: 'Удалить' },
+                    { id: 'no', type: 'cancel' }
+                ]
+            }, (btnId) => { if (btnId === 'del') doDelete(); });
+        } else {
+            if (confirm('Удалить "' + title + '"?\nВосстановить невозможно.')) doDelete();
+        }
     }
     </script>
-
-    <!-- ===== DELETE SCRIPT CONFIRM MODAL ===== -->
-    <div id="delete-script-confirm-modal" style="position:fixed;inset:0;z-index:11000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity 0.25s ease;">
-        <div style="background:#1A1A1A;border:1.5px solid rgba(239,68,68,0.4);border-radius:28px 28px 0 0;padding:28px 24px 40px;width:100%;max-width:500px;transform:translateY(40px);transition:transform 0.25s ease;">
-            <div style="font-size:32px;text-align:center;margin-bottom:12px;">🗑️</div>
-            <div style="font-size:16px;font-weight:900;font-style:italic;text-transform:uppercase;text-align:center;color:#fff;letter-spacing:0.04em;margin-bottom:8px;">УДАЛИТЬ СКРИПТ?</div>
-            <div style="text-align:center;margin-bottom:6px;">
-                <span style="font-size:13px;font-weight:700;color:#FF6B00;font-style:italic;text-transform:uppercase;" id="delete-script-confirm-name"></span>
-            </div>
-            <div style="font-size:11px;color:#888;font-weight:700;text-align:center;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:24px;line-height:1.6;">Восстановить скрипт будет<br>невозможно</div>
-            <div style="display:flex;gap:12px;">
-                <button onclick="_closeDeleteConfirm()" style="flex:1;padding:16px;border-radius:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:12px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;transition:opacity 0.15s;" ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity='1'">НЕТ, ОСТАВИТЬ</button>
-                <button onclick="_executeDeleteScript()" style="flex:1;padding:16px;border-radius:16px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.5);color:#ef4444;font-size:12px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;transition:opacity 0.15s;" ontouchstart="this.style.opacity='0.7'" ontouchend="this.style.opacity='1'">ДА, УДАЛИТЬ</button>
-            </div>
-        </div>
-    </div>
-    <style>
-        #delete-script-confirm-modal.visible { opacity:1; pointer-events:all; }
-        #delete-script-confirm-modal.visible > div { transform: translateY(0); }
-    </style>
 
     <!-- ===== DAILY LOGIN BONUS MODAL ===== -->
     <div id="daily-bonus-modal">
