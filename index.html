@@ -8213,6 +8213,9 @@
             <p style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin:14px 0 8px;">ОТВЕТЫ КЛИЕНТА:</p>
             <div id="flow-sheet-answers" style="display:flex;flex-direction:column;gap:8px;"></div>
             <button onclick="_addSheetAnswer()" style="margin-top:10px;width:100%;padding:12px;border-radius:14px;border:1.5px dashed rgba(255,107,0,0.4);background:transparent;color:rgba(255,107,0,0.7);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;">+ ДОБАВИТЬ ОТВЕТ</button>
+
+            <!-- Save / Done button -->
+            <button onclick="_closeFlowEditSheet()" style="margin-top:16px;width:100%;padding:16px;border-radius:18px;background:linear-gradient(135deg,#FF6B00,#CC4400);border:none;color:#fff;font-size:13px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;box-shadow:0 0 20px rgba(255,107,0,0.4);">СОХРАНИТЬ УЗЕЛ ✓</button>
         </div>
 
         <!-- Плавающая кнопка + (только на экране списка) -->
@@ -8422,8 +8425,8 @@
 
                 const linkBtn = document.createElement('button');
                 linkBtn.className = 'flow-answer-link-btn' + (isLinked ? ' linked' : '');
-                linkBtn.title = isLinked ? 'Отключить / переподключить' : 'Подключить к узлу';
-                linkBtn.innerHTML = isLinked ? '🔗' : '⊕';
+                linkBtn.title = isLinked ? 'Переподключить к другому узлу' : 'Создать узел и связать';
+                linkBtn.innerHTML = isLinked ? '🔗' : '+';
                 linkBtn.onclick = (e) => {
                     e.stopPropagation();
                     if (_linkMode && _linkMode.sourceNodeId === node.id && _linkMode.answerId === ans.id) {
@@ -8590,9 +8593,9 @@
                      onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'" />
                  <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;">
                     <button onclick="_startLinkMode('${node.id}','${ans.id}')"
-                        style="width:30px;height:30px;border-radius:9px;${targetIdx?'background:rgba(255,107,0,0.15);border:1px solid rgba(255,107,0,0.5);':'background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);'}display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;"
-                        title="${targetIdx?'→ Узел '+targetIdx:'Подключить'}">${targetIdx?'🔗':'⊕'}</button>
-                    ${targetIdx?`<span style="font-size:8px;color:#FF6B00;font-weight:900;">→${targetIdx}</span>`:''}
+                        style="width:30px;height:30px;border-radius:9px;${targetIdx?'background:rgba(255,107,0,0.15);border:1px solid rgba(255,107,0,0.5);':'background:rgba(34,197,94,0.12);border:1.5px solid rgba(34,197,94,0.5);'}display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;"
+                        title="${targetIdx?'Переподключить к другому узлу':'Создать новый узел и связать'}">${targetIdx?'🔗':'+'}</button>
+                    ${targetIdx?`<span style="font-size:8px;color:#FF6B00;font-weight:900;">→${targetIdx}</span>`:`<span style="font-size:8px;color:rgba(34,197,94,0.8);font-weight:900;">УЗЕЛ</span>`}
                  </div>
                  <button onclick="_sheetRemoveAnswer('${node.id}','${ans.id}')"
                      style="width:30px;height:30px;flex-shrink:0;border-radius:9px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.3);font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;">✕</button>`;
@@ -8641,10 +8644,50 @@
 
     // ---- link mode ----
     function _startLinkMode(sourceNodeId, answerId) {
-        _closeFlowEditSheet();
-        _linkMode = { sourceNodeId, answerId };
-        document.getElementById('flow-link-hint').style.display = 'flex';
+        if (!_flowScript) return;
+        const sourceNode = _flowScript.nodes.find(n => n.id === sourceNodeId);
+        const ans = sourceNode?.answers.find(a => a.id === answerId);
+        if (!ans) return;
+
+        if (!ans.nextNodeId) {
+            // No connection yet → create a new node and connect instantly
+            _createAndConnectNode(sourceNodeId, answerId);
+        } else {
+            // Already connected → enter link mode to reconnect/disconnect
+            _closeFlowEditSheet();
+            _linkMode = { sourceNodeId, answerId };
+            document.getElementById('flow-link-hint').style.display = 'flex';
+            _renderFlowCanvas();
+        }
+    }
+
+    // Creates a new node positioned below/right of source, connects the answer to it, opens its edit sheet
+    function _createAndConnectNode(sourceNodeId, answerId) {
+        if (!_flowScript) return;
+        const sourceNode = _flowScript.nodes.find(n => n.id === sourceNodeId);
+        const ans = sourceNode?.answers.find(a => a.id === answerId);
+        if (!sourceNode || !ans) return;
+
+        // Position the new node below and slightly to the right, offset per answer index
+        const ansIdx = sourceNode.answers.indexOf(ans);
+        const newX = sourceNode.x + ansIdx * 40;
+        const newY = sourceNode.y + 280;
+
+        const newNode = _mkNode(newX, newY, '');
+        _flowScript.nodes.push(newNode);
+        ans.nextNodeId = newNode.id;
+
         _renderFlowCanvas();
+        _flowPersist();
+
+        // Open edit sheet for the new node and scroll to it
+        setTimeout(() => {
+            _selectedNodeId = newNode.id;
+            _renderFlowCanvas();
+            _openFlowEditSheet(newNode.id);
+            const el = document.getElementById('fn-' + newNode.id);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 80);
     }
 
     function _cancelLinkMode() {
