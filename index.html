@@ -8741,20 +8741,34 @@
                 const nodesArr = s.nodes?.nodes || s.nodes?.steps || [];
                 const stepsN = nodesArr.length;
                 const item = document.createElement('div');
-                item.className = 'flex items-center bg-[#111] border border-white/8 rounded-2xl px-4 py-4 gap-3 transition-all active:scale-[0.98] cursor-pointer';
-                item.innerHTML =
-                    `<div class="flex-1 min-w-0" onclick="_openScriptById('${s.id}')">
-                        <div class="font-black italic uppercase text-sm tracking-tight text-white truncate">${_esc(s.title)}</div>
-                        <div class="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">${stepsN} ${_plSteps(stepsN)}</div>
-                    </div>
-                    <div class="flex items-center gap-2 flex-shrink-0">
-                        <button onclick="event.stopPropagation(); _editScriptById('${s.id}')"
-                            class="w-10 h-10 rounded-xl bg-[#FF6B00]/10 border border-[#FF6B00]/30 flex items-center justify-center text-base active:scale-95 transition-transform"
-                            title="Редактировать">✏️</button>
-                        <button onclick="event.stopPropagation(); _confirmDeleteScript('${s.id}', '${_esc(s.title)}')"
-                            class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-base active:scale-95 transition-transform"
-                            title="Удалить">🗑️</button>
-                    </div>`;
+                item.className = 'flex items-center bg-[#111] border border-white/8 rounded-2xl px-4 py-4 gap-3 transition-all active:scale-[0.98]';
+
+                // Clickable area
+                const info = document.createElement('div');
+                info.className = 'flex-1 min-w-0 cursor-pointer';
+                info.innerHTML = `<div class="font-black italic uppercase text-sm tracking-tight text-white truncate">${_esc(s.title)}</div>
+                    <div class="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">${stepsN} ${_plSteps(stepsN)}</div>`;
+                info.addEventListener('click', () => _openScriptById(s.id));
+
+                // Edit button
+                const editBtn = document.createElement('button');
+                editBtn.className = 'w-10 h-10 flex-shrink-0 rounded-xl bg-[#FF6B00]/10 border border-[#FF6B00]/30 flex items-center justify-center text-base active:scale-95 transition-transform cursor-pointer';
+                editBtn.textContent = '✏️';
+                editBtn.addEventListener('click', (e) => { e.stopPropagation(); _editScriptById(s.id); });
+
+                // Delete button
+                const delBtn = document.createElement('button');
+                delBtn.className = 'w-10 h-10 flex-shrink-0 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-base active:scale-95 transition-transform cursor-pointer';
+                delBtn.textContent = '🗑️';
+                delBtn.addEventListener('click', (e) => { e.stopPropagation(); _confirmDeleteScript(s.id, s.title); });
+
+                const btns = document.createElement('div');
+                btns.className = 'flex items-center gap-2 flex-shrink-0';
+                btns.appendChild(editBtn);
+                btns.appendChild(delBtn);
+
+                item.appendChild(info);
+                item.appendChild(btns);
                 container.appendChild(item);
             });
         } catch(e) {
