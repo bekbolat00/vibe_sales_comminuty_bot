@@ -8909,11 +8909,13 @@
     }
 
     // ============================================================
-    // SCRIPT PLAYER
+    // SCRIPT PLAYER  +  AmoCRM integration
     // ============================================================
-    let _playerNodes   = [];   // flat nodes array
-    let _playerNodeId  = null; // current node id
-    let _playerHistory = [];   // stack of visited node ids (for back nav)
+    let _playerNodes    = [];
+    let _playerNodeId   = null;
+    let _playerHistory  = [];
+    let _playerTitle    = '';
+    let _playerLog      = []; // [{step, question, answer, ts}]
 
     function _openScriptById(id) {
         const s = _scriptsCache[id];
@@ -8922,15 +8924,15 @@
 
     function _openScriptPlayer(id, title, nodesData) {
         currentScriptId = id;
-        _playerNodes = nodesData?.nodes || nodesData?.steps || [];
+        _playerTitle  = title;
+        _playerNodes  = nodesData?.nodes || nodesData?.steps || [];
         _playerHistory = [];
+        _playerLog     = [];
 
         if (_playerNodes.length === 0) { _vibAlert('Скрипт пуст — добавь узлы в редакторе'); return; }
 
         document.getElementById('player-title').textContent = title;
-        document.getElementById('player-back-btn').onclick = () => {
-            _showScriptHubStep('hub'); loadUserScripts();
-        };
+        document.getElementById('player-back-btn').onclick = () => { _showScriptHubStep('hub'); loadUserScripts(); };
         _playerGoToNode(_playerNodes[0].id);
         _showScriptHubStep('player');
     }
@@ -8942,50 +8944,31 @@
         const nodeIdx = _playerNodes.indexOf(node);
         const total   = _playerNodes.length;
 
-        // Progress
         const pct = total > 1 ? Math.round((nodeIdx / (total - 1)) * 100) : 100;
         document.getElementById('player-progress-bar').style.width = pct + '%';
         document.getElementById('player-node-tag').textContent = 'УЗЕЛ ' + (nodeIdx + 1);
         document.getElementById('player-progress-text').textContent = (nodeIdx + 1) + ' / ' + total;
-
-        // Question
         document.getElementById('player-question').textContent = node.managerText || '—';
+        document.getElementById('player-prev-btn').style.display = _playerHistory.length > 0 ? 'block' : 'none';
 
-        // Back button
-        const prevBtn = document.getElementById('player-prev-btn');
-        prevBtn.style.display = _playerHistory.length > 0 ? 'block' : 'none';
-
-        // Answer buttons
         const container = document.getElementById('player-answers');
         container.innerHTML = '';
-        const answers = node.answers || [];
-        answers.forEach((ans, i) => {
+        (node.answers || []).forEach((ans, i) => {
             const hasNext = !!ans.nextNodeId;
             const btn = document.createElement('button');
-            btn.style.cssText = `
-                width:100%;padding:16px 20px;border-radius:18px;text-align:left;cursor:pointer;
-                font-size:14px;font-weight:700;font-family:'Montserrat',sans-serif;
-                display:flex;align-items:center;gap:12px;transition:all 0.15s;
-                ${hasNext
-                    ? 'background:rgba(255,107,0,0.08);border:1.5px solid rgba(255,107,0,0.35);color:#fff;'
-                    : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);'}
-            `;
-            btn.innerHTML =
-                `<span style="color:#FF6B00;font-weight:900;font-size:13px;flex-shrink:0;">${i + 1}.</span>
-                 <span style="flex:1;line-height:1.4;">${_esc(ans.text || '—')}</span>
-                 ${hasNext ? '<span style="color:#FF6B00;font-size:18px;flex-shrink:0;">→</span>' : ''}`;
+            btn.style.cssText = `width:100%;padding:16px 20px;border-radius:18px;text-align:left;cursor:pointer;font-size:14px;font-weight:700;font-family:'Montserrat',sans-serif;display:flex;align-items:center;gap:12px;transition:all 0.15s;${hasNext ? 'background:rgba(255,107,0,0.08);border:1.5px solid rgba(255,107,0,0.35);color:#fff;' : 'background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);'}`;
+            btn.innerHTML = `<span style="color:#FF6B00;font-weight:900;font-size:13px;flex-shrink:0;">${i + 1}.</span><span style="flex:1;line-height:1.4;">${_esc(ans.text || '—')}</span>${hasNext ? '<span style="color:#FF6B00;font-size:18px;flex-shrink:0;">→</span>' : ''}`;
 
-            btn.addEventListener('touchstart', () => { btn.style.transform = 'scale(0.98)'; btn.style.background = hasNext ? 'rgba(255,107,0,0.18)' : 'rgba(255,255,255,0.08)'; }, { passive: true });
+            btn.addEventListener('touchstart', () => { btn.style.transform = 'scale(0.97)'; }, { passive: true });
             btn.addEventListener('touchend',   () => { btn.style.transform = ''; }, { passive: true });
             btn.addEventListener('click', () => {
+                // 📝 Log this step
+                _playerLog.push({ step: nodeIdx + 1, question: node.managerText || '', answer: ans.text || '', ts: new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'}) });
+
                 if (ans.nextNodeId) {
-                    const nextNode = _playerNodes.find(n => n.id === ans.nextNodeId);
-                    if (nextNode) {
-                        _playerHistory.push(_playerNodeId);
-                        _playerGoToNode(ans.nextNodeId);
-                    }
+                    const next = _playerNodes.find(n => n.id === ans.nextNodeId);
+                    if (next) { _playerHistory.push(_playerNodeId); _playerGoToNode(ans.nextNodeId); }
                 } else {
-                    // No connected node — highlight and show hint
                     btn.style.borderColor = '#FF6B00';
                     btn.style.background = 'rgba(255,107,0,0.12)';
                     setTimeout(() => { btn.style.borderColor = ''; btn.style.background = ''; }, 900);
@@ -8994,32 +8977,128 @@
             container.appendChild(btn);
         });
 
-        // Scroll to top
-        const scrollArea = document.querySelector('#script-player-screen > div[style*="overflow-y"]');
-        if (scrollArea) scrollArea.scrollTo({ top: 0, behavior: 'smooth' });
+        document.querySelector('#script-player-screen > div[style*="overflow-y"]')?.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function _playerBack() {
         if (_playerHistory.length === 0) return;
-        const prevId = _playerHistory.pop();
-        _playerGoToNode(prevId);
+        _playerLog.pop(); // undo last log entry
+        _playerGoToNode(_playerHistory.pop());
     }
 
     function _playerNoAnswer() {
-        _vibAlert('Ответа нет в скрипте — действуй по ситуации 💪');
+        const node = _playerNodes.find(n => n.id === _playerNodeId);
+        const nodeIdx = node ? _playerNodes.indexOf(node) + 1 : '?';
+        _playerLog.push({ step: nodeIdx, question: node?.managerText || '', answer: '[Нет нужного ответа — импровизация]', ts: new Date().toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'}) });
+        _vibAlert('Действуй по ситуации 💪 — шаг записан как "Нет нужного ответа"');
     }
 
-    function _playerEndCall() {
-        if (typeof tg !== 'undefined' && tg.showPopup) {
-            tg.showPopup({
-                title: 'Звонок завершён',
-                message: 'Хорошая работа! Зафиксируй результат в CRM.',
-                buttons: [{ id: 'ok', type: 'ok', text: 'Готово' }]
-            }, () => { _showScriptHubStep('hub'); loadUserScripts(); });
+    // ---- build note text for AmoCRM ----
+    function _buildNoteText() {
+        const now = new Date().toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+        let text = `📞 Скрипт: ${_playerTitle}\n🕐 ${now}\n`;
+        text += '─'.repeat(30) + '\n';
+        if (_playerLog.length === 0) {
+            text += '(ответы не записаны)\n';
         } else {
-            alert('Звонок завершён! Зафиксируй результат в CRM.');
-            _showScriptHubStep('hub'); loadUserScripts();
+            _playerLog.forEach(l => {
+                text += `\n[${l.ts}] Шаг ${l.step}:\n`;
+                text += `  📋 ${l.question}\n`;
+                text += `  ✅ ${l.answer}\n`;
+            });
         }
+        text += '\n' + '─'.repeat(30);
+        text += '\n#vibe_script';
+        return text;
+    }
+
+    // ---- end call — opens AmoCRM modal ----
+    function _playerEndCall() {
+        const noteText = _buildNoteText();
+        document.getElementById('amo-note-preview').textContent = noteText;
+
+        // Load saved AmoCRM settings
+        const saved = currentUserData?._amoSettings || {};
+        document.getElementById('amo-domain-input').value = saved.domain || '';
+        document.getElementById('amo-token-input').value  = saved.token  || '';
+        document.getElementById('amo-deal-input').value   = '';
+        document.getElementById('amo-send-status').textContent = '';
+
+        const modal = document.getElementById('amo-end-modal');
+        modal.classList.add('visible');
+    }
+
+    function _amoModalClose() {
+        document.getElementById('amo-end-modal').classList.remove('visible');
+        _showScriptHubStep('hub');
+        loadUserScripts();
+    }
+
+    // ---- copy note to clipboard ----
+    function _amoCopyNote() {
+        const text = document.getElementById('amo-note-preview').textContent;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => {
+                _setAmoStatus('✅ Скопировано! Вставьте в примечание сделки', '#22c55e');
+            }).catch(() => _amoFallbackCopy(text));
+        } else { _amoFallbackCopy(text); }
+    }
+    function _amoFallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        _setAmoStatus('✅ Скопировано!', '#22c55e');
+    }
+
+    // ---- send to AmoCRM API ----
+    async function _amoSendNote() {
+        const domain   = document.getElementById('amo-domain-input').value.trim().replace(/\/$/, '').replace(/^https?:\/\//, '');
+        const token    = document.getElementById('amo-token-input').value.trim();
+        const dealInput = document.getElementById('amo-deal-input').value.trim();
+        const noteText = document.getElementById('amo-note-preview').textContent;
+
+        if (!domain || !token) { _setAmoStatus('⚠️ Введи домен и токен AmoCRM', '#FF6B00'); return; }
+
+        // Extract deal ID from URL or plain number
+        const dealId = dealInput.match(/(\d{5,})/)?.[1];
+        if (!dealId) { _setAmoStatus('⚠️ Введи ссылку на сделку или её ID', '#FF6B00'); return; }
+
+        // Save settings
+        if (!currentUserData._amoSettings) currentUserData._amoSettings = {};
+        currentUserData._amoSettings.domain = domain;
+        currentUserData._amoSettings.token  = token;
+        try { await db.from('users').update({ amo_settings: { domain, token } }).eq('tg_id', String(currentUserData.tg_id)); } catch(e) {}
+
+        _setAmoStatus('⏳ Отправляю...', '#aaa');
+
+        try {
+            const url = `https://${domain}/api/v4/leads/${dealId}/notes`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ _embedded: { notes: [{ note_type: 'common', params: { text: noteText } }] } })
+            });
+
+            if (resp.ok) {
+                _setAmoStatus('✅ Примечание добавлено в сделку #' + dealId, '#22c55e');
+            } else {
+                const err = await resp.json().catch(() => ({}));
+                throw new Error('HTTP ' + resp.status + ': ' + (err?.detail || JSON.stringify(err)));
+            }
+        } catch(e) {
+            if (e.message?.includes('Failed to fetch') || e.name === 'TypeError') {
+                _setAmoStatus('⚠️ CORS-ограничение браузера — используй кнопку "Скопировать"', '#FF6B00');
+            } else {
+                _setAmoStatus('❌ ' + e.message, '#ef4444');
+            }
+        }
+    }
+
+    function _setAmoStatus(msg, color) {
+        const el = document.getElementById('amo-send-status');
+        el.textContent = msg; el.style.color = color;
     }
 
     // ---- view + edit helpers ----
@@ -9069,6 +9148,76 @@
         }
     }
     </script>
+
+    <!-- ===== AMO CRM END-CALL MODAL ===== -->
+    <div id="amo-end-modal" style="position:fixed;inset:0;z-index:12000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.75);backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:opacity 0.25s ease;">
+        <div style="background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:28px 28px 0 0;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;transform:translateY(40px);transition:transform 0.28s ease;padding:20px 20px 40px;">
+
+            <!-- Handle -->
+            <div style="width:40px;height:4px;background:rgba(255,255,255,0.12);border-radius:2px;margin:0 auto 18px;"></div>
+
+            <!-- Title -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <div>
+                    <div style="font-size:16px;font-weight:900;font-style:italic;text-transform:uppercase;color:#fff;letter-spacing:0.04em;">📞 Звонок завершён</div>
+                    <div style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-top:3px;">Отправь итог в AmoCRM</div>
+                </div>
+                <button onclick="_amoModalClose()" style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+            </div>
+
+            <!-- Note preview -->
+            <div style="background:#0a0a0a;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:14px;margin-bottom:16px;">
+                <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.25);margin-bottom:8px;">ТЕКСТ ПРИМЕЧАНИЯ:</div>
+                <pre id="amo-note-preview" style="font-size:11px;color:rgba(255,255,255,0.7);font-family:'Montserrat',sans-serif;white-space:pre-wrap;word-break:break-word;line-height:1.6;margin:0;"></pre>
+            </div>
+
+            <!-- Copy button -->
+            <button onclick="_amoCopyNote()" style="width:100%;padding:14px;border-radius:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;margin-bottom:20px;">
+                📋 Скопировать примечание
+            </button>
+
+            <!-- Divider -->
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                <div style="flex:1;height:1px;background:rgba(255,255,255,0.06);"></div>
+                <span style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.2);">или отправить через API</span>
+                <div style="flex:1;height:1px;background:rgba(255,255,255,0.06);"></div>
+            </div>
+
+            <!-- AmoCRM settings -->
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <div>
+                    <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin-bottom:6px;">ДОМЕН АМОСРМ:</div>
+                    <input id="amo-domain-input" type="text" placeholder="company.amocrm.ru"
+                        style="width:100%;background:#1A1A1A;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px;color:#fff;font-size:13px;font-family:'Montserrat',sans-serif;outline:none;box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+                </div>
+                <div>
+                    <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin-bottom:6px;">
+                        API ТОКЕН
+                        <a href="https://www.amocrm.ru/developers/content/oauth/step-by-step" target="_blank" style="color:#FF6B00;text-decoration:none;margin-left:6px;">↗ где найти?</a>
+                    </div>
+                    <input id="amo-token-input" type="text" placeholder="Долгосрочный токен интеграции"
+                        style="width:100%;background:#1A1A1A;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px;color:#fff;font-size:13px;font-family:'Montserrat',sans-serif;outline:none;box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+                </div>
+                <div>
+                    <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.3);margin-bottom:6px;">ССЫЛКА НА СДЕЛКУ ИЛИ ID:</div>
+                    <input id="amo-deal-input" type="text" placeholder="https://company.amocrm.ru/leads/detail/12345678"
+                        style="width:100%;background:#1A1A1A;border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 14px;color:#fff;font-size:13px;font-family:'Montserrat',sans-serif;outline:none;box-sizing:border-box;"
+                        onfocus="this.style.borderColor='#FF6B00'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"/>
+                </div>
+                <div id="amo-send-status" style="font-size:11px;font-weight:700;min-height:18px;text-align:center;"></div>
+                <button onclick="_amoSendNote()" style="width:100%;padding:16px;border-radius:18px;background:linear-gradient(135deg,#FF6B00,#CC4400);border:none;color:#fff;font-size:13px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:0.06em;cursor:pointer;box-shadow:0 0 20px rgba(255,107,0,0.4);">
+                    🚀 ОТПРАВИТЬ В АМОСРМ
+                </button>
+            </div>
+
+        </div>
+    </div>
+    <style>
+        #amo-end-modal.visible { opacity:1; pointer-events:all; }
+        #amo-end-modal.visible > div { transform: translateY(0); }
+    </style>
 
     <!-- ===== DAILY LOGIN BONUS MODAL ===== -->
     <div id="daily-bonus-modal">
