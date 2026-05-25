@@ -8047,189 +8047,436 @@
     </script>
 
     <!-- ===== SCRIPTS HUB MODAL ===== -->
-    <div id="scripts-hub-modal" class="hidden-screen fixed inset-0 z-[2000] bg-black flex flex-col overflow-y-auto pb-24">
-        <!-- Header -->
-        <div class="flex items-center justify-between px-4 pt-10 pb-6 border-b border-white/5">
+    <!-- ===== SCRIPTS HUB MODAL ===== -->
+    <div id="scripts-hub-modal" class="hidden-screen fixed inset-0 z-[2000] bg-black flex flex-col">
+
+        <!-- Header (always visible) -->
+        <div class="flex items-center justify-between px-4 pt-10 pb-5 border-b border-white/5 flex-shrink-0">
             <h1 class="text-3xl font-black italic uppercase tracking-tighter">МОИ СКРИПТЫ</h1>
             <button onclick="closeScriptsHub()" class="bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase px-4 py-2 rounded-xl active:scale-95 transition-transform">← НАЗАД</button>
         </div>
 
-        <!-- Hub content (список + кнопка создания) -->
-        <div id="scripts-hub-content" class="flex-1 flex flex-col items-center justify-center px-4 py-12">
-            <button onclick="startNewScript()" class="w-full bg-gradient-to-r from-[#FF6B00] to-[#CC4400] text-white py-6 rounded-3xl font-black italic uppercase text-xl shadow-[0_0_30px_rgba(255,107,0,0.4)] active:scale-[0.98] transition-transform tracking-tight">
-                + НАПИСАТЬ НОВЫЙ СКРИПТ
-            </button>
-            <p class="text-white/20 text-[10px] font-bold uppercase tracking-widest mt-6">Твои скрипты появятся здесь</p>
-        </div>
+        <!-- Scrollable content area -->
+        <div class="flex-1 overflow-y-auto relative">
 
-        <!-- Шаг 1: Ввод названия -->
-        <div id="script-name-step" class="hidden flex-1 flex flex-col px-4 py-10 gap-6">
-            <h2 class="text-2xl font-black italic uppercase tracking-tight text-center">КАК НАЗОВЕМ СКРИПТ?</h2>
-            <input id="new-script-name" type="text" placeholder="НАПРИМЕР: B2B ХОЛОДНЫЙ"
-                class="w-full bg-[#111] border border-white/10 focus:border-[#FF6B00] outline-none rounded-2xl px-5 py-4 text-white font-black italic uppercase text-base placeholder-white/20 tracking-tight transition-colors" />
-            <button onclick="chooseScriptType()" class="w-full bg-white text-black py-5 rounded-2xl font-black italic uppercase text-base tracking-tight active:scale-[0.98] transition-transform shadow-lg">
-                ДАЛЕЕ →
-            </button>
-        </div>
-
-        <!-- Экран конструктора -->
-        <div id="manual-builder-screen" class="hidden flex-1 flex-col px-4 pt-8 pb-32 gap-0">
-            <!-- Шапка -->
-            <div class="flex items-center justify-between pb-5 border-b border-white/5 mb-2">
-                <button onclick="_showScriptHubStep('hub')" class="bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase px-4 py-2 rounded-xl active:scale-95 transition-transform">← НАЗАД</button>
-                <h2 id="builder-script-title" class="text-base font-black italic uppercase tracking-tight text-[#FF6B00] truncate max-w-[60%] text-right"></h2>
+            <!-- HUB: список скриптов -->
+            <div id="scripts-hub-content" class="flex flex-col px-4 py-6 gap-3 pb-32">
+                <!-- Loading -->
+                <div id="scripts-list-loading" class="flex items-center justify-center py-20">
+                    <div class="spinner"></div>
+                </div>
+                <!-- Empty state -->
+                <div id="scripts-list-empty" class="hidden flex-col items-center justify-center py-20 gap-3">
+                    <div class="text-5xl">📜</div>
+                    <p class="text-white/25 text-[11px] font-black uppercase tracking-widest text-center leading-relaxed">Нет скриптов.<br>Создай первый!</p>
+                </div>
+                <!-- Scripts list -->
+                <div id="scripts-list-container" class="flex flex-col gap-3"></div>
             </div>
 
-            <!-- Блок: Что говорит менеджер -->
-            <p class="font-black italic text-gray-400 text-sm mb-2 mt-4 uppercase tracking-widest">ЧТО ГОВОРИМ КЛИЕНТУ?</p>
-            <textarea id="node-text-input"
-                class="w-full h-32 bg-[#1A1A1A] text-white border border-[#333] focus:border-[#FF6B00] rounded-xl p-4 outline-none resize-none text-sm font-medium leading-relaxed transition-colors"
-                placeholder="Введите текст..."></textarea>
-
-            <!-- Блок: Варианты ответов -->
-            <p class="font-black italic text-gray-400 text-sm mt-6 mb-2 uppercase tracking-widest">ВАРИАНТЫ ОТВЕТОВ КЛИЕНТА:</p>
-            <div id="node-answers-list" class="flex flex-col gap-3"></div>
-
-            <!-- Кнопка добавить вариант -->
-            <button onclick="addNewAnswerBtn()"
-                class="mt-4 w-full py-4 rounded-2xl border border-[#FF6B00] text-[#FF6B00] font-black italic uppercase text-sm tracking-tight active:scale-[0.98] transition-transform bg-transparent">
-                + ДОБАВИТЬ ВАРИАНТ ОТВЕТА
-            </button>
-
-            <!-- Кнопка сохранить -->
-            <button onclick="saveCurrentNode()"
-                class="mt-8 w-full py-5 rounded-2xl bg-[#FF6B00] text-white font-black italic uppercase text-base tracking-tight shadow-[0_0_20px_rgba(255,107,0,0.35)] active:scale-[0.98] transition-transform">
-                СОХРАНИТЬ ШАГ
-            </button>
-        </div>
-
-        <!-- Шаг 2: Выбор формата -->
-        <div id="script-type-step" class="hidden flex-1 flex flex-col px-4 py-10 gap-6">
-            <h2 class="text-2xl font-black italic uppercase tracking-tight text-center">КАК БУДЕМ СОЗДАВАТЬ?</h2>
-            <div class="flex flex-col gap-4">
-                <!-- Ручная сборка -->
-                <button onclick="openManualBuilder()"
-                    class="w-full bento-card flex flex-col items-start gap-2 py-6 px-5 border border-white/10 active:scale-[0.98] transition-transform cursor-pointer">
-                    <span class="text-3xl">✍️</span>
-                    <span class="text-lg font-black italic uppercase tracking-tight">СОБРАТЬ ВРУЧНУЮ</span>
-                    <span class="text-[11px] text-white/40 font-bold uppercase tracking-widest">Блоки, реплики, ветки</span>
+            <!-- Шаг 1: Ввод названия -->
+            <div id="script-name-step" class="hidden flex-col px-4 py-8 gap-6">
+                <button onclick="_showScriptHubStep('hub')" class="self-start bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase px-4 py-2 rounded-xl active:scale-95 transition-transform">← НАЗАД</button>
+                <h2 class="text-2xl font-black italic uppercase tracking-tight text-center mt-2">КАК НАЗОВЕМ СКРИПТ?</h2>
+                <input id="new-script-name" type="text" placeholder="НАПРИМЕР: B2B ХОЛОДНЫЙ"
+                    class="w-full bg-[#111] border border-white/10 focus:border-[#FF6B00] outline-none rounded-2xl px-5 py-4 text-white font-black italic uppercase text-base placeholder-white/20 tracking-tight transition-colors" />
+                <button onclick="chooseScriptType()" class="w-full bg-white text-black py-5 rounded-2xl font-black italic uppercase text-base tracking-tight active:scale-[0.98] transition-transform shadow-lg">
+                    ДАЛЕЕ →
                 </button>
-                <!-- Импорт (скоро) -->
-                <div class="w-full bento-card flex flex-col items-start gap-2 py-6 px-5 border border-white/5 opacity-40 cursor-not-allowed select-none">
-                    <span class="text-3xl">✨</span>
-                    <span class="text-lg font-black italic uppercase tracking-tight">ИМПОРТИРОВАТЬ</span>
-                    <span class="text-[11px] text-[#FF6B00] font-bold uppercase tracking-widest">Скоро</span>
+            </div>
+
+            <!-- Шаг 2: Выбор формата -->
+            <div id="script-type-step" class="hidden flex-col px-4 py-8 gap-6">
+                <button onclick="_showScriptHubStep('name')" class="self-start bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase px-4 py-2 rounded-xl active:scale-95 transition-transform">← НАЗАД</button>
+                <h2 class="text-2xl font-black italic uppercase tracking-tight text-center mt-2">КАК БУДЕМ СОЗДАВАТЬ?</h2>
+                <div class="flex flex-col gap-4">
+                    <button onclick="openManualBuilder()"
+                        class="w-full bento-card flex flex-col items-start gap-2 py-6 px-5 border border-white/10 active:scale-[0.98] transition-transform cursor-pointer">
+                        <span class="text-3xl">✍️</span>
+                        <span class="text-lg font-black italic uppercase tracking-tight">СОБРАТЬ ВРУЧНУЮ</span>
+                        <span class="text-[11px] text-white/40 font-bold uppercase tracking-widest">Блоки, реплики, ветки</span>
+                    </button>
+                    <div class="w-full bento-card flex flex-col items-start gap-2 py-6 px-5 border border-white/5 opacity-40 cursor-not-allowed select-none">
+                        <span class="text-3xl">✨</span>
+                        <span class="text-lg font-black italic uppercase tracking-tight">ИМПОРТИРОВАТЬ</span>
+                        <span class="text-[11px] text-[#FF6B00] font-bold uppercase tracking-widest">Скоро</span>
+                    </div>
                 </div>
             </div>
-        </div>
+
+            <!-- Конструктор скрипта (builder) -->
+            <div id="manual-builder-screen" class="hidden flex-col px-4 pt-6 pb-36 gap-0">
+                <!-- Шапка -->
+                <div class="flex items-center justify-between pb-4 border-b border-white/5 mb-4">
+                    <button onclick="_builderGoBack()" class="bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase px-4 py-2 rounded-xl active:scale-95 transition-transform">← НАЗАД</button>
+                    <h2 id="builder-script-title" class="text-sm font-black italic uppercase tracking-tight text-[#FF6B00] truncate max-w-[55%] text-right"></h2>
+                </div>
+
+                <!-- Индикатор шага -->
+                <div class="flex items-center gap-2 mb-5">
+                    <span id="builder-step-indicator" class="text-xs font-black uppercase tracking-widest text-[#FF6B00]">ШАГ 1</span>
+                    <div class="flex-1 h-px bg-white/8"></div>
+                    <span id="builder-step-total" class="text-xs font-black uppercase tracking-widest text-white/25">из 1</span>
+                </div>
+
+                <!-- Что говорит менеджер -->
+                <p class="font-black italic text-gray-400 text-xs mb-2 uppercase tracking-widest">ЧТО ГОВОРИМ КЛИЕНТУ?</p>
+                <textarea id="node-text-input"
+                    class="w-full h-32 bg-[#1A1A1A] text-white border border-[#333] focus:border-[#FF6B00] rounded-2xl p-4 outline-none resize-none text-sm font-medium leading-relaxed transition-colors"
+                    placeholder="Введите текст реплики..."></textarea>
+
+                <!-- Варианты ответов -->
+                <p class="font-black italic text-gray-400 text-xs mt-5 mb-3 uppercase tracking-widest">ВАРИАНТЫ ОТВЕТОВ КЛИЕНТА:</p>
+                <div id="node-answers-list" class="flex flex-col gap-3"></div>
+
+                <!-- Кнопка добавить вариант -->
+                <button onclick="addNewAnswerBtn()"
+                    class="mt-3 w-full py-4 rounded-2xl border border-[#FF6B00] text-[#FF6B00] font-black italic uppercase text-sm tracking-tight active:scale-[0.98] transition-all bg-transparent">
+                    + ДОБАВИТЬ ВАРИАНТ ОТВЕТА
+                </button>
+
+                <!-- Нижние кнопки -->
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    <button onclick="saveStepAndAddNext()"
+                        class="py-4 rounded-2xl bg-white/8 border border-white/12 text-white font-black italic uppercase text-[11px] tracking-tight active:scale-[0.98] transition-transform leading-tight">
+                        + ДОБАВИТЬ<br>ЕЩЁ ШАГ
+                    </button>
+                    <button onclick="finishAndSaveScript()"
+                        class="py-4 rounded-2xl bg-[#FF6B00] text-white font-black italic uppercase text-[11px] tracking-tight shadow-[0_0_20px_rgba(255,107,0,0.35)] active:scale-[0.98] transition-transform leading-tight">
+                        СОХРАНИТЬ<br>СКРИПТ ✓
+                    </button>
+                </div>
+            </div>
+
+            <!-- Экран чтения скрипта -->
+            <div id="script-view-screen" class="hidden flex-col px-4 pt-6 pb-32 gap-0">
+                <!-- Шапка -->
+                <div class="flex items-center justify-between pb-4 border-b border-white/5 mb-5">
+                    <button onclick="_showScriptHubStep('hub'); loadUserScripts();" class="bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase px-3 py-2 rounded-xl active:scale-95 transition-transform">← НАЗАД</button>
+                    <h2 id="view-script-title" class="text-sm font-black italic uppercase tracking-tight text-[#FF6B00] truncate max-w-[45%] text-center"></h2>
+                    <button onclick="editCurrentScript()" class="bg-[#FF6B00]/15 border border-[#FF6B00]/40 text-[#FF6B00] text-[11px] font-black uppercase px-3 py-2 rounded-xl active:scale-95 transition-transform">✏️ РЕДАКТ.</button>
+                </div>
+                <!-- Шаги скрипта -->
+                <div id="view-script-steps" class="flex flex-col gap-4"></div>
+            </div>
+
+        </div><!-- /scroll area -->
+
+        <!-- Плавающая кнопка + (только на экране списка) -->
+        <button id="scripts-float-add-btn" onclick="startNewScript()"
+            class="fixed bottom-8 right-5 w-16 h-16 rounded-full bg-gradient-to-br from-[#FF6B00] to-[#CC4400] text-white text-4xl font-black shadow-[0_0_30px_rgba(255,107,0,0.55)] active:scale-95 transition-transform flex items-center justify-center z-[2100]"
+            style="display:none">
+            +
+        </button>
+
     </div>
 
     <script>
         // ===== SCRIPTS HUB =====
-        function openScriptsHub() {
-            const modal = document.getElementById('scripts-hub-modal');
-            modal.classList.remove('hidden-screen');
-            // сбрасываем к начальному состоянию каждый раз
-            _showScriptHubStep('hub');
-        }
 
+        let _scriptBuilderData  = null; // { id, title, steps: [{managerText, answers:[string]}] }
+        let _builderStepIdx     = 0;
+        let _scriptsCache       = {};   // id -> script row from DB
+
+        // ---- открыть / закрыть хаб ----
+        function openScriptsHub() {
+            document.getElementById('scripts-hub-modal').classList.remove('hidden-screen');
+            _showScriptHubStep('hub');
+            loadUserScripts();
+        }
         function closeScriptsHub() {
             document.getElementById('scripts-hub-modal').classList.add('hidden-screen');
         }
 
+        // ---- навигация по шагам ----
+        function _showScriptHubStep(step) {
+            const map = {
+                hub:     'scripts-hub-content',
+                name:    'script-name-step',
+                type:    'script-type-step',
+                builder: 'manual-builder-screen',
+                view:    'script-view-screen'
+            };
+            Object.keys(map).forEach(s => {
+                const el = document.getElementById(map[s]);
+                if (!el) return;
+                el.classList.toggle('hidden', s !== step);
+                if (s !== step) el.classList.remove('flex');
+                else            el.classList.add('flex');
+            });
+            // Плавающая кнопка видна только на экране списка
+            const fab = document.getElementById('scripts-float-add-btn');
+            if (fab) fab.style.display = (step === 'hub') ? 'flex' : 'none';
+        }
+
+        // ---- создание нового скрипта ----
         function startNewScript() {
+            document.getElementById('new-script-name').value = '';
             _showScriptHubStep('name');
         }
 
         function chooseScriptType() {
             const name = document.getElementById('new-script-name').value.trim();
-            if (!name) {
-                if (typeof tg !== 'undefined' && tg.showAlert) {
-                    tg.showAlert('Введи название скрипта');
-                } else {
-                    alert('Введи название скрипта');
-                }
-                return;
-            }
+            if (!name) { _vibAlert('Введи название скрипта'); return; }
             _showScriptHubStep('type');
         }
 
         async function openManualBuilder() {
             const userId = currentUserData?.tg_id || window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-            if (!userId) {
-                tg.showAlert('Ошибка авторизации');
-                return;
-            }
-
-            const scriptTitle = document.getElementById('new-script-name')?.value?.trim();
-            if (!scriptTitle) {
-                tg.showAlert('ВВЕДИ НАЗВАНИЕ СКРИПТА!');
-                return;
-            }
+            if (!userId) { _vibAlert('Ошибка авторизации'); return; }
+            const title = document.getElementById('new-script-name')?.value?.trim();
+            if (!title) { _vibAlert('Введи название скрипта!'); return; }
 
             document.getElementById('loading-overlay').style.display = 'flex';
-
             try {
-                const initialNodes = {
-                    "start": {
-                        "text": "Добрый день! Это [Твое Имя] из компании [Название]. Удобно говорить?",
-                        "answers": []
-                    }
-                };
-
+                const nodes = { steps: [{ managerText: 'Добрый день! Это [Твое Имя] из компании [Название]. Удобно говорить?', answers: [] }] };
                 const { data, error } = await db.from('sales_scripts').insert([{
-                    user_id: userId,
-                    title: scriptTitle,
-                    nodes: initialNodes,
-                    is_template: false
+                    user_id: userId, title, nodes, is_template: false
                 }]).select().single();
 
                 document.getElementById('loading-overlay').style.display = 'none';
-
-                if (error) {
-                    console.error('[openManualBuilder]', error);
-                    tg.showAlert('Ошибка базы данных: ' + error.message);
-                    return;
-                }
+                if (error) { _vibAlert('Ошибка БД: ' + error.message); return; }
 
                 currentScriptId = data.id;
-                document.getElementById('builder-script-title').textContent = data.title;
-                renderNodeEditor(data.nodes?.start || { text: '', answers: [] });
+                _scriptBuilderData = { id: data.id, title: data.title, steps: [...nodes.steps] };
+                _builderStepIdx = 0;
+                _renderBuilderStep();
                 _showScriptHubStep('builder');
-            } catch (e) {
+            } catch(e) {
                 document.getElementById('loading-overlay').style.display = 'none';
-                console.error('[openManualBuilder]', e);
-                tg.showAlert('Ошибка: ' + (e.message || e));
+                _vibAlert('Ошибка: ' + (e.message || e));
             }
         }
 
-        function renderNodeEditor(nodeData) {
-            document.getElementById('node-text-input').value = nodeData.text || '';
-            document.getElementById('node-answers-list').innerHTML = '';
+        // ---- конструктор: рендер текущего шага ----
+        function _renderBuilderStep() {
+            const step = _scriptBuilderData.steps[_builderStepIdx];
+            document.getElementById('builder-script-title').textContent = _scriptBuilderData.title;
+            document.getElementById('builder-step-indicator').textContent = 'ШАГ ' + (_builderStepIdx + 1);
+            document.getElementById('builder-step-total').textContent = 'из ' + _scriptBuilderData.steps.length;
+            document.getElementById('node-text-input').value = step.managerText || '';
+
+            const list = document.getElementById('node-answers-list');
+            list.innerHTML = '';
+            (step.answers || []).forEach((ans, i) => list.appendChild(_mkAnswerRow(ans, i)));
         }
 
+        function _mkAnswerRow(text, idx) {
+            const wrap = document.createElement('div');
+            wrap.className = 'flex items-center gap-2';
+            wrap.dataset.answerIdx = idx;
+            wrap.innerHTML =
+                `<div class="flex-1 flex items-center bg-[#1A1A1A] border border-[#333] focus-within:border-[#FF6B00] rounded-xl px-4 py-3 gap-3 transition-colors">
+                    <span class="text-[#FF6B00] font-black text-sm flex-shrink-0">${idx + 1}.</span>
+                    <input type="text" value="${_esc(text)}"
+                        class="flex-1 bg-transparent text-white text-sm font-medium outline-none placeholder-white/30"
+                        placeholder="Ответ клиента..."
+                        oninput="_syncAnswer(${idx}, this.value)" />
+                </div>
+                <button onclick="_removeAnswer(${idx})"
+                    class="w-9 h-9 flex-shrink-0 rounded-xl bg-white/5 border border-white/10 text-white/40 text-xs font-black flex items-center justify-center active:scale-95 transition-transform">✕</button>`;
+            return wrap;
+        }
+
+        function _esc(s) {
+            return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+
+        function _syncAnswer(idx, val) {
+            if (!_scriptBuilderData) return;
+            const step = _scriptBuilderData.steps[_builderStepIdx];
+            if (step?.answers) step.answers[idx] = val;
+        }
+
+        function _removeAnswer(idx) {
+            if (!_scriptBuilderData) return;
+            const step = _scriptBuilderData.steps[_builderStepIdx];
+            if (step?.answers) { step.answers.splice(idx, 1); _renderBuilderStep(); }
+        }
+
+        // ---- добавить вариант ответа ----
         function addNewAnswerBtn() {
-            // логика — следующий шаг
+            if (!_scriptBuilderData) return;
+            const step = _scriptBuilderData.steps[_builderStepIdx];
+            if (!step.answers) step.answers = [];
+            step.answers.push('');
+            const list = document.getElementById('node-answers-list');
+            const row  = _mkAnswerRow('', step.answers.length - 1);
+            list.appendChild(row);
+            row.querySelector('input')?.focus();
         }
 
-        function saveCurrentNode() {
-            // логика — следующий шаг
+        // ---- собрать данные текущего шага ----
+        function _collectStep() {
+            if (!_scriptBuilderData) return;
+            const step = _scriptBuilderData.steps[_builderStepIdx];
+            step.managerText = document.getElementById('node-text-input').value.trim();
         }
 
-        function _showScriptHubStep(step) {
-            const steps = ['hub', 'name', 'type', 'builder'];
-            const ids = {
-                hub:     'scripts-hub-content',
-                name:    'script-name-step',
-                type:    'script-type-step',
-                builder: 'manual-builder-screen'
-            };
-            steps.forEach(s => {
-                const el = document.getElementById(ids[s]);
-                if (!el) return;
-                el.classList.toggle('hidden', s !== step);
-                el.classList.toggle('flex', s === step);
-            });
+        // ---- сохранить и добавить следующий шаг ----
+        async function saveStepAndAddNext() {
+            _collectStep();
+            const step = _scriptBuilderData.steps[_builderStepIdx];
+            if (!step.managerText) { _vibAlert('Введи текст реплики!'); return; }
+
+            _scriptBuilderData.steps.push({ managerText: '', answers: [] });
+            _builderStepIdx = _scriptBuilderData.steps.length - 1;
+            await _persistScript();
+            _renderBuilderStep();
+            // Scroll to top of builder
+            document.querySelector('.flex-1.overflow-y-auto')?.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ---- сохранить весь скрипт и перейти к чтению ----
+        async function finishAndSaveScript() {
+            _collectStep();
+            const step = _scriptBuilderData.steps[_builderStepIdx];
+            if (!step.managerText) { _vibAlert('Введи текст последней реплики!'); return; }
+
+            document.getElementById('loading-overlay').style.display = 'flex';
+            await _persistScript();
+            document.getElementById('loading-overlay').style.display = 'none';
+
+            _openScriptView(_scriptBuilderData.id, _scriptBuilderData.title, { steps: _scriptBuilderData.steps });
+        }
+
+        async function _persistScript() {
+            try {
+                const { error } = await db.from('sales_scripts')
+                    .update({ nodes: { steps: _scriptBuilderData.steps } })
+                    .eq('id', _scriptBuilderData.id);
+                if (error) console.error('[_persistScript]', error);
+            } catch(e) { console.error('[_persistScript]', e); }
+        }
+
+        function _builderGoBack() {
+            _collectStep();
+            _persistScript(); // сохраняем прогресс фоново
+            _showScriptHubStep('hub');
+            loadUserScripts();
+        }
+
+        // ---- список скриптов ----
+        async function loadUserScripts() {
+            const userId = currentUserData?.tg_id || window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+            const loading   = document.getElementById('scripts-list-loading');
+            const empty     = document.getElementById('scripts-list-empty');
+            const container = document.getElementById('scripts-list-container');
+
+            loading.classList.remove('hidden');
+            empty.classList.add('hidden');
+            container.innerHTML = '';
+
+            if (!userId) { loading.classList.add('hidden'); empty.classList.remove('hidden'); return; }
+
+            try {
+                const { data, error } = await db.from('sales_scripts')
+                    .select('id, title, created_at, nodes')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false });
+
+                loading.classList.add('hidden');
+
+                if (error || !data || data.length === 0) {
+                    empty.classList.remove('hidden'); return;
+                }
+
+                _scriptsCache = {};
+                data.forEach(s => {
+                    _scriptsCache[s.id] = s;
+                    const stepsN = s.nodes?.steps?.length || 0;
+                    const item = document.createElement('div');
+                    item.className = 'flex items-center bg-[#111] border border-white/8 rounded-2xl px-4 py-4 gap-3 transition-all active:scale-[0.98] cursor-pointer';
+                    item.innerHTML =
+                        `<div class="flex-1 min-w-0" onclick="_openScriptById('${s.id}')">
+                            <div class="font-black italic uppercase text-sm tracking-tight text-white truncate">${_esc(s.title)}</div>
+                            <div class="text-[10px] text-white/30 font-bold uppercase tracking-widest mt-1">${stepsN} ${_plSteps(stepsN)}</div>
+                        </div>
+                        <button onclick="event.stopPropagation(); _editScriptById('${s.id}')"
+                            class="w-10 h-10 flex-shrink-0 rounded-xl bg-[#FF6B00]/10 border border-[#FF6B00]/30 flex items-center justify-center text-base active:scale-95 transition-transform"
+                            title="Редактировать">✏️</button>`;
+                    container.appendChild(item);
+                });
+            } catch(e) {
+                loading.classList.add('hidden');
+                empty.classList.remove('hidden');
+                console.error('[loadUserScripts]', e);
+            }
+        }
+
+        function _plSteps(n) {
+            if (n === 1) return 'шаг';
+            if (n >= 2 && n <= 4) return 'шага';
+            return 'шагов';
+        }
+
+        // ---- экран чтения ----
+        function _openScriptById(id) {
+            const s = _scriptsCache[id];
+            if (s) _openScriptView(s.id, s.title, s.nodes);
+        }
+
+        function _openScriptView(id, title, nodes) {
+            currentScriptId = id;
+            _scriptBuilderData = { id, title, steps: nodes?.steps || [] };
+
+            document.getElementById('view-script-title').textContent = title;
+
+            const container = document.getElementById('view-script-steps');
+            container.innerHTML = '';
+
+            const steps = nodes?.steps || [];
+            if (steps.length === 0) {
+                container.innerHTML = '<p class="text-white/20 text-[11px] font-bold uppercase tracking-widest text-center py-12">Скрипт пуст</p>';
+            } else {
+                steps.forEach((step, i) => {
+                    const answersHtml = (step.answers || []).length
+                        ? `<div class="mt-3 flex flex-col gap-2">
+                            <p class="text-[9px] font-black uppercase tracking-widest text-white/25 mb-1">Ответы клиента:</p>
+                            ${step.answers.map((a, ai) =>
+                                `<div class="flex items-center gap-2 bg-black/40 border border-[#FF6B00]/20 rounded-xl px-3 py-2">
+                                    <span class="text-[#FF6B00] font-black text-xs flex-shrink-0">${ai+1}.</span>
+                                    <span class="text-white/65 text-xs font-medium">${_esc(a || '—')}</span>
+                                 </div>`).join('')}
+                           </div>`
+                        : '';
+
+                    const el = document.createElement('div');
+                    el.className = 'bg-[#111] border border-white/8 rounded-2xl p-4';
+                    el.innerHTML =
+                        `<div class="inline-flex items-center mb-3">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-[#FF6B00] bg-[#FF6B00]/10 rounded-lg px-2 py-1">ШАГ ${i+1}</span>
+                         </div>
+                         <p class="text-white text-sm font-medium leading-relaxed">${_esc(step.managerText || '—')}</p>
+                         ${answersHtml}`;
+                    container.appendChild(el);
+                });
+            }
+            _showScriptHubStep('view');
+        }
+
+        function editCurrentScript() {
+            if (!_scriptBuilderData) return;
+            _editScript(_scriptBuilderData.id, _scriptBuilderData.title, { steps: _scriptBuilderData.steps });
+        }
+
+        function _editScriptById(id) {
+            const s = _scriptsCache[id];
+            if (s) _editScript(s.id, s.title, s.nodes);
+        }
+
+        function _editScript(id, title, nodes) {
+            currentScriptId = id;
+            _scriptBuilderData = { id, title, steps: (nodes?.steps?.length ? nodes.steps : [{ managerText: '', answers: [] }]) };
+            _builderStepIdx = 0;
+            _renderBuilderStep();
+            _showScriptHubStep('builder');
+        }
+
+        // ---- вспомогательная функция алерта ----
+        function _vibAlert(msg) {
+            if (typeof tg !== 'undefined' && tg.showAlert) tg.showAlert(msg);
+            else alert(msg);
         }
     </script>
 
